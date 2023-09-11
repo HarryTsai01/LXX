@@ -252,7 +252,8 @@ private:
     void InstructionExecute_OpcodeUnaryBitwiseNot( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeUnaryNot( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeUnaryLen( InstructionExecuteContext &context );
-    void InstructionExecute_MetaMethodCall( InstructionExecuteContext &context , const char * methodKey );
+    void InstructionExecute_MetaMethodBinaryOpCall(InstructionExecuteContext &context , const char * methodKey );
+    void InstructionExecute_MetaMethodUnaryOpCall(InstructionExecuteContext &context , const char * methodKey );
     // <<< InstructionExecute_XXX
     // <<<  InstructionExecuteFunction
 

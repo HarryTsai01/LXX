@@ -444,7 +444,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpPower( InstructionExecuteC
      * the second source operand is the base operand
      * the third source operand is the exponent operand
      * */
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_POWER );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_POWER);
 }
 
 
@@ -475,14 +475,14 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpValueType( InstructionE
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpLessThan( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpLessThanOrEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL);
 }
 
 
@@ -490,14 +490,14 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpEqual( InstructionExecu
 {
     BEGIN_INSTRUCTION_EXECUTE;
 
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpNotEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL);
     destOperand->Set( !destOperand->As<bool>() );
 }
 
@@ -505,7 +505,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpNotEqual( InstructionEx
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThan( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL);
     destOperand->Set( !destOperand->As<bool>() );
 }
 
@@ -513,7 +513,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThan( Instructio
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThanOrEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN);
     destOperand->Set( !destOperand->As<bool>() );
 }
 
@@ -521,7 +521,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThanOrEqual( Ins
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpAdd( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_ADD );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_ADD);
     return;
     if( context._srcOperand1->IsNumber() && context._srcOperand2->IsNumber() )
     {
@@ -548,14 +548,14 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpAdd( InstructionExecuteCon
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpSubtract( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SUB );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_SUB);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpMultiply( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_MUL );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_MUL);
 
 }
 
@@ -563,63 +563,63 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpMultiply( InstructionExecu
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpDivide( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_DIV );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_DIV);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpIntDivide( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_IDIV );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_IDIV);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpModulo( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_MOD );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_MOD);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseAnd( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_AND );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_AND);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseOr( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_OR );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_OR);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseXor( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_XOR );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_XOR);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpShiftLeft( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_LEFT );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_LEFT);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpShiftRight( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_RIGHT );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_RIGHT);
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpConcat( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_CONCAT );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_CONCAT);
 }
 
 
@@ -667,14 +667,14 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalOr( InstructionExec
 void VirtualMachine::InstructionExecute_OpcodeUnaryMinus( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_MINUS );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_BITWISE_NOT );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeUnaryBitwiseNot( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_BITWISE_NOT );
+    InstructionExecute_MetaMethodUnaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_BITWISE_NOT );
 }
 
 
@@ -699,10 +699,10 @@ void VirtualMachine::InstructionExecute_OpcodeUnaryNot( InstructionExecuteContex
 void VirtualMachine::InstructionExecute_OpcodeUnaryLen( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_LENGTH );
+    InstructionExecute_MetaMethodUnaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_LENGTH );
 }
 
-void VirtualMachine::InstructionExecute_MetaMethodCall( InstructionExecuteContext &context , const char * methodKey )
+void VirtualMachine::InstructionExecute_MetaMethodBinaryOpCall(InstructionExecuteContext &context , const char * methodKey )
 {
     BEGIN_INSTRUCTION_EXECUTE;
     if( destOperand == nullptr )
@@ -747,6 +747,40 @@ void VirtualMachine::InstructionExecute_MetaMethodCall( InstructionExecuteContex
                        , context._srcOperand1->GetType( )
                        , context._srcOperand2->GetType( )
                        );
+    }
+}
+
+
+void VirtualMachine::InstructionExecute_MetaMethodUnaryOpCall(InstructionExecuteContext &context , const char * methodKey )
+{
+    BEGIN_INSTRUCTION_EXECUTE;
+    if( destOperand == nullptr )
+        ThrowError("invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
+    if( srcOperand1 == nullptr )
+        ThrowError("invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
+
+    if( srcOperand1->IsNumber() )
+    {
+        MetaMethodHandler *handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( ValueType::Number );
+        if( handler == nullptr )
+            ThrowError("invalid meta method call opcode , can't find meta method handler , methodKey:%s" , methodKey );
+        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError(" failed to invoke unary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
+    }
+    else
+    {
+        MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( context._srcOperand1->GetType() );
+        if( handler == nullptr )
+            ThrowError("invalid meta method call opcode , can't find meta method handler in the first operand, methodKey:%s srcOperand1:%d "
+                    , methodKey
+                    , context._srcOperand1->GetType( )
+            );
+
+        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError(" failed to invoke unary operator in meta method handler , methodKey:%s , srcOperand1:%d "
+                    , methodKey
+                    , context._srcOperand1->GetType( )
+            );
     }
 }
 
