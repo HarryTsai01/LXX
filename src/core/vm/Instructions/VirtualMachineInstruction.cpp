@@ -444,7 +444,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpPower( InstructionExecuteC
      * the second source operand is the base operand
      * the third source operand is the exponent operand
      * */
-    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_POWER);
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_POW);
 }
 
 
@@ -523,25 +523,6 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpAdd( InstructionExecuteCon
     BEGIN_INSTRUCTION_EXECUTE;
     InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_BIN_OP_ADD);
     return;
-    if( context._srcOperand1->IsNumber() && context._srcOperand2->IsNumber() )
-    {
-        f64 src1 = context._srcOperand1->AsReal();
-        f64 src2 = context._srcOperand2->AsReal();
-        f64 result = src1 + src2;
-
-        if( context._srcOperand1->IsReal() || context._srcOperand2->IsReal() )
-        {
-            context._destOperand->SetAsReal( result );
-        }
-        else
-        {
-            context._destOperand->SetAsInt( result );
-        }
-    }
-    else
-    {
-        ThrowError("non-legal operand for add");
-    }
 }
 
 
@@ -667,7 +648,7 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalOr( InstructionExec
 void VirtualMachine::InstructionExecute_OpcodeUnaryMinus( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_BITWISE_NOT );
+    InstructionExecute_MetaMethodBinaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_MINUS );
 }
 
 
@@ -699,7 +680,7 @@ void VirtualMachine::InstructionExecute_OpcodeUnaryNot( InstructionExecuteContex
 void VirtualMachine::InstructionExecute_OpcodeUnaryLen( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-    InstructionExecute_MetaMethodUnaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_LENGTH );
+    InstructionExecute_MetaMethodUnaryOpCall(context, MetaMethodHandler::META_METHOD_KEY_UNA_OP_LEN );
 }
 
 void VirtualMachine::InstructionExecute_MetaMethodBinaryOpCall(InstructionExecuteContext &context , const char * methodKey )

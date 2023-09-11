@@ -157,8 +157,8 @@ public:
 
     s32 AsInt() const
     {
-        assert( IsInteger() );
-        return i;
+        assert( IsNumber() );
+        return IsInteger() ? i : (s32)r;
     }
 
 

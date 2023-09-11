@@ -7,6 +7,7 @@
 #include <core/objects/GCObject.h>
 #include <core/containers/UnorderedMap.h>
 #include <core/Value.h>
+#include <core/exceptions/VirtualMachineExecuteException.h>
 
 namespace LXX
 {
@@ -16,7 +17,7 @@ class MetaMethodHandler : public GCObject
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    typedef void (MetaMethodHandler::*BinaryOperatorFunction)( Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
+    typedef void (MetaMethodHandler::*MetaMethod)(Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
 
     bool Invoke(const char * metaMethodKey , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
 
@@ -26,7 +27,7 @@ public:
     constexpr static const char * META_METHOD_KEY_BIN_OP_MUL = "__mul";
     constexpr static const char * META_METHOD_KEY_BIN_OP_DIV = "__div";
     constexpr static const char * META_METHOD_KEY_BIN_OP_MOD = "__mod";
-    constexpr static const char * META_METHOD_KEY_BIN_OP_POWER = "__pow";
+    constexpr static const char * META_METHOD_KEY_BIN_OP_POW = "__pow";
     constexpr static const char * META_METHOD_KEY_UNA_OP_MINUS = "__unm";
     constexpr static const char * META_METHOD_KEY_BIN_OP_IDIV = "__idiv";
     constexpr static const char * META_METHOD_KEY_BIN_OP_BITWISE_AND = "__band";
@@ -36,7 +37,7 @@ public:
     constexpr static const char * META_METHOD_KEY_BIN_OP_SHIFT_LEFT = "__shl";
     constexpr static const char * META_METHOD_KEY_BIN_OP_SHIFT_RIGHT = "__shr";
     constexpr static const char * META_METHOD_KEY_BIN_OP_CONCAT  = "__concat";
-    constexpr static const char * META_METHOD_KEY_UNA_OP_LENGTH = "__len";
+    constexpr static const char * META_METHOD_KEY_UNA_OP_LEN = "__len";
     constexpr static const char * META_METHOD_KEY_BIN_OP_EQUAL = "__eq";
     constexpr static const char * META_METHOD_KEY_BIN_OP_LESS_THAN = "__lt";
     constexpr static const char * META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL = "__le";
@@ -45,9 +46,20 @@ public:
     constexpr static const char * META_METHOD_KEY_CALL = "__call";
 
 protected:
-    UnorderedMap< const char* , BinaryOperatorFunction> _binaryOperatorMap;
+    template<typename ...Args>
+    void ThrowError( const char *format, Args ...args )
+    {
+        throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
+    }
+
+    UnorderedMap< const char* , MetaMethod> _metaMethodMap;
 };
 
+#define META_METHOD_BEGIN_REGISTER() _metaMethodMap = {
+#define META_METHOD_REGISTER(ClassName , metaMethodKey) { metaMethodKey , static_cast<MetaMethodHandler::MetaMethod>(&ClassName::MetaMethod##metaMethodKey) },
+#define META_METHOD_END_REGISTER() };
+#define DECLARE_META_METHOD( metaMethodKey ) void MetaMethod##metaMethodKey( Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
+#define IMPLEMENT_META_METHOD( className , metaMethodKey ) void className::MetaMethod##metaMethodKey( Value * destOperand , Value * srcOperand1 , Value * srcOperand2 )
 
 } // LXX
 
