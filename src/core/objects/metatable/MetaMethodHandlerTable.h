@@ -6,7 +6,9 @@
 #define XLUA_METAMETHODHANDLERTABLE_H
 #include "MetaMethodHandler.h"
 
-namespace LXX {
+namespace LXX
+{
+
 
 class MetaMethodHandlerTable :  public MetaMethodHandler
 {
@@ -14,6 +16,7 @@ class MetaMethodHandlerTable :  public MetaMethodHandler
 public:
     MetaMethodHandlerTable() = default;
 };
+
 
 } // LXX
 

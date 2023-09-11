@@ -6,14 +6,17 @@
 #define XLUA_METAMETHODHANDLERTHREAD_H
 #include "MetaMethodHandler.h"
 
-namespace LXX {
+namespace LXX
+{
+
 
 class MetaMethodHandlerThread :  public MetaMethodHandler
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    MetaMethodHandlerThread();
+    MetaMethodHandlerThread() = default;
 };
+
 
 } // LXX
 

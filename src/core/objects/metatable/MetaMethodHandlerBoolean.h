@@ -6,7 +6,9 @@
 #define XLUA_METAMETHODHANDLERBOOLEAN_H
 #include "MetaMethodHandler.h"
 
-namespace LXX {
+namespace LXX
+{
+
 
 class MetaMethodHandlerBoolean : public MetaMethodHandler
 {
@@ -14,6 +16,7 @@ class MetaMethodHandlerBoolean : public MetaMethodHandler
 public:
     MetaMethodHandlerBoolean() = default;
 };
+
 
 } // LXX
 

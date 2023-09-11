@@ -25,7 +25,8 @@ typedef double f64;
 
 enum class ValueType : u8
 {
-    Number = 1 ,
+    Start = 1 ,
+    Number = Start ,
     LightUserdata = 2 ,
     Boolean = 3 ,
     String = 4 ,
@@ -34,7 +35,7 @@ enum class ValueType : u8
     Function = 7 ,
     Thread = 8 ,
     FullUserdata = 9,
-    None = 10
+    Max = FullUserdata ,
 };
 
 

@@ -42,4 +42,13 @@ MetaTableMgr& MetaTableMgr::GetInstance()
 }
 
 
+MetaMethodHandler* MetaTableMgr::GetMetaMethodHandler( ValueType valueType )
+{
+    auto it = _metaMethodMap.Find( valueType );
+    if(  it != _metaMethodMap.End() )
+        return it->Second;
+    return nullptr;
+}
+
+
 }

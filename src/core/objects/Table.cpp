@@ -5,6 +5,7 @@
 #include "Table.h"
 #include <core/exceptions/VirtualMachineExecuteException.h>
 #include <core/vm/VirtualMachine.h>
+#include <core/objects/metatable/MetaMethodHandler.h>
 
 namespace LXX
 {
@@ -17,7 +18,7 @@ Value* Table::GetField( VirtualMachine* vm , Value key )
     Table* metaTable = GetMetaTable();
     if( metaTable != nullptr )
     {
-        Value* metaMethod = metaTable->RawGetField( META_METHOD_INDEX_NAME );
+        Value* metaMethod = metaTable->RawGetField( MetaMethodHandler::META_METHOD_KEY_INDEX );
         if( metaMethod != nullptr)
         {
             if( metaMethod->IsFunction() )
@@ -57,7 +58,7 @@ void Table::SetField( VirtualMachine* vm ,Value key, Value value )
     Table* metaTable = GetMetaTable();
     if( metaTable != nullptr )
     {
-        Value* metaMethod = metaTable->RawGetField( META_METHOD_NEW_INDEX_NAME );
+        Value* metaMethod = metaTable->RawGetField( MetaMethodHandler::META_METHOD_KEY_NEW_INDEX );
         if( metaMethod != nullptr )
         {
             if( metaMethod->IsFunction() )
@@ -102,7 +103,7 @@ void Table::RawSetField( Value key, Value value )
 
 Table* Table::GetMetaTable()
 {
-    Value* metaTable = RawGetField( META_TABLE_NAME );
+    Value* metaTable = RawGetField( MetaMethodHandler::META_TABLE_NAME );
     if( metaTable != nullptr
     && metaTable->IsTable() )
     {
@@ -114,7 +115,7 @@ Table* Table::GetMetaTable()
 
 void Table::SetMetaTable( Table* table )
 {
-    RawSetField(META_TABLE_NAME, Value(table) );
+    RawSetField(MetaMethodHandler::META_TABLE_NAME, Value(table) );
 }
 
 } // LXX

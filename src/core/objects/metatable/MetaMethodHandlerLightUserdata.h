@@ -6,14 +6,17 @@
 #define XLUA_METAMETHODHANDLERLIGHTUSERDATA_H
 #include "MetaMethodHandler.h"
 
-namespace LXX {
+namespace LXX
+{
+
 
 class MetaMethodHandlerLightUserdata : public MetaMethodHandler
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    MetaMethodHandlerLightUserdata();
+    MetaMethodHandlerLightUserdata() = default;
 };
+
 
 } // LXX
 

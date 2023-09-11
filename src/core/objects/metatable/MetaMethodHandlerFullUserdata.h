@@ -6,7 +6,9 @@
 #define XLUA_METAMETHODHANDLERFULLUSERDATA_H
 #include "MetaMethodHandler.h"
 
-namespace LXX {
+namespace LXX
+{
+
 
 class MetaMethodHandlerFullUserdata :  public MetaMethodHandler
 {
@@ -14,6 +16,7 @@ class MetaMethodHandlerFullUserdata :  public MetaMethodHandler
 public:
     MetaMethodHandlerFullUserdata() = default;
 };
+
 
 } // LXX
 

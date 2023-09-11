@@ -35,9 +35,6 @@ private:
     }
 private:
     UnorderedMap<Value, Value> _data;
-    constexpr static const char * META_TABLE_NAME = "__metatable";
-    constexpr static const char * META_METHOD_INDEX_NAME = "__index";
-    constexpr static const char * META_METHOD_NEW_INDEX_NAME = "__newindex";
 };
 
 } // LXX

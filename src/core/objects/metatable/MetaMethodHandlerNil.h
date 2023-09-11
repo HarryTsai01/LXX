@@ -11,7 +11,9 @@ namespace LXX {
 
 class MetaMethodHandlerNil :  public MetaMethodHandler
 {
-
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    MetaMethodHandlerNil() = default;
 };
 
 

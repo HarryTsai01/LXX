@@ -19,6 +19,8 @@ class MetaTableMgr
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     static MetaTableMgr& GetInstance();
+
+    MetaMethodHandler* GetMetaMethodHandler(ValueType valueType);
 private:
     MetaTableMgr();
 private:

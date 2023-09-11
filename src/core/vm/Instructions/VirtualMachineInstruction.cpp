@@ -4,6 +4,7 @@
 
 #include <core/vm/VirtualMachine.h>
 #include <core/vm/Instructions/InstructionDecoder.h>
+#include <core/objects/metatable/MetaTableMgr.h>
 
 namespace LXX
 {
@@ -162,6 +163,7 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
 {
     BEGIN_INSTRUCTION_EXECUTE;
     /*
+     * this instruction is used to call a function
      * the first source operand is the argument count
      * the second source operand is the destination operand used to store the return value count
      * the third source operand is none
@@ -176,8 +178,23 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     if( destOperand == nullptr )
         ThrowError( " the return value count var is not specified" );
 
-    ProtectCall( state, argumentValueCount );
-    destOperand->Set(callInfo->GetActualReturnValueNum() );
+    s32 functionIdx =  - argumentValueCount - 1 ;
+    Value *function = state->GetStack().IndexToValue( functionIdx );
+    if( function == nullptr )
+        ThrowError( " invalid call instruction, function is null" );
+    if( !function->IsFunction() )
+    {
+        ProtectCall( state, argumentValueCount );
+        destOperand->Set(callInfo->GetActualReturnValueNum() );
+        return;
+    }
+    // the `function` is not a function
+    MetaMethodHandler *metaMethodHandler = MetaTableMgr::GetInstance().GetMetaMethodHandler( function->GetType() );
+    if( metaMethodHandler == nullptr )
+        ThrowError( "invalid call instruction, meta method handler is null, function type:%d", function->GetType() );
+
+    if( !metaMethodHandler->Invoke( MetaMethodHandler::META_METHOD_KEY_CALL , destOperand , srcOperand1 , srcOperand2  ) )
+        ThrowError( "invalid call instruction, meta method handler invoke failed" );
 }
 
 
@@ -317,6 +334,8 @@ void VirtualMachine::InstructionExecute_OpcodeNewTable( InstructionExecuteContex
     BEGIN_INSTRUCTION_EXECUTE;
     /*
      * the first source operand is destination operand to store the created table
+     * the second source operand is none
+     * the third source operand is none
      * */
     if( destOperand == nullptr )
         ThrowError("invalid new table opcode with null destination operand" );
@@ -329,6 +348,7 @@ void VirtualMachine::InstructionExecute_OpcodeGetField( InstructionExecuteContex
 {
     BEGIN_INSTRUCTION_EXECUTE;
     /*
+     * this instruction is used to get a field value from a table
      * the first source operand is the destination operand to store the found value
      * the second source operand is the table to find the value
      * the third source operand is the field name
@@ -356,6 +376,7 @@ void VirtualMachine::InstructionExecute_OpcodeSetField( InstructionExecuteContex
 {
     BEGIN_INSTRUCTION_EXECUTE;
     /*
+     * this instruction is used to set a field value to a table
      * the first source operand is the table to set the value
      * the second source operand is the field value
      * the third source operand is the value to set
@@ -418,28 +439,50 @@ void VirtualMachine::InstructionExecute_Assignment( InstructionExecuteContext &c
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpPower( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    /*
+     * the first source operand is the destination operand
+     * the second source operand is the base operand
+     * the third source operand is the exponent operand
+     * */
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_POWER );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpValueType( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    /*
+     * this instruction is used to test whether the first source operand is the same as the second source operand specified
+     * the first source operand is the destination operand used to store the test result
+     * the second source operand is immediate value to specific the value type
+     * */
+    if( destOperand == nullptr )
+        ThrowError("invalid compare value type opcode with null destination operand" );
+    if( srcOperand1 == nullptr )
+        ThrowError("invalid compare value type opcode with null source operand" );
+    if( srcOperand2 == nullptr )
+        ThrowError("invalid compare value type opcode with null value type operand" );
+    if( !srcOperand2->IsNumber()
+        || srcOperand2->As<ValueType>() < ValueType::Start
+        || srcOperand2->As<ValueType>() > ValueType::Max
+        )
+        ThrowError("invalid compare value type opcode with invalid value type operand" );
 
+    destOperand->Set(  srcOperand1->GetType() == srcOperand2->As<ValueType>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpLessThan( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpLessThanOrEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL );
 }
 
 
@@ -447,32 +490,39 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpEqual( InstructionExecu
 {
     BEGIN_INSTRUCTION_EXECUTE;
 
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpNotEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_EQUAL );
+    destOperand->Set( !destOperand->As<bool>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThan( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL );
+    destOperand->Set( !destOperand->As<bool>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpGreaterThanOrEqual( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_LESS_THAN );
+    destOperand->Set( !destOperand->As<bool>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpAdd( InstructionExecuteContext &context )
 {
+    BEGIN_INSTRUCTION_EXECUTE;
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_ADD );
+    return;
     if( context._srcOperand1->IsNumber() && context._srcOperand2->IsNumber() )
     {
         f64 src1 = context._srcOperand1->AsReal();
@@ -498,13 +548,14 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpAdd( InstructionExecuteCon
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpSubtract( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SUB );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpMultiply( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_MUL );
 
 }
 
@@ -512,76 +563,103 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpMultiply( InstructionExecu
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpDivide( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_DIV );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpIntDivide( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_IDIV );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpModulo( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_MOD );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseAnd( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_AND );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseOr( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_OR );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpBitwiseXor( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_BITWISE_XOR );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpShiftLeft( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_LEFT );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpShiftRight( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_SHIFT_RIGHT );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpConcat( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_BIN_OP_CONCAT );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalAnd( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    /*
+     * this instruction is make a logical and between two operands ,
+     * the first operand is the result of the logical and ,
+     * the second operand is boolean operand
+     * the third operand is boolean operand
+     * */
+    if( destOperand == nullptr )
+        ThrowError("invalid logical and opcode with null destination operand");
+    if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
+        ThrowError("invalid logical and opcode with null or non-boolean source operand1");
+    if( srcOperand2 == nullptr || !srcOperand2->IsBoolean() )
+        ThrowError("invalid logical and opcode with null or non-boolean source operand2");
 
+    destOperand->Set( srcOperand1->As<bool>() && srcOperand2->As<bool>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalOr( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    /*
+     * this instruction is make a logical or between two operands ,
+     * the first operand is the result of the logical or ,
+     * the second operand is boolean operand
+     * the third operand is boolean operand
+     * */
+    if( destOperand == nullptr )
+        ThrowError("invalid logical or opcode with null destination operand");
+    if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
+        ThrowError("invalid logical or opcode with null or non-boolean source operand1");
+    if( srcOperand2 == nullptr || !srcOperand2->IsBoolean() )
+        ThrowError("invalid logical or opcode with null or non-boolean source operand2");
+
+    destOperand->Set( srcOperand1->As<bool>() || srcOperand2->As<bool>() );
 
 }
 
@@ -589,28 +667,87 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalOr( InstructionExec
 void VirtualMachine::InstructionExecute_OpcodeUnaryMinus( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_MINUS );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeUnaryBitwiseNot( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
-
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_BITWISE_NOT );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeUnaryNot( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    /*
+     * this instruction is make a logical not operation with the first source operand
+     * the first operand is the result of the logical not ,
+     * the second operand is boolean operand
+     * the third operand is ignored
+     * */
+    if( destOperand == nullptr )
+        ThrowError("invalid logical not opcode with null destination operand");
+    if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
+        ThrowError("invalid logical not opcode with null or non-boolean source operand1");
 
+    destOperand->Set( !srcOperand1->As<bool>() );
 }
 
 
 void VirtualMachine::InstructionExecute_OpcodeUnaryLen( InstructionExecuteContext &context )
 {
     BEGIN_INSTRUCTION_EXECUTE;
+    InstructionExecute_MetaMethodCall( context , MetaMethodHandler::META_METHOD_KEY_UNA_OP_LENGTH );
+}
 
+void VirtualMachine::InstructionExecute_MetaMethodCall( InstructionExecuteContext &context , const char * methodKey )
+{
+    BEGIN_INSTRUCTION_EXECUTE;
+    if( destOperand == nullptr )
+        ThrowError("invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
+    if( srcOperand1 == nullptr )
+        ThrowError("invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
+    if( srcOperand2 == nullptr )
+        ThrowError("invalid meta method call opcode with null source operand2 , methodKey:%s" , methodKey );
+
+    if( srcOperand1->IsNumber()
+    && srcOperand2->IsNumber() )
+    {
+        MetaMethodHandler *handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( ValueType::Number );
+        if( handler == nullptr )
+            ThrowError("invalid meta method call opcode can't find meta method handler , methodKey:%s" , methodKey );
+        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError(" failed to invoke binary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
+    }
+    else
+    {
+        /*
+         * the number of the meta method handler would only process the situation that
+         *   both the two operands are numbers , otherwise would raise an exception.
+         *   so we would only check the meta method handler for the first operand when it is not a number.
+         * */
+        MetaMethodHandler * handler = nullptr;
+        if( !srcOperand1->IsNumber() )
+            handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( context._srcOperand1->GetType() );
+
+        if( handler == nullptr )
+            handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( context._srcOperand2->GetType() );
+        if( handler == nullptr )
+            ThrowError("invalid meta method call opcode neither can find meta method handler in the first nor in the second operand, methodKey:%s srcOperand1:%d , srcOperand2:%d"
+                       , methodKey
+                       , context._srcOperand1->GetType( )
+                       , context._srcOperand2->GetType( )
+                       );
+
+        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError(" failed to invoke binary operator in meta method handler , methodKey:%s , srcOperand1:%d , srcOperand2:%d "
+                       , methodKey
+                       , context._srcOperand1->GetType( )
+                       , context._srcOperand2->GetType( )
+                       );
+    }
 }
 
 
