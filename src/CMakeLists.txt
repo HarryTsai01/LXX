@@ -12,4 +12,5 @@ add_library(
 
 target_include_directories( LXX PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
 
+add_subdirectory( LXXInterpreter )
 add_subdirectory( test )
