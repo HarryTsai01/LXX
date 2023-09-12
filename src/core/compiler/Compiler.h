@@ -46,6 +46,7 @@ public:
     CompileContext( FunctionStatement *functionStatement , CompileContext *parent = nullptr );
     bool AddLocalVariable( String *name , u32* outIdx = nullptr );
     u32 AddTempVariable();
+    void ResetLastTempVariableIndex() { _luaClosure->GetChunk()->ResetLastTempVariableIndex(); }
     u32 GetLastTempVariableIndex() { return _luaClosure->GetChunk()->GetLastTempVariableIndex(); }
     void GetVariableOperandInfo( String *variableName , OperandType &operandType , u32 &operandIndex );
 
@@ -117,7 +118,29 @@ private:
     void CompileForLoopStatement( CompileContext *context , ForLoopStatement * forLoopStatement );
     void CompileReturnStatement( CompileContext *context , ReturnStatement * returnStatement );
     void CompileIdentifierExpression( CompileContext *context , IdentifierExpression * identifierExpression );
-    void CompileExpressionListStatement( CompileContext *context , ExpressionListStatement * expressionListStatement );
+    /*
+     *  when there is any expression which is dot expression or function call expression ,
+     *  we treat this expression list as a complicated expression list statement.
+     *  we need a var to store the expression value count
+     *          1. we initialize it to zero
+     *          2. when the expression is not a function call , we increment the expression value count by one
+     *          3. when the expression is a function call , we increment the expression value count by
+     *              1). if the return value count is zero , we push nil to the stack and increase the expression value count by one
+     *              2). if not , we just increase the expression value count by the return value count returned from the function call
+     *          4. we push the expression value count to the stack
+     *  after finishing compiling the expression list , we got the expression value count on the top of the stack and the responding expression value
+     *         we can use a figure to describe the situation below:
+     *         |  stack index | description |
+     *         | ------------|-------------|
+     *         |     -1      | expression value count |
+     *         |     -2      | the first expression value |
+     *         |     -3      | the second expression value |
+     *         |     -4      | the first return value of the function call |
+     *         |     -5      | the second return value of the function call |
+     *         |     -6      | the forth expression value |
+     * */
+    void CompileComplicatedExpressionListStatement( CompileContext *context , ExpressionListStatement * expressionListStatement );
+    bool IsComplicatedExpressionListStatement( ExpressionListStatement * expressionListStatement );
     void CompileDotExpression( CompileContext *context , DotExpression * dotExpression );
 private:
     String *scriptFileName;

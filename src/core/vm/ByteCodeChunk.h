@@ -48,10 +48,11 @@ public:
     bool IsLocalVariable( String *name , u32 *outIdx = nullptr);
     bool IsParameterVariable(String *name , u32 *outIdx = nullptr);
     u32 AddTempVariable();
-    u32 GetLastTempVariableIndex() { return _tempVariables.GetSize() - 1 ; }
+    u32 GetLastTempVariableIndex() { return _lastTempVariableIndex; };
+    u32 ResetLastTempVariableIndex() { return _lastTempVariableIndex = -1 ; };
 
     u32 GetLocalVariableCount() const { return _localVariables.GetSize(); }
-    u32 GetTemporaryVariableCount() const { return _tempVariables.GetSize(); }
+    u32 GetTemporaryVariableCount() const { return _maxTempVariableNum ; }
     /*
      * Get the number of parameters exclude the variable arguments
      * */
@@ -64,7 +65,8 @@ private:
     mutable Array< Value > _consts;
     Array< String* > _parameters;
     Array< String* > _localVariables;
-    Array< String* > _tempVariables;
+    u32 _lastTempVariableIndex = 0;
+    u32 _maxTempVariableNum = 0;
 };
 
 } // LXX

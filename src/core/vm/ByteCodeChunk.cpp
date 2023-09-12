@@ -13,6 +13,8 @@ namespace LXX
 
 ByteCodeChunk::ByteCodeChunk( Array< String* > parameters )
     : _parameters( std::move( parameters ) )
+    , _maxTempVariableNum( 5 )
+    , _lastTempVariableIndex( -1 )
 {
     _consts.Add();
 }
@@ -101,9 +103,14 @@ Value* ByteCodeChunk::GetConstValue( u32 idx )
 
 u32 ByteCodeChunk::AddTempVariable()
 {
-    String* newTempVarName = String::Format( "_LXX_TEMP_VAR_%d" , _tempVariables.Size() );
-    _tempVariables.Add( newTempVarName );
-    return _tempVariables.Size() - 1;
+    if( _lastTempVariableIndex + 1 <  _maxTempVariableNum )
+    {
+        ++ _lastTempVariableIndex ;
+        return _lastTempVariableIndex;
+    }
+    ++ _maxTempVariableNum ;
+    _lastTempVariableIndex  = _maxTempVariableNum - 1 ;
+    return _lastTempVariableIndex;
 }
 
 
