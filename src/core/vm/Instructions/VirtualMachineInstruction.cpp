@@ -9,20 +9,7 @@
 namespace LXX
 {
 
-
-namespace Instruction
-{
-namespace Decoder
-{
-
-
-
-
-} // namespace Decoder
-} // namespace Instruction
-
 using namespace Instruction;
-
 
 Value* VirtualMachine::FindImmediateValue( s32 valueId )
 {
