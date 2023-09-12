@@ -37,6 +37,16 @@ Value* VirtualMachine::FindImmediateValue( s32 valueId )
 
 void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
 {
+    auto decodeSignedIndex = [&]( u32 index )-> s32
+    {
+        u32 operandIndex = index & OperandIndexBitMask;
+        constexpr u32 operandIndexSignBitMask = 1 <<  ( OperandIndexBitCount - 1 );
+        constexpr u32 operandIndexUnsignedBitMask = (~operandIndexSignBitMask ) & OperandIndexBitMask;
+
+        s32 unsignedOperandIndex = operandIndex & operandIndexUnsignedBitMask;
+        s32 finalOperandIndex = ( operandIndex & operandIndexSignBitMask ) ? -unsignedOperandIndex : unsignedOperandIndex;
+        return finalOperandIndex;
+    };
     auto _decodeOperand = [&]( InstructionValue::Operand& operand )-> Value*
     {
         State* state = context._state;
@@ -55,7 +65,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::Stack )
         {
-            return stack.IndexToValue( operand._index );
+            return stack.IndexToValue( decodeSignedIndex( operand._index ) );
         }
         else if( operand._type == OperandType::Constant )
         {
@@ -74,21 +84,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::Immediate )
         {
-            u32 operandIndex = operand._index & OperandIndexBitMask;
-            constexpr u32 operandIndexSignBitMask = 1 <<  ( OperandIndexBitCount - 1 );
-            constexpr u32 operandIndexBitMax = (~operandIndexSignBitMask ) & OperandIndexBitMask;
-
-            s32 signedOperandIndex = operandIndex & OperandIndexBitMask;
-            if( operandIndex & operandIndexSignBitMask )
-            {
-                signedOperandIndex = -signedOperandIndex;
-            }
-
-            return FindImmediateValue( signedOperandIndex );
-        }
-        else
-        {
-            ThrowError("not implemented");
+            return FindImmediateValue( decodeSignedIndex( operand._index ) );
         }
         return nullptr;
     };
@@ -221,9 +217,9 @@ void VirtualMachine::InstructionExecute_OpcodeJump( InstructionExecuteContext &c
 {
     BEGIN_INSTRUCTION_EXECUTE;
     /*
-     *   the first source operand is the jump condition
-     *   the second source operand is the jump offset
-     *   the third source operand is none
+     *   the first operand is none
+     *   the first operand is the jump condition
+     *   the second operand is the jump offset
      * */
     if( !srcOperand1->IsBoolean() )
         ThrowError("invalid jump opcode with non-boolean jump condition" );
@@ -241,23 +237,23 @@ void VirtualMachine::InstructionExecute_OpcodeSystemCall( InstructionExecuteCont
 {
     BEGIN_INSTRUCTION_EXECUTE;
     /*
-     *  the first operand is none
-     *  the second operand is SystemFunction
-     *  if the system function is raise exception
-     *      then the third operand is SystemException
+     *  the first operand is SystemFunction
+     *  the second operand is the first argument
+     *   the third operand is the second argument
      * */
-    if( !srcOperand1->IsNumber() )
-        ThrowError("invalid system call opcode with non-system function" );
-    SystemFunction systemFunction = srcOperand1->As<SystemFunction>();
-    if( systemFunction >= SystemFunction::Max )
-        ThrowError("invalid system call opcode with system function:%d", systemFunction );
 
-    if( systemFunction == SystemFunction::RaiseException )
-    {
-        if( !srcOperand2->IsNumber() )
-            ThrowError("invalid system raise exception opcode with non-system exception" );
-        SystemException systemException = srcOperand2->As<SystemException>();
-    }
+    if( destOperand == nullptr || !destOperand->IsNumber() )
+        ThrowError("invalid system call opcode , the system function is invalid " );
+    if( srcOperand1 == nullptr || !srcOperand1->IsNumber() )
+        ThrowError("invalid system call opcode , the first argument is invalid " );
+    if( srcOperand2 == nullptr || !srcOperand2->IsNumber() )
+        ThrowError("invalid system call opcode , the second argument is invalid " );
+
+    u32 systemFunction = srcOperand1->As<u32>();
+    u32 argument1 = srcOperand1->As<u32>();
+    u32 argument2 = srcOperand2->As<u32>();
+
+    OnSystemFunction( systemFunction , argument1 , argument2 );
 }
 
 
@@ -806,6 +802,13 @@ LuaClosure* VirtualMachine::CompileString( const char* scriptContent )
     Compiler * compiler = new Compiler( );
     // todo , hold compiler to prevent gc
     return compiler->CompileString( scriptContent );
+}
+
+
+bool VirtualMachine::Execute( const char* scriptContent )
+{
+    LuaClosure * closure = CompileString( scriptContent );
+    return Invoke(closure);
 }
 
 }

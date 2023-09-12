@@ -10,25 +10,36 @@ namespace LXXTest
 
 using namespace Instruction;
 
+InstructionSetTestCase::InstructionSetTestCase()
+{
+    m_scriptContents =
+            {
+                "local a = 0 \n",
+            };
+}
+
+
 bool InstructionSetTestCase::Run()
 {
 
     VirtualMachine vm;
     if( vm.Startup() )
     {
-        GlobalState* _G = vm.GetGlobalState();
-        State *state = _G->NewState();
-        ByteCodeChunk* chunk = _G->NewChunk( {} );
-        state->GetStack().PushLuaClosure( new LuaClosure( chunk ) );
-
-        chunk->AddConstValue( 1 );
-        chunk->AddConstValue( 2 );
-
-        Array< u64 > &bytecode = chunk->GetCode();
-
+        for( auto& script : m_scriptContents )
+        {
+            try
+            {
+                if( !vm.Execute( script ) )
+                    return false;
+            }
+            catch( ExceptionBase &e )
+            {
+                vm.Shutdown();
+                return false;
+            }
+        }
 
         vm.Shutdown();
-
         return true;
     }
 

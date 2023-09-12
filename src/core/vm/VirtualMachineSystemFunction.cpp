@@ -17,7 +17,11 @@ void VirtualMachine::OnSystemFunction( u32 systemFunction , u32 argument1 , u32 
 {
     auto it = _systemFunctionBindings.Find( VMSystemFunctionKey( systemFunction , argument1 , argument2 ) );
     if( it == _systemFunctionBindings.End() )
-        ThrowError( "System function not found" );
+        ThrowError( "System function not found , systemFunction = %d , argument1 = %d , argument2 = %d"
+                        , systemFunction
+                        , argument1
+                        , argument2
+                        );
     it->Second->Invoke();
 }
 

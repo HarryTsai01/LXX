@@ -112,7 +112,7 @@ bool CompileContext::AddLocalVariable( String *name  , u32 *outIdx )
 bool CompileContext::IsLocalVariable( String *name , u32 *outIdx )
 {
     ByteCodeChunk *chunk = _luaClosure->GetChunk();
-    return chunk->IsLocalVariable( name );
+    return chunk->IsLocalVariable( name , outIdx );
 }
 
 
@@ -230,7 +230,8 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
         CompileExpressionListStatement( context , expressionList );
         encodeHelper.Assign( OperandType::TempVariable , argumentsCountIdx ,
         OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
-        encodeHelper.Pop( OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+        // pop arguments count
+        encodeHelper.Pop( OperandType::Immediate , 1 );
     }
     else
     {
@@ -592,7 +593,9 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
                 {
                     helper.JumpAlways( jumpToEndLocation ,helper.GetNextInstructionLocation() );
                 }
+                // pop out all expression values and the expression count from the stack
                 helper.Pop( OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+                helper.Pop( OperandType::Immediate , 1 );
 
                 // process numerical for loop
                 helper.EncodeSimpleIfStatement(
@@ -864,6 +867,7 @@ void Compiler::CompileReturnStatement( CompileContext *context , ReturnStatement
         CompileExpressionListStatement( context , expressionList );
         encodeHelper.Assign( OperandType::TempVariable , returnValueCountIdx ,
                              OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+        // pop out argument count
         encodeHelper.Pop( OperandType::Immediate , 1 );
     }
 
@@ -924,6 +928,8 @@ void Compiler::CompileExpressionListStatement( CompileContext *context , Express
 
     Array< StatementBase * > &expressions = expressionListStatement->GetExpressions();
     u32 expressionValueCountIndex = context->AddTempVariable();
+    encodeHelper.Assign( OperandType::TempVariable , expressionValueCountIndex ,
+                         OperandType::Immediate , 0 );
 
     Array< u64 > valueNeedToPop;
     Array< u32 > tempExpressions;
@@ -935,27 +941,47 @@ void Compiler::CompileExpressionListStatement( CompileContext *context , Express
         {
             u32 returnValueCountIdx = context->GetLastTempVariableIndex();
             u32 testConditionIdx = context->AddTempVariable();
-            encodeHelper.EncodeDirectly( Opcode::BinaryOpCmpNotEqual ,
-                                         OperandType::TempVariable , testConditionIdx ,
-                                         OperandType::TempVariable , returnValueCountIdx ,
-                                         OperandType::None , 0 );
-            encodeHelper.JumpOffset( 2 );
-            encodeHelper.Increase( OperandType::TempVariable , expressionValueCountIndex , 1 );
-            encodeHelper.Push( OperandType::Constant , chunk->GetConstNilValueIndex() );
-            encodeHelper.EncodeDirectly( Opcode::BinaryOpAdd ,
-                                 OperandType::TempVariable , expressionValueCountIndex ,
-                                 OperandType::TempVariable , expressionValueCountIndex ,
-                                 OperandType::TempVariable , returnValueCountIdx );
+            encodeHelper.EncodeSimpleIfStatement(
+                    [&]( Encoder::Helper &helper )
+                    {
+                        /*
+                         *  test if the return value count is zero ,
+                         * */
+                        encodeHelper.EncodeDirectly( Opcode::BinaryOpCmpEqual ,
+                                                     OperandType::TempVariable , testConditionIdx ,
+                                                     OperandType::TempVariable , returnValueCountIdx ,
+                                                     OperandType::None , 0 );
+                    }
+                    ,OperandType::TempVariable , testConditionIdx ,
+                    [&]( Encoder::Helper &helper ) {
+                        /*
+                         *  if true,
+                         *  1. we push nil to the stack
+                         *  2. increase the expression value count by one
+                         * */
+                        encodeHelper.Increase( OperandType::TempVariable , expressionValueCountIndex , 1 );
+                        encodeHelper.Push( OperandType::Constant , chunk->GetConstNilValueIndex() );
+                    }
+                    , [&]( Encoder::Helper &helper ) {
+                        /*
+                         *  if false,
+                         *  increase the expression value count by the return value count
+                         * */
+                        encodeHelper.EncodeDirectly( Opcode::BinaryOpAdd ,
+                                                     OperandType::TempVariable , expressionValueCountIndex ,
+                                                     OperandType::TempVariable , expressionValueCountIndex ,
+                                                     OperandType::TempVariable , returnValueCountIdx );
+                    }
+            );
         }
         else
         {
             encodeHelper.Increase( OperandType::TempVariable , expressionValueCountIndex , 1 );
             encodeHelper.Push( OperandType::TempVariable , context->GetLastTempVariableIndex() );
         }
-
-        encodeHelper.Increase( OperandType::TempVariable , expressionValueCountIndex , 1 );
-        encodeHelper.Push( OperandType::TempVariable , expressionValueCountIndex );
     }
+
+    encodeHelper.Push( OperandType::TempVariable , expressionValueCountIndex );
 }
 
 
@@ -1304,6 +1330,7 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
 
     CompileExpressionListStatement( context , expressionList );
 
+    u32 testConditionIdx = context->AddTempVariable();
     for( u32 iVar = 0 ; iVar < varExpressions.Size() ; iVar++ )
     {
         bool bIsTable;
@@ -1313,8 +1340,27 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
 
         if( !bIsTable )
         {
-            encodeHelper.Assign( operandType , operandIdx ,
-                                 OperandType::Stack, Encoder::MakeOperandIndex( -2 - iVar ) );
+            encodeHelper.EncodeSimpleIfStatement(
+                    [&]( Encoder::Helper &helper )
+                    {
+                        helper.EncodeDirectly( Opcode::BinaryOpCmpLessThan,
+                                               OperandType::TempVariable , testConditionIdx ,
+                                               OperandType::Immediate , iVar,
+                                                OperandType::Stack , Encoder::MakeOperandIndex( -1 )
+                        );
+                    }
+                    , OperandType::TempVariable , testConditionIdx ,
+                    [&]( Encoder::Helper &helper )
+                    {
+                        encodeHelper.Assign( operandType , operandIdx ,
+                                             OperandType::Stack, Encoder::MakeOperandIndex( -2 - iVar ) );
+                    },
+                    [&]( Encoder::Helper &helper )
+                    {
+                        encodeHelper.Assign( operandType , operandIdx ,
+                                             OperandType::Constant , chunk->GetConstNilValueIndex() );
+                    }
+            );
         }
         else
         {
@@ -1326,6 +1372,7 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
         }
     }
 
+    encodeHelper.Pop( OperandType::Immediate , 1 );
     encodeHelper.Pop( OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
 }
 

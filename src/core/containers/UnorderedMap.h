@@ -265,10 +265,28 @@ private:
         }
 
         IndexType( Bucket* bucket , u32 slotIdx , typename Bucket::Slot* slot )
-                : currentSlotIndex( 0 )
+                : currentSlotIndex( slotIdx )
                 , bucket( bucket )
-                , currentSlot( nullptr )
+                , currentSlot( slot )
         {
+        }
+
+        IndexType( const IndexType &other )
+                : currentSlotIndex( other.currentSlotIndex )
+                , bucket( other.bucket )
+                , currentSlot( other.currentSlot )
+        {
+
+        }
+
+        IndexType( IndexType &&other )
+                : currentSlotIndex( other.currentSlotIndex )
+                , bucket( other.bucket )
+                , currentSlot( other.currentSlot )
+        {
+            other.currentSlotIndex = 0;
+            other.bucket = nullptr;
+            other.currentSlot = nullptr;
         }
 
         u32 currentSlotIndex;

@@ -12,7 +12,10 @@ class InstructionSetTestCase : public TestCaseBase
 {
     TEST_CASE_DECLARE(InstructionSetTestCase , TestCaseBase )
 public:
+    InstructionSetTestCase();
     bool Run() override;
+private:
+    Array< const char* > m_scriptContents;
 };
 
 } // LXXTest

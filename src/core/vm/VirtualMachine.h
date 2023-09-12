@@ -178,6 +178,7 @@ public:
 
     LuaClosure* CompileFile( String *scriptFileName );
     LuaClosure* CompileString( const char* scriptContent );
+    bool Execute( const char* scriptContent );
 private:
     u32 CallLuaClosure( State *state , LuaClosure *closure );
 private:
