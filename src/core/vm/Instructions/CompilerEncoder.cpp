@@ -208,7 +208,7 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
             else
             {
                 // for situation var1(...)
-                encodeHelper.Assign( operandType , outFunctionIdx ,
+                encodeHelper.Assign( OperandType::TempVariable , outFunctionIdx ,
                                        operandType , operandIndex
                                        );
             }

@@ -50,6 +50,7 @@ void VirtualMachine::OnStartup()
     _globalState = new GlobalState();
     RegisterInstructionSet();
     RegisterSystemFunction();
+    RegisterAPI();
 }
 
 

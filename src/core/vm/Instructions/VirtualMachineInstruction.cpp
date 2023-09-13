@@ -5,6 +5,7 @@
 #include <core/vm/VirtualMachine.h>
 #include <core/vm/Instructions/InstructionDecoder.h>
 #include <core/objects/metatable/MetaTableMgr.h>
+#include "DisassemblyUtilities.h"
 
 namespace LXX
 {
@@ -63,7 +64,18 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::UpValue )
         {
-            ThrowError("not implemented");
+            u32 upValueIndex = operand._index;
+            Value* upValueKey = chunk->GetConstValue( upValueIndex );
+            if( !upValueKey )
+                ThrowError("invalid upvalue key");
+
+            Table* globalTable = context._state->GetGlobalState()->GetGlobalTable();
+
+            Value* upValue = globalTable->GetField( context._vm , *upValueKey );
+
+            if( !upValue )
+                ThrowError("invalid identifier:%s",upValueKey->As<String*>()->GetData() );
+            return upValue;
         }
         else if( operand._type == OperandType::GlobalVariable )
         {
@@ -83,6 +95,12 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
     context._destOperand = _decodeOperand( instructionValue._operand1 );
     context._srcOperand1 = _decodeOperand( instructionValue._operand2 );
     context._srcOperand2 = _decodeOperand( instructionValue._operand3 );
+
+    Disassembly::PrintInstruction( context._chunk
+            ,instructionValue._opcode ,
+           instructionValue._operand1._type , instructionValue._operand1._index ,
+           instructionValue._operand2._type , instructionValue._operand2._index ,
+           instructionValue._operand3._type , instructionValue._operand3._index );
 }
 
 void VirtualMachine::RegisterInstructionSet()

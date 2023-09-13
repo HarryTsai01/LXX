@@ -25,20 +25,23 @@ public:
     Value( CFunction val , bool isLightCFunction = true );
     Value( LuaClosure * val );
 
-    bool operator == ( const Value &other ) const
-    {
-        if( flags != other.flags ) return false;
-        else return memcmp( this, &other, sizeof(Value) ) == 0;
-    }
+    bool operator == ( const Value &other ) const;
 
     u32 GetHashValue() const;
+
+
+    template<typename SubType>
+    static u32 MakeValueType(  ValueType type, SubType subType )
+    {
+        u32 subTypeFlag = ( (u32)subType & 0xf ) << 4 ;
+        u32 typeFlag = (u32)type & 0xf;
+        return subTypeFlag | typeFlag ;
+    }
 
     template<typename SubType>
     void SetType( ValueType type, SubType subType )
     {
-        u32 subTypeFlag = ( (u32)subType & 0xf ) << 4 ;
-        u32 typeFlag = (u32)type & 0xf;
-        flags = (flags & 0xffffff00 ) | subTypeFlag | typeFlag ;
+        flags = (flags & 0xffffff00 ) | MakeValueType( type, subType );
     }
 
     template<typename SubType>

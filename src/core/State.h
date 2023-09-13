@@ -10,6 +10,7 @@
 #include "Stack.h"
 #include <core/objects/GCObject.h>
 #include <core/vm/Instructions/InstructionSet.h>
+#include <core/exceptions/VirtualMachineExecuteException.h>
 
 namespace LXX
 {
@@ -35,6 +36,14 @@ public:
 
     u32 GetLastFunctionCallReturnValueCount() const { return _lastFunctionCallReturnValueCount; }
     void SetLastFunctionCallReturnValueCount( u32 count ) { _lastFunctionCallReturnValueCount = count; }
+
+    GlobalState* GetGlobalState() { return _G; }
+
+    template<typename ...Args>
+    void ThrowError( const char *format, Args ...args )
+    {
+        throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
+    }
 private:
     Stack _stack;
     GlobalState *_G;

@@ -19,6 +19,8 @@ public:
 
     State *NewState();
     ByteCodeChunk *NewChunk( Array< String* > params );
+
+    Table *GetGlobalTable() { return _globalTable; }
 private:
     Array<State *> _states;
     Array< ByteCodeChunk *> _chunks;

@@ -14,7 +14,8 @@ InstructionSetTestCase::InstructionSetTestCase()
 {
     m_scriptContents =
             {
-                "local a = 0 \n",
+                "local a = 0 \n"
+                "assert(a == 0) \n",
             };
 }
 

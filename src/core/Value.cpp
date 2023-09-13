@@ -20,18 +20,21 @@ Value::Value()
 
 
 Value::Value( s32 val )
+ : Value()
 {
     SetAsInt( val );
 }
 
 
 Value::Value( f64 val )
+        : Value()
 {
     SetAsReal( val );
 }
 
 
 Value::Value( const char * val )
+        : Value()
 {
     if( val == nullptr ) SetAsNil();
     else SetAsString( NEW_STRING( val ) );
@@ -39,6 +42,7 @@ Value::Value( const char * val )
 
 
 Value::Value( String * val )
+        : Value()
 {
     if( val == nullptr ) SetAsNil();
     else SetAsString( val );
@@ -46,6 +50,7 @@ Value::Value( String * val )
 
 
 Value::Value( Table * val )
+        : Value()
 {
     if( val == nullptr ) SetAsNil();
     else SetAsTable( val );
@@ -53,6 +58,7 @@ Value::Value( Table * val )
 
 
 Value::Value( CFunction val , bool isLightCFunction )
+        : Value()
 {
     if( val == nullptr ) SetAsNil();
     else if( isLightCFunction ) SetAsLightCFunction( val );
@@ -61,11 +67,39 @@ Value::Value( CFunction val , bool isLightCFunction )
 
 
 Value::Value( LuaClosure * val )
+        : Value()
 {
     if( val == nullptr ) SetAsNil();
     else SetAsLuaClosure( val );
 }
 
+bool Value::operator == ( const Value &other ) const
+{
+    if( flags != other.flags )
+        return false;
+    else
+    {
+        static UnorderedMap<u32, bool(*)(const Value&, const Value&)> equalFuncs
+        {
+                { MakeValueType( ValueType::Number , NumberType::Integer ) , []( const Value& a , const Value& b ) { return a.i == b.i; } },
+                { MakeValueType( ValueType::Number , NumberType::Real ) , []( const Value& a , const Value& b ) { return a.r == b.r; } },
+                { MakeValueType( ValueType::Boolean , 0) , []( const Value& a , const Value& b ) { return a.b == b.b; } },
+                { MakeValueType( ValueType::String , StringType::Long ) , []( const Value& a , const Value& b ) { return a.s == b.s; } },
+                { MakeValueType( ValueType::String , StringType::Short ) , []( const Value& a , const Value& b ) { return a.s == b.s; } },
+                {  MakeValueType( ValueType::Nil , 0 ) , []( const Value& a , const Value& b ) { return true; } },
+                { MakeValueType( ValueType::LightUserdata , 0 ) , []( const Value& a , const Value& b ) { return a.p == b.p; } },
+                { MakeValueType( ValueType::Table , 0 ) , []( const Value& a , const Value& b ) { return a.t == b.t; } },
+                { MakeValueType( ValueType::Function , FunctionType::LuaClosure ) , []( const Value& a , const Value& b ) { return a.lc == b.lc; } },
+                { MakeValueType( ValueType::Function , FunctionType::LightCFunction ) , []( const Value& a , const Value& b ) { return a.f == b.f; } },
+                { MakeValueType( ValueType::Function , FunctionType::CClosure ) , []( const Value& a , const Value& b ) { return a.f == b.f; } },
+                { MakeValueType( ValueType::Thread , 0 ) , []( const Value& a , const Value& b ) { assert( false &&"not implement" ); return false; } },
+                { MakeValueType( ValueType::FullUserdata , 0 ) , []( const Value& a , const Value& b ) { assert( false &&"not implement" ); return false; } },
+
+        };
+
+        return equalFuncs[ flags & 0xff ]( *this , other );
+    }
+}
 
 u32 Value::GetHashValue() const
 {

@@ -182,6 +182,7 @@ public:
 private:
     u32 CallLuaClosure( State *state , LuaClosure *closure );
 private:
+    void RegisterAPI();
     void OnStartup();
     void OnShutdown();
     template<typename ...Args>
