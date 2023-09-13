@@ -108,7 +108,7 @@ private:
     void CompileUnaryExpression( CompileContext *context , UnaryOperatorExpression * unaryExpression );
     void CompileBinaryExpression( CompileContext *context , BinaryOperationExpression * binaryExpression );
     void CompileTableConstructorStatement( CompileContext *context , TableConstructorStatement * tableConstructorStatement );
-    void CompileFunctionCallExpression( CompileContext *context , FunctionCallExpression * functionCallExpression );
+    void CompileFunctionCallExpression( CompileContext *context , FunctionCallExpression * functionCallExpression , u32 &argumentCountIdx );
     void CompileVarExpression( CompileContext *context , VarExpression * varExpression , OperandType &operandType  , u32 &operandIndex , bool &isTable );
     void CompileWhileStatement( CompileContext *context , WhileStatement * whileStatement );
     void CompileContinueStatement( CompileContext *context , ContinueStatement * continueStatement );

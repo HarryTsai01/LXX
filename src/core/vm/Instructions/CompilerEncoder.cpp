@@ -154,7 +154,7 @@ void CompileContext::RetrieveLocation( const Array< u32 > &locations , u32 begin
     }
 }
 
-void Compiler::CompileFunctionCallExpression( CompileContext *context , FunctionCallExpression * functionCallExpression )
+void Compiler::CompileFunctionCallExpression( CompileContext *context , FunctionCallExpression * functionCallExpression , u32 &argumentNumIdx )
 {
     Encoder::Helper encodeHelper( context );
 
@@ -215,6 +215,7 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
         }
     };
 
+    argumentNumIdx = context->AddTempVariable();
     u32 functionIdx = -1;
     u32 selfIdx = -1;
     CompileFunctionCallPrefix( functionIdx , selfIdx );
@@ -222,25 +223,31 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
     if( selfIdx != -1 )
         encodeHelper.Push( OperandType::TempVariable , selfIdx );
 
-    u32 argumentsCountIdx = context->AddTempVariable();
     // push arguments
     auto expressionList = LXX::Cast< ExpressionListStatement >( functionCallExpression->GetArguments() );
     if( expressionList != nullptr )
     {
         CompileComplicatedExpressionListStatement(context, expressionList);
-        encodeHelper.Assign( OperandType::TempVariable , argumentsCountIdx ,
+        encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
         OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
         // pop arguments count
         encodeHelper.Pop( OperandType::Immediate , 1 );
+        if( selfIdx != -1 )
+        {
+            encodeHelper.Increase(
+                    OperandType::TempVariable , argumentNumIdx ,
+                    1
+            );
+        }
     }
     else
     {
-        encodeHelper.Assign( OperandType::TempVariable , argumentsCountIdx ,
+        encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
                              OperandType::Immediate , 0 );
     }
 
     // call function
-    encodeHelper.Call( OperandType::TempVariable , argumentsCountIdx ,
+    encodeHelper.Call( OperandType::TempVariable , argumentNumIdx ,
                        OperandType::TempVariable ,context->AddTempVariable() );
 }
 
@@ -1156,7 +1163,8 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
     }
     else if( auto functionCallExpression = LXX::Cast< FunctionCallExpression >( statement ) )
     {
-        CompileFunctionCallExpression( context , functionCallExpression );
+        u32 argumentNumIdx;
+        CompileFunctionCallExpression( context , functionCallExpression ,  argumentNumIdx );
     }
     else if( auto functionStatement = LXX::Cast< FunctionStatement >( statement ) )
     {
@@ -1569,8 +1577,17 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
     else if( auto functionCallExpression = LXX::Cast< FunctionCallExpression >( statement ) )
     {
         Encoder::Helper encodeHelper( context );
-        CompileFunctionCallExpression( context , functionCallExpression );
+        u32 argumentNumIdx;
+        CompileFunctionCallExpression( context , functionCallExpression , argumentNumIdx );
         encodeHelper.Pop( OperandType::TempVariable , context->GetLastTempVariableIndex() ); ;
+
+        // pop all argument and function
+        encodeHelper.Increase(
+                OperandType::TempVariable , argumentNumIdx,
+                1
+                );
+        encodeHelper.Pop( OperandType::TempVariable , argumentNumIdx );
+
     }
     else if( auto whileStatement = LXX::Cast< WhileStatement >( statement ) )
     {
