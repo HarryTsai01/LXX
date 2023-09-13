@@ -25,7 +25,6 @@ bool Stack::NewFrame( const StackFrame& frame )
 {
     _frameBase = frame._base;
     _frameTop = frame._top;
-    _frames.PushBack( frame );
     if(  _frameTop > _data.Size() )
     {
         _data.AddNum( _frameTop - _data.Size() );
@@ -36,19 +35,28 @@ bool Stack::NewFrame( const StackFrame& frame )
         _data[ i ].SetAsNil();
     }
 
+    // allocate local variables and temp variables
+    _top += frame._localAndTempVariableNum;
+    _frames.PushBack( frame );
+
     return true;
 }
 
 
-bool Stack::RemoveFrame()
+bool Stack::RemoveFrame( StackFrame& outRemovedFrame )
 {
     if( _frames.Size() <= 1 )
         return false;
 
-    _frames.PopBack();
-    StackFrame frame = _frames.GetLast();
-    _frameBase = frame._base;
-    _frameTop  = frame._top;
+    // pop out current frame
+    outRemovedFrame = _frames.PopBack();
+    // release local variables and temp variables
+    _top -= outRemovedFrame._localAndTempVariableNum;
+
+    // restore to previous frame
+    StackFrame prevFrame = _frames.GetLast();
+    _frameBase = prevFrame._base;
+    _frameTop  = prevFrame._top;
 
     return true;
 }

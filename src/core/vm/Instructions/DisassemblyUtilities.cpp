@@ -2,6 +2,7 @@
 // Created by Harry on 9/13/2023.
 //
 #include "DisassemblyUtilities.h"
+#include "InstructionDecoder.h"
 #include <core/containers/UnorderedMap.h>
 #include <core/vm/ByteCodeChunk.h>
 #include <iostream>
@@ -89,6 +90,10 @@ void PrintInstruction( ByteCodeChunk* chunk
         else if( type == OperandType::Immediate )
         {
             os << "=" << index;
+        }
+        else if( type == OperandType::Stack )
+        {
+            os << "=" << Decoder::GetOperandIndex( index );
         }
     };
    std::cout << _opcodeMaps[opcode] << "(";

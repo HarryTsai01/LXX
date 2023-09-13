@@ -53,8 +53,19 @@ void State::BeginFunctionCall( u32 functionIdx , u32 argumentVariableNum , u32 l
 
 void State::EndFunctionCall()
 {
+    StackFrame lastFrame ;
+    _stack.RemoveFrame( lastFrame );
+
+    u32 curStackTop = _stack.GetTop();
+    if( lastFrame._oldTop +  _lastFunctionCallReturnValueCount != curStackTop )
+        ThrowError( "Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d"
+                , lastFrame._oldTop
+                , curStackTop
+                , _lastFunctionCallReturnValueCount
+        );
+
     _currentCI =  _currentCI->GetPrevious();
-    _stack.RemoveFrame();
+
 }
 
 }

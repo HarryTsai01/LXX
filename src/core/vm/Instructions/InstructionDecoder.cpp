@@ -30,11 +30,11 @@ void Decode( u64 i , InstructionValue &out )
 }
 
 
-s32 GetOperandValue( u64 operand )
+s32 GetOperandIndex( u64 operand )
 {
-    u32 signBit = operand & ( 1 << ( OperandBitCount - 1 ) );
+    u32 signBit = operand & ( 1 << ( OperandIndexBitCount - 1 ) );
 
-    s32 sValue = static_cast< s32 >( operand & ~( 1 << ( OperandBitCount - 1 ) ) );
+    s32 sValue = static_cast< s32 >( operand & ~( 1 << ( OperandIndexBitCount - 1 ) ) );
     return signBit ? - sValue : sValue;
 }
 

@@ -25,16 +25,6 @@ Value* VirtualMachine::FindImmediateValue( s32 valueId )
 
 void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
 {
-    auto decodeSignedIndex = [&]( u32 index )-> s32
-    {
-        u32 operandIndex = index & OperandIndexBitMask;
-        constexpr u32 operandIndexSignBitMask = 1 <<  ( OperandIndexBitCount - 1 );
-        constexpr u32 operandIndexUnsignedBitMask = (~operandIndexSignBitMask ) & OperandIndexBitMask;
-
-        s32 unsignedOperandIndex = operandIndex & operandIndexUnsignedBitMask;
-        s32 finalOperandIndex = ( operandIndex & operandIndexSignBitMask ) ? -unsignedOperandIndex : unsignedOperandIndex;
-        return finalOperandIndex;
-    };
     auto _decodeOperand = [&]( InstructionValue::Operand& operand )-> Value*
     {
         State* state = context._state;
@@ -53,7 +43,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::Stack )
         {
-            return stack.IndexToValue( decodeSignedIndex( operand._index ) );
+            return stack.IndexToValue( Decoder::GetOperandIndex( operand._index ) );
         }
         else if( operand._type == OperandType::Constant )
         {
@@ -83,7 +73,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::Immediate )
         {
-            return FindImmediateValue( decodeSignedIndex( operand._index ) );
+            return FindImmediateValue( Decoder::GetOperandIndex( operand._index ) );
         }
         return nullptr;
     };
@@ -183,7 +173,7 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     Value *function = state->GetStack().IndexToValue( functionIdx );
     if( function == nullptr )
         ThrowError( " invalid call instruction, function is null" );
-    if( !function->IsFunction() )
+    if( function->IsFunction() )
     {
         ProtectCall( state, argumentValueCount );
         destOperand->Set(callInfo->GetActualReturnValueNum() );
@@ -323,10 +313,15 @@ void VirtualMachine::InstructionExecute_OpcodePop( InstructionExecuteContext &co
         ThrowError("invalid pop opcode with non-number pop count" );
 
     s32 popCount = srcOperand1->As<s32>();
-    if( popCount <= 0 )
+    if( popCount < 0 )
+    {
         ThrowError("invalid pop opcode with negative pop count or zero pop count, count :%d", popCount );
+    }
+    else if( popCount > 0 )
+    {
+        state->GetStack().Pop( popCount );
+    }
 
-    state->GetStack().Pop( popCount );
 }
 
 

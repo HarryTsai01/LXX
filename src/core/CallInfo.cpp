@@ -39,11 +39,13 @@ CallInfo::CallInfo( CallInfo *previous
 
 void CallInfo::GetCurrentStackFrame( StackFrame * outFrame )
 {
+    outFrame->_oldTop = _state->GetStack().GetTop();
     outFrame->_base = _functionIdx;
     outFrame->_top = _functionIdx + _actualArgumentVariableNum + _localVariableNum + _temporaryVariableNum + Config::STACK_SIZE;
     u32 argumentVariableStartIndex = _functionIdx + 1;
     outFrame->_localVariableStartIdx = argumentVariableStartIndex + _actualArgumentVariableNum;
     outFrame->_temporaryVariableStartIdx = outFrame->_localVariableStartIdx + _localVariableNum;
+    outFrame->_localAndTempVariableNum = _localVariableNum + _temporaryVariableNum;
 }
 
 

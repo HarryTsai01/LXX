@@ -15,7 +15,7 @@ namespace Decoder
 
 void Decode( u64 i , InstructionValue &out );
 
-s32 GetOperandValue( u64 operand );
+s32 GetOperandIndex(u64 operand );
 
 } // namespace Decoder
 } // namespace InstructionSet

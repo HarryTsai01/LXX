@@ -15,10 +15,19 @@ namespace LXX
 
 struct StackFrame
 {
+    StackFrame() = default;
+    StackFrame( u32 base , u32 top )
+     : _base(base)
+     , _top(top)
+    {
+
+    }
     u32 _base;
     u32 _top;
+    u32 _oldTop;
     u32 _localVariableStartIdx;
     u32 _temporaryVariableStartIdx;
+    u32 _localAndTempVariableNum;
 };
 
 class Stack
@@ -27,7 +36,7 @@ public:
     Stack( u32 stackSize );
 
     bool NewFrame( const StackFrame& frame );
-    bool RemoveFrame();
+    bool RemoveFrame( StackFrame& outRemovedFrame );
 
     void Push(Value* val);
     void PushInteger(s32 val);

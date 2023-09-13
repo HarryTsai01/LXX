@@ -149,7 +149,8 @@ public:
         if( !ProtectCall(state, ArgumentNum) )
             return false;
 
-        state->GetStack().Pop( state->GetLastFunctionCallReturnValueCount() );
+        if( state->GetLastFunctionCallReturnValueCount() > 0 )
+            state->GetStack().Pop( state->GetLastFunctionCallReturnValueCount() );
 
         return true;
     }
