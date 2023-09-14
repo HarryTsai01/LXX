@@ -118,4 +118,10 @@ void Table::SetMetaTable( Table* table )
     RawSetField(MetaMethodHandler::META_TABLE_NAME, Value(table) );
 }
 
+
+String* Table::ToString() const
+{
+    return String::Format("table(%p)",this);
+}
+
 } // LXX

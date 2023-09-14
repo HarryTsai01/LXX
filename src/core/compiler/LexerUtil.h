@@ -20,6 +20,8 @@ public:
 
     static bool IsBinaryOperator( char ch );
     static bool IsEndOfToken(char ch );
+
+    static void GetLine(char *destBuff , u32 buffSize , const char* lineStartPos , const char* sourceEndPos );
 };
 
 

@@ -6,6 +6,7 @@
 #include <core/mem/MemoryAllocator.h>
 #include <core/GlobalState.h>
 #include <core/vm/ByteCodeChunk.h>
+#include <iostream>
 
 
 namespace LXX
@@ -58,11 +59,17 @@ void State::EndFunctionCall()
 
     u32 curStackTop = _stack.GetTop();
     if( lastFrame._oldTop +  _lastFunctionCallReturnValueCount != curStackTop )
-        ThrowError( "Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d"
+    {
+        // just fixed the stack top in silence and print it out
+        // we shouldn't throw any exception here ,because the EndFunctionCall come from the destructor of `FunctionCallScope`,
+        // so if  we throw any exception here ,the exception can't be caught outside.
+        _stack.SetTop( lastFrame._oldTop );
+        std::cerr << String::Format( "[STACK CHECK]Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d\n"
                 , lastFrame._oldTop
                 , curStackTop
                 , _lastFunctionCallReturnValueCount
         );
+    }
 
     _currentCI =  _currentCI->GetPrevious();
 

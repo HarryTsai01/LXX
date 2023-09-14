@@ -16,7 +16,7 @@ VirtualMachineExecuteException::VirtualMachineExecuteException( const char *mess
 
 String* VirtualMachineExecuteException::ToString() const
 {
-    return _message;
+    return String::Format( "[VirtualMachineExecuteException] %s", _message->GetData() );
 }
 
 } // LXX

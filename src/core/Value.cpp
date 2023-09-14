@@ -2,6 +2,7 @@
 // Created by Harry on 8/5/2023.
 //
 #include "Value.h"
+#include <core/objects/Table.h>
 
 namespace LXX
 {
@@ -146,6 +147,30 @@ u32 Value::GetHashValue() const
     }
     return hashValue;
 }
+
+
+String* Value::ToString()
+{
+    static UnorderedMap<u32, String*(*)(const Value&)> ToStringFuncs =
+    {
+        {  MakeValueType( ValueType::Number , NumberType::Integer ) , []( const Value& val ) { return String::Format( "%d" , val.i ); } },
+        {  MakeValueType( ValueType::Number , NumberType::Real ) , []( const Value& val ) { return String::Format( "%f" , val.r ); } },
+        {  MakeValueType( ValueType::Boolean , 0 ) , []( const Value& val ) { return NEW_STRING(val.b ? "true" : "false"); } },
+        {  MakeValueType( ValueType::String , StringType::Long ) , []( const Value& val ) { return val.s; } },
+        {  MakeValueType( ValueType::String , StringType::Short ) , []( const Value& val ) { return val.s; } },
+        {  MakeValueType( ValueType::Nil , 0 ) , []( const Value& val ) { return NEW_STRING( "nil" ); } },
+        {  MakeValueType( ValueType::LightUserdata , 0 ) , []( const Value& val ) { return String::Format( "lightUserdata(%p)" , val.p ); } },
+        {  MakeValueType( ValueType::Table , 0 ) , []( const Value& val ) { return val.t->ToString(); } },
+        {  MakeValueType( ValueType::Function , FunctionType::LuaClosure ) , []( const Value& val ) { return String::Format( "luaClosure(%p)" , val.lc ); } },
+        {  MakeValueType( ValueType::Function , FunctionType::LightCFunction ) , []( const Value& val ) { return String::Format( "lightCFunction(%p)" , val.f ); } },
+        {  MakeValueType( ValueType::Function , FunctionType::CClosure ) , []( const Value& val ) { return String::Format( "cClosure(%p)" , val.f ); } },
+        {  MakeValueType( ValueType::Thread , 0 ) , []( const Value& val ) -> String*{ assert( false &&"not implement" ); return nullptr; } },
+        {  MakeValueType( ValueType::FullUserdata , 0 ) , []( const Value& val )-> String*{ assert( false &&"not implement" ); return nullptr; } },
+    };
+
+    return ToStringFuncs[ flags & 0xff ]( *this );
+}
+
 template<>
 s32 Value::As() const
 {

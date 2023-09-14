@@ -320,6 +320,8 @@ public:
         lc = value;
     }
 
+    String* ToString();
+
 private:
     union
     {

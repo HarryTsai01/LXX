@@ -102,7 +102,8 @@ String* Compiler::LoadScriptContent( String* scriptFileName )
 
 void Compiler::ThrowError( const char* message )
 {
-    throw ExceptionCompileError( message ,  scriptFileName , -1 );
+    //throw ExceptionCompileError( message ,  scriptFileName , -1 );
+    lexer->ThrowError( message );
 }
 
 } // LXX

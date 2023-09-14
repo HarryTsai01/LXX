@@ -18,14 +18,15 @@ using namespace std;
 class ExceptionCompileError : public ExceptionBase
 {
 public:
-    ExceptionCompileError( const char* msg,const String* fileName, s32 lineNo );
-    ExceptionCompileError( String * msg,const String* fileName, s32 lineNo );
+    ExceptionCompileError( String * msg,const String* fileName, String* line,s32 lineNo );
+    ExceptionCompileError( const char* msg,const String* fileName, const char* line,s32 lineNo );
 
     virtual String* ToString() const override;
 private:
-    const String *fileName;
-    const String *msg;
-    s32 lineNo;
+    const String *_fileName;
+    const String *_msg;
+    const String* _line;
+    s32 _lineNo;
 };
 
 } // LXX

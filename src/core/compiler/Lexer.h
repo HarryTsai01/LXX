@@ -18,6 +18,7 @@ class Lexer : public GCObject
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 
     friend class Parser;
+    friend class Compiler;
 public:
     Lexer();
     virtual void CollectReferences( GCObjectCollector& collector ) ;
@@ -37,14 +38,23 @@ public:
     void RestoreCurrentPosition();
 
 private:
-    bool NextTokenImpl( CompatToken& token  , const char* & _currentChar , const char* & _endChar , u32 & _lineNo);
-    void ThrowError( const char *message );
-    void ThrowErrorImpl( const char *message , u32 _lineNo );
+    bool NextTokenImpl( CompatToken& token  , const char* & _currentChar , const char* & _endChar , u32 & _lineNo , const char* & _currentLineStart );
+    template <typename ... Args>
+    void ThrowError( const char *format, Args ... args )
+    {
+        ThrowErrorImpl( String::Format( format , std::forward<Args>(args)... ) , lineNo , currentLineStart );
+    }
+    void ThrowErrorImpl( String *message , u32 _lineNo , const char* _currentLineStart );
+    void ThrowErrorImpl( const char *message , u32 _lineNo , const char* _currentLineStart )
+    {
+        ThrowErrorImpl( NEW_STRING( message ) , _lineNo , _currentLineStart );
+    }
 private:
     String* sourceFileName;
     String* scriptContent;
-    const char* CurrentChar;
-    const char* EndChar;
+    const char* currentLineStart;
+    const char* currentChar;
+    const char* endChar;
     u32 lineNo;
 
     const char* savedCurrentChar;

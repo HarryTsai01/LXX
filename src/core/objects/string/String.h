@@ -52,7 +52,7 @@ public:
         return Compare( other.data , mode );
     }
 
-    u32 Compare( const CharType *str  ,  enum Compare mode = Compare::CaseSensitive ) const
+    s32 Compare( const CharType *str  ,  enum Compare mode = Compare::CaseSensitive ) const
     {
         auto convertChar = []( CharType ch ,  enum Compare mode ) -> s32
         {

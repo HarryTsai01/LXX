@@ -5,6 +5,7 @@
 #include "LexerUtil.h"
 #include "Token.h"
 #include <cstring>
+#include <core/Utilities.h>
 
 namespace LXX
 {
@@ -146,5 +147,14 @@ bool LexerUtil::IsEndOfToken( char ch )
            || IsBinaryOperator( ch );
 }
 
+void LexerUtil::GetLine(char *destBuff , u32 buffSize , const char* lineStartPos , const char* sourceEndPos )
+{
+    const char *_curLinePos = lineStartPos;
+    while( _curLinePos[0] != '\n' && _curLinePos < sourceEndPos ) ++ _curLinePos;
+    u32 curLineLength = _curLinePos - lineStartPos;
+    curLineLength = Min( curLineLength , buffSize - 1 );
+
+    std::strncpy( destBuff , lineStartPos , curLineLength );
+}
 
 } // LXX

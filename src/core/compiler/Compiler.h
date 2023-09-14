@@ -89,9 +89,7 @@ private:
     template <typename ... Args>
     void ThrowError( const char *format, Args ... args )
     {
-        throw ExceptionCompileError(
-                    String::Format( format, std::forward<Args>( args )... )
-                                     ,  scriptFileName , -1 );
+        lexer->ThrowError( format , std::forward<Args>(args)... );
     }
     String* LoadScriptContent( String* scriptFileName );
     StatementBase* CompileAST(String* scriptContent );

@@ -119,6 +119,7 @@ public:
     u32 GetAbsIndex( s32 idx );
     Value* IndexToValue( s32 idx );
     u32 GetTop() const { return _top; }
+    void SetTop( u32 top ) { _top = top; }
 private:
     Array< Value > _data;
     Array< StackFrame > _frames;

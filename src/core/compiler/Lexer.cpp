@@ -19,8 +19,8 @@ namespace LXX
 Lexer::Lexer()
     : sourceFileName( nullptr )
     , scriptContent( nullptr )
-    , CurrentChar(nullptr )
-    , EndChar( nullptr )
+    , currentChar(nullptr )
+    , endChar(nullptr )
     , lineNo( 1 )
     , savedCurrentChar( nullptr )
     , savedLineNo( -1 )
@@ -34,8 +34,8 @@ bool Lexer::LoadScriptContent( String *scriptContent , String *sourceFileName )
     this->scriptContent = scriptContent;
     this->sourceFileName = sourceFileName;
 
-    CurrentChar = scriptContent->GetData();
-    EndChar = CurrentChar + scriptContent->GetLength();
+    currentChar = scriptContent->GetData();
+    endChar = currentChar + scriptContent->GetLength();
 
     return  true;
 }
@@ -43,9 +43,9 @@ bool Lexer::LoadScriptContent( String *scriptContent , String *sourceFileName )
 
 bool Lexer::LookAheadToken( CompatToken& token )
 {
-    const char* _currentChar = CurrentChar;
+    const char* _currentChar = currentChar;
     u32 _lineNo = lineNo;
-    return NextTokenImpl(token , _currentChar , EndChar , _lineNo );
+    return NextTokenImpl(token , _currentChar , endChar , _lineNo , currentLineStart );
 }
 
 
@@ -84,7 +84,7 @@ bool Lexer::LookAheadTokenIf( CompatToken& token , s32 tokenType1 , s32 tokenTyp
 
 bool Lexer::NextToken( CompatToken &token )
 {
-    return NextTokenImpl( token , CurrentChar , EndChar , lineNo );
+    return NextTokenImpl(token , currentChar , endChar , lineNo , currentLineStart );
 }
 
 
@@ -133,7 +133,7 @@ bool Lexer::NextTokenIf(  CompatToken& token , s32 tokenType1 , s32 tokenType2 ,
 }
 
 
-bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , const char* & _endChar , u32 & _lineNo)
+bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , const char* & _endChar , u32 & _lineNo , const char *&_currentLineStart )
 {
 #define SKIP_WHITESPACE() { \
         while ( _currentChar < _endChar \
@@ -158,6 +158,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
         case '\n':
             _currentChar += 1;
             ++ _lineNo;
+            _currentLineStart = _currentChar;
             break;
         case ' ':
         case '\t':
@@ -192,13 +193,17 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                                 }
                                 else
                                 {
-                                    if(_currentChar[0] == '\n' ) ++ _lineNo;
+                                    if(_currentChar[0] == '\n' )
+                                    {
+                                        ++ _lineNo;
+                                        _currentLineStart = _currentChar + 1;
+                                    }
                                     ++ _currentChar;
                                 }
                             }
 
                             if ( !bMultiLineCommentCompleted )
-                                ThrowErrorImpl( "Multi line comment not completed"  , _lineNo );
+                                ThrowErrorImpl( "Multi line comment not completed"  , _lineNo , _currentLineStart );
                         }
                         else
                         {
@@ -244,13 +249,13 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                         }
                         else
                         {
-                            ThrowErrorImpl( "Invalid number" , _lineNo );
+                            ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
                         }
                     }
                     const char * numEnd = _currentChar - 1;
 
                     if ( numStart == numEnd )
-                        ThrowErrorImpl( "Invalid number" , _lineNo );
+                        ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
 
                     u32 num = 0 ;
                     u32 bitIndex = 0 ;
@@ -275,7 +280,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                             if ( curVal >= '0' && curVal <= '7' )
                                 curVal -= '0' ;
                             else
-                                ThrowErrorImpl( "Invalid number" , _lineNo );
+                                ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
                             num <<=  3;
                             num += curVal;
                         }
@@ -284,7 +289,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                             if  ( curVal >= '0' && curVal <= '1' )
                                 curVal -= '0' ;
                             else
-                                ThrowErrorImpl( "Invalid number" , _lineNo );
+                                ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
                             num <<= 1;
                             num += curVal;
                         }
@@ -306,7 +311,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                             if (_currentChar[0] == '.' )
                             {
                                 if ( bHasDot )
-                                    ThrowErrorImpl( "Invalid number, Multiple dots" , _lineNo );
+                                    ThrowErrorImpl( "Invalid number, Multiple dots" , _lineNo , _currentLineStart );
 
                                 bHasDot = true;
                             }
@@ -318,7 +323,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                         }
                         else
                         {
-                            ThrowErrorImpl( "Invalid number" , _lineNo );
+                            ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
                         }
                     }
                     const char *numEnd = _currentChar - 1;
@@ -363,7 +368,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                 while (_currentChar < _endChar )
                 {
                     if (_currentChar[0] == '\r' || _currentChar[0] == '\n' )
-                        ThrowErrorImpl( "Invalid string , Expected '\'' or '\"' " ,  _lineNo );
+                        ThrowErrorImpl( "Invalid string , Expected '\'' or '\"' " ,  _lineNo , _currentLineStart );
                     else if (_currentChar[0] == '\'' && bSingleQuote
                              || _currentChar[0] == '\"' && !bSingleQuote )
                     {
@@ -373,7 +378,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                     }
                     ++ _currentChar;
                 }
-                ThrowErrorImpl( "Invalid string , Expected '\'' or '\"' " ,  _lineNo );
+                ThrowErrorImpl( "Invalid string , Expected '\'' or '\"' " ,  _lineNo , _currentLineStart );
             }
             break;
         case '[':
@@ -402,13 +407,16 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                         }
 
                         if (  _currentChar[0] == '\n' )
+                        {
                             ++ _lineNo;
+                            _currentLineStart = _currentChar + 1 ;
+                        }
 
                         ++ _currentChar;
                     }
 
                     if( !bCompleteString )
-                        ThrowErrorImpl( "Invalid long string" , _lineNo );
+                        ThrowErrorImpl( "Invalid long string" , _lineNo , _currentLineStart );
 
                     token.SetAsStringToken(str_beg , _currentChar );
 
@@ -461,7 +469,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                         }
                         else
                         {
-                            ThrowErrorImpl( "Invalid number" , _lineNo );
+                            ThrowErrorImpl( "Invalid number" , _lineNo , _currentLineStart );
                         }
                     }
 
@@ -615,7 +623,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                         }
                         else
                         {
-                            ThrowErrorImpl( "Invalid identifier" , _lineNo );
+                            ThrowErrorImpl( "Invalid identifier" , _lineNo , _currentLineStart );
                         }
                     }
                     // check if it is a reverse token
@@ -632,7 +640,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
                 }
                 else
                 {
-                    ThrowErrorImpl( "Invalid identifier" , _lineNo );
+                    ThrowErrorImpl( "Invalid identifier" , _lineNo , _currentLineStart );
                 }
 
             }
@@ -649,30 +657,26 @@ void Lexer::CollectReferences( GCObjectCollector& collector )
 }
 
 
-void Lexer::ThrowErrorImpl( const char *message , u32 _lineNo )
+void Lexer::ThrowErrorImpl( String *message , u32 _lineNo , const char *_currentLineStart )
 {
-    throw ExceptionCompileError( message , sourceFileName , _lineNo );
+    char currentLine[256] = {0};
+    LexerUtil::GetLine( currentLine , 256 , _currentLineStart , endChar );
+
+    throw ExceptionCompileError( message , sourceFileName , NEW_STRING( currentLine ) , _lineNo );
 }
 
 
 void Lexer::SaveCurrentPosition()
 {
     savedLineNo = lineNo;
-    savedCurrentChar = CurrentChar;
+    savedCurrentChar = currentChar;
 }
 
 
 void Lexer::RestoreCurrentPosition()
 {
     lineNo = savedLineNo;
-    CurrentChar = savedCurrentChar;
+    currentChar = savedCurrentChar;
 }
-
-
-void Lexer::ThrowError( const char *message )
-{
-    ThrowErrorImpl( message , lineNo );
-}
-
 
 } // LXX

@@ -27,6 +27,8 @@ public:
 
     Table* GetMetaTable();
     void SetMetaTable( Table* table );
+
+    String* ToString() const;
 private:
     template<typename ...Args>
     void ThrowError( const char *format, Args ...args )
