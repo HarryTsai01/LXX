@@ -175,7 +175,7 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
         ThrowError( " invalid call instruction, function is null" );
     if( function->IsFunction() )
     {
-        ProtectCall( state, argumentValueCount );
+        Call( state, argumentValueCount );
         destOperand->Set(callInfo->GetActualReturnValueNum() );
         return;
     }
@@ -365,6 +365,14 @@ void VirtualMachine::InstructionExecute_OpcodeGetField( InstructionExecuteContex
         Value* value = table->GetField( this , *srcOperand2 );
         destOperand->Set( value );
     }
+    else
+    {
+        MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( srcOperand1->GetType() );
+        if( handler == nullptr )
+            ThrowError("invalid get field for valueType:%d" , srcOperand1->GetType() );
+
+        handler->Invoke( MetaMethodHandler::META_METHOD_KEY_INDEX , destOperand , srcOperand1 , srcOperand2 );
+    }
 }
 
 
@@ -382,11 +390,19 @@ void VirtualMachine::InstructionExecute_OpcodeSetField( InstructionExecuteContex
     if( srcOperand1 == nullptr )
         ThrowError("invalid set field opcode with null field value" );
 
-    if( !destOperand->IsTable() )
-        ThrowError("invalid set field opcode with non-table operand , type :%d", destOperand->GetType() );
+    if( destOperand->IsTable() )
+    {
+        Table *table = destOperand->As<Table*>();
+        table->SetField( this , *srcOperand1 , *srcOperand2 );
+    }
+    else
+    {
+        MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( destOperand->GetType() );
+        if( handler == nullptr )
+            ThrowError("could not set field for valueType:%d" , srcOperand1->GetType() );
 
-    Table *table = destOperand->As<Table*>();
-    table->SetField( this , *srcOperand1 , *srcOperand2 );
+        handler->Invoke( MetaMethodHandler::META_METHOD_KEY_NEW_INDEX , destOperand , srcOperand1 , srcOperand2 );
+    }
 }
 
 

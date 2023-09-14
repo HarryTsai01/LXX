@@ -19,7 +19,7 @@ public:
     virtual ~StringExpression();
     virtual void CollectReferences( GCObjectCollector &collector ) override;
 
-    const String* GetValue() const { return _value; }
+    String* GetValue() const { return _value; }
 
 private:
     String* _value;

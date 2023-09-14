@@ -132,6 +132,7 @@ public:
     bool Startup();
     void Shutdown();
 
+    bool Call(State *state, u32 nArgs );
     bool ProtectCall(State *state, u32 nArgs );
 
 
@@ -181,8 +182,6 @@ public:
     LuaClosure* CompileString( const char* scriptContent );
     bool Execute( const char* scriptContent );
 private:
-    u32 CallLuaClosure( State *state , LuaClosure *closure );
-private:
     void RegisterAPI();
     void OnStartup();
     void OnShutdown();
@@ -193,6 +192,7 @@ private:
     }
 
 private:
+    u32 CallLuaClosure( State *state , LuaClosure *closure );
     // >>>  InstructionExecuteFunction
     struct InstructionExecuteContext
     {

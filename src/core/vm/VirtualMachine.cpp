@@ -58,44 +58,53 @@ void VirtualMachine::OnShutdown()
 {
 }
 
+
+bool VirtualMachine::Call(State *state, u32 nArgs )
+{
+    Stack& stack =  state->GetStack();
+    s32 functionIdx = -nArgs - 1;
+
+    if( !stack.IsFunction( functionIdx ) )
+        ThrowError( "call a invalid function" );
+    if( stack.IsLightCFunction( functionIdx ) )
+    {
+        FunctionCallScope scope( state
+                , &stack
+                , stack.GetAbsIndex(functionIdx )
+                , nArgs
+        );
+
+        CFunction f = stack.GetLightCFunction( functionIdx, false );
+        state->SetLastFunctionCallReturnValueCount(f( state ) );
+
+    }
+    else if( stack.IsLuaClosure( functionIdx ) )
+    {
+        LuaClosure *lc = stack.GetLuaClosure( functionIdx , false );
+        FunctionCallScope scope( state
+                , &stack ,
+                                 stack.GetAbsIndex(functionIdx )
+                , nArgs
+                , lc->GetLocalVariableCount()
+                , lc->GetTemporaryVariableCount()
+        );
+
+        state->SetLastFunctionCallReturnValueCount( CallLuaClosure( state , lc ) ); ;
+    }
+    else if( stack.IsCClosure( functionIdx ) )
+    {
+        ThrowError( "not implemented" );
+    }
+
+    return true;
+}
+
+
 bool VirtualMachine::ProtectCall( State *state , u32 nArgs )
 {
     try
     {
-        Stack& stack =  state->GetStack();
-        s32 functionIdx = -nArgs - 1;
-
-        if( !stack.IsFunction( functionIdx ) )
-            ThrowError( "call a invalid function" );
-        if( stack.IsLightCFunction( functionIdx ) )
-        {
-            FunctionCallScope scope( state
-                                     , &stack
-                                     , stack.GetAbsIndex(functionIdx )
-                                     , nArgs
-                                     );
-
-            CFunction f = stack.GetLightCFunction( functionIdx, false );
-            state->SetLastFunctionCallReturnValueCount(f( state ) );
-
-        }
-        else if( stack.IsLuaClosure( functionIdx ) )
-        {
-            LuaClosure *lc = stack.GetLuaClosure( functionIdx , false );
-            FunctionCallScope scope( state
-                                     , &stack ,
-                                     stack.GetAbsIndex(functionIdx )
-                                     , nArgs
-                                     , lc->GetLocalVariableCount()
-                                     , lc->GetTemporaryVariableCount()
-                                     );
-
-            state->SetLastFunctionCallReturnValueCount( CallLuaClosure( state , lc ) ); ;
-        }
-        else if( stack.IsCClosure( functionIdx ) )
-        {
-            ThrowError( "not implemented" );
-        }
+        Call( state , nArgs );
     }
     catch ( ExceptionBase& e)
     {

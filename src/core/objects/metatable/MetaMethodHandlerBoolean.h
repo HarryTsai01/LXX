@@ -14,7 +14,8 @@ class MetaMethodHandlerBoolean : public MetaMethodHandler
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    MetaMethodHandlerBoolean() = default;
+    MetaMethodHandlerBoolean();
+    DECLARE_META_METHOD( META_METHOD_KEY_BIN_OP_EQUAL )
 };
 
 
