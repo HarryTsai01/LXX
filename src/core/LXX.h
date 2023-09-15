@@ -6,6 +6,7 @@
 #define XLUA_XLUA_H
 #include <new>
 #include <cstddef>
+#include <core/LXX.config.h>
 
 namespace LXX
 {

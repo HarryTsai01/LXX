@@ -29,6 +29,24 @@ T clamp(T value, T min, T max )
     return Min(Max(value, min), max);
 }
 
+template<typename T , bool bigEndian = true>
+void ReadFromBuffer( T& dest , u8* buffer )
+{
+    u32 byteNum = sizeof( T );
+    u8 *destPtr = reinterpret_cast<u8*>( &dest );
+    for( u32 i = 0 ; i < byteNum ; i++ )
+        destPtr[ bigEndian ? i : byteNum - i - 1 ] = buffer[i];
+}
+
+template<typename T , bool bigEndian = true>
+void WriteToBuffer( T& data , u8* buffer )
+{
+    u32 byteNum = sizeof( T );
+    u8 * src = reinterpret_cast<u8*>( &data );
+    for( u32 i = 0 ; i < byteNum ; i++ )
+        buffer[i] = src[ bigEndian ? i :byteNum - i - 1 ];
+}
+
 }
 
 #endif //XLUA_UTILITIES_H
