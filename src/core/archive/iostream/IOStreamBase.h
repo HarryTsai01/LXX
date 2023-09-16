@@ -35,6 +35,13 @@ public:
         return *this;
     }
 
+    template<typename T>
+    IOStreamBase& operator>>( T& data )
+    {
+        Serialize( data );
+        return *this;
+    }
+
 
 protected:
     ArchiveBase& _archive;

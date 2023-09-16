@@ -15,11 +15,11 @@ bool ArchiveFileWriter::Open()
 }
 
 
-void ArchiveFileWriter::Serialize( void* buffer, size_t size )
+u32 ArchiveFileWriter::Serialize( void* buffer, size_t size )
 {
     if ( _file == nullptr )
-        return;
-    fwrite( buffer, size, 1, _file );
+        return 0;
+    return fwrite( buffer, size, 1, _file );
 }
 
 

@@ -10,9 +10,9 @@ namespace Debugger
 {
 
 
-bool ConnectionClient::Connect( Channel *channel )
+bool ConnectionClient::Connect( Channel *channel , ConnectArgument *argument )
 {
-    return channel->Connect();
+    return channel->Connect( argument );
 }
 
 }

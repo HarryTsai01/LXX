@@ -18,7 +18,7 @@ Backend::Backend()
 
 bool Backend::Startup( Session::ChannelType channelType )
 {
-   _session = new Session( channelType , Session::Role::Server );
+   _session = new SessionServer( channelType );
    return _session->Initialize();
 }
 

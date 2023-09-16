@@ -18,8 +18,14 @@ Frontend::Frontend()
 
 bool Frontend::Startup( Session::ChannelType channelType )
 {
-    _session = new Session( channelType , Session::Role::Client );
+    _session = new SessionClient( channelType );
     return _session->Initialize();
+}
+
+
+bool Frontend::Connect( ConnectArgument* argument )
+{
+    return _session->Connect( argument );
 }
 
 

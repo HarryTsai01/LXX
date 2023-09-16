@@ -16,12 +16,12 @@ bool ArchiveFileReader::Open()
 }
 
 
-void ArchiveFileReader::Serialize( void* buffer, size_t size )
+u32 ArchiveFileReader::Serialize( void* buffer, size_t size )
 {
     if( !_file )
-        return;
+        return 0;
 
-    fread( buffer, size, 1, _file );
+    return fread( buffer, size, 1, _file );
 }
 
 

@@ -35,6 +35,12 @@ public:
 
     /* max short string length */
     static constexpr u32 MAX_SHORT_STRING_LENGTH = 40 ;
+
+    /* max pipe buffer size for debugger */
+    static constexpr u32 DEBUGGER_MAX_PIPE_BUFFER_SIZE = 4096;
+
+    /* max protocol size for debugger */
+    static constexpr u32 DEBUGGER_MAX_PROTOCOL_SIZE = 1024;
 };
 
 }

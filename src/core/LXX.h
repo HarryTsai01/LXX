@@ -8,9 +8,11 @@
 #include <cstddef>
 #include <core/LXX.config.h>
 
+
 namespace LXX
 {
 
+#define ENABLE( x ) ( x == 1 )
 
 typedef unsigned char u8;
 typedef unsigned short u16;

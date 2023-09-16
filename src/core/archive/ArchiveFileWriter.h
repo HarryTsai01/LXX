@@ -12,11 +12,12 @@ namespace LXX
 
 class ArchiveFileWriter : public ArchiveFile
 {
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     using ArchiveFile::ArchiveFile;
 
     virtual bool Open() ;
-    virtual void Serialize( void* buffer, size_t size ) ;
+    virtual u32 Serialize( void* buffer, size_t size ) ;
     virtual bool IsReader() const { return false; }
 };
 

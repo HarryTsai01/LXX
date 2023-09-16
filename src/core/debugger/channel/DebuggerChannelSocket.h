@@ -11,13 +11,17 @@ namespace LXX
 {
 namespace Debugger
 {
+
+
 class ChannelSocket : public Channel
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    ChannelSocket() = default;
+    ChannelSocket();
 
 }; // ChannelSocket
+
+
 } // Debugger
 } // LXX
 

@@ -24,7 +24,7 @@ T Min(T a, T b)
 
 
 template<typename T>
-T clamp(T value, T min, T max )
+T Clamp(T value, T min, T max )
 {
     return Min(Max(value, min), max);
 }

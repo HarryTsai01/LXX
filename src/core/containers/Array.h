@@ -362,7 +362,7 @@ public:
         return m_pData[ index ];
     }
 
-    ElementType operator[]( IndexType index ) const
+    const ElementType& operator[]( IndexType index ) const
     {
         assert(IsValidIndex( index ) );
         return m_pData[ index ];

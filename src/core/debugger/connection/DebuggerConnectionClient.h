@@ -10,12 +10,14 @@ namespace LXX
 {
 namespace Debugger
 {
+
+
 class ConnectionClient : public Connection
 {
 public:
     ConnectionClient() = default;
 
-    bool Connect( Channel *channel );
+    bool Connect( Channel *channel ,  ConnectArgument* argument );
 
 }; // ConnectionClient
 } // Debugger

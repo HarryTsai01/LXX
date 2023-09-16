@@ -7,7 +7,7 @@
 #include <core/LXX.h>
 #include <core/mem/MemoryAllocator.h>
 #include <core/Singleton.h>
-#include <core/debugger/DebuggerSession.h>
+#include <core/debugger/session/DebuggerSessionServer.h>
 
 namespace LXX
 {
@@ -15,6 +15,7 @@ namespace Debugger
 {
 class Backend :  public Singleton<Backend>
 {
+    friend class Singleton<Backend>;
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     bool Startup( Session::ChannelType channelType );
@@ -24,7 +25,7 @@ private:
     Backend( Backend&& ) = delete;
     ~Backend() = default;
 private:
-    Session *_session;
+    SessionServer *_session;
 };
 } // Debugger
 } // LXX

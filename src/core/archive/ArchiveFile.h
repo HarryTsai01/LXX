@@ -14,13 +14,8 @@ namespace LXX
 
 class ArchiveFile : public ArchiveBase
 {
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    enum class SeekMode
-    {
-        Begin,
-        Current,
-        End
-    };
     ArchiveFile( String *fileName , bool isBinary );
     ArchiveFile( const char *fileName , bool isBinary )
     : ArchiveFile( NEW_STRING( fileName ) ,  isBinary )
@@ -32,9 +27,9 @@ public:
 
     void Close();
 
-    u64 GetFileSize();
-    u64 Tell();
-    u64 Seek( u64 offset , SeekMode mode );
+    virtual u64 GetFileSize() override;
+    virtual u64 Tell() override;
+    virtual u64 Seek( u64 offset , SeekMode mode ) override;
 protected:
     virtual bool Open() = 0;
 private:

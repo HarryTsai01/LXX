@@ -5,6 +5,7 @@
 #ifndef XLUA_IOSTREAM_H
 #define XLUA_IOSTREAM_H
 #include "IOStreamBase.h"
+#include <core/utilities.h>
 
 namespace LXX
 {
@@ -77,6 +78,10 @@ public:
         IOStreamBase::Serialize( &data , 1 );
     }
 };
+
+using IOStreamLE = IOStream< false >;
+using IOStreamBE = IOStream< true >;
+
 
 } // LXX
 
