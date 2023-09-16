@@ -39,12 +39,12 @@ private:
         virtual ~Proxy() = default;
         virtual Base* Create() = 0;
     };
-    template<typename T>
+    template<typename T , s32 protocolType>
     class ProxyImpl : public Proxy
     {
     public:
         using Proxy::Proxy;
-        virtual Base* Create() override { return new T(); }
+        virtual Base* Create() override;
     };
 
 private:

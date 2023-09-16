@@ -40,16 +40,22 @@ IOStreamBase& operator >> ( IOStreamBase &stream, ProtocolType& type )
 class Base
 {
 public:
-    Base() = default;
+    Base( ProtocolType protocolType )
+        : _protocolType( protocolType )
+    {
+
+    }
     virtual ~Base() = default;
 
-    virtual void Serialize( IOStreamBase &stream ) = 0;
+    virtual void Serialize( IOStreamBase &stream );
 
     template< bool BigEndian>
     friend IOStream<BigEndian> & operator <<( IOStream<BigEndian> &stream, Base *base );
 
     template< bool BigEndian>
     friend IOStream<BigEndian> & operator >>( IOStream<BigEndian> &stream, Base *&base );
+protected:
+    ProtocolType _protocolType;
 }; // Base
 
 template< bool BigEndian>

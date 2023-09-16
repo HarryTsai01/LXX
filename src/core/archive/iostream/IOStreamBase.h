@@ -42,6 +42,9 @@ public:
         return *this;
     }
 
+    bool IsReading() const { return _archive.IsReader() ; }
+    bool IsWriting() const { return _archive.IsWriter() ; }
+
 
 protected:
     ArchiveBase& _archive;

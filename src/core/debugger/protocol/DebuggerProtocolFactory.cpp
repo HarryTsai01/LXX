@@ -12,13 +12,21 @@ namespace Debugger
 namespace Protocol
 {
 
+#define BEGIN_DEFINE_PROTOCOL() _protocols = {
+#define DEFINE_PROTOCOL_ITEM( protocolType , protocolClass ) { static_cast<s32>( protocolType ) , new ProxyImpl< protocolClass , static_cast<s32>( protocolType )>() },
+#define END_DEFINE_PROTOCOL() };
+
+template<typename T , s32 protocolType>
+Base* Factory::ProxyImpl<T,protocolType>::Create()
+{
+    return new T( static_cast<ProtocolType>( protocolType ) );
+}
 
 Factory::Factory()
 {
-    _protocols =
-    {
-        { static_cast<s32>(ProtocolType::F2B_Hello) , new ProxyImpl<F2BHello>() },
-    };
+    BEGIN_DEFINE_PROTOCOL()
+        DEFINE_PROTOCOL_ITEM( ProtocolType::F2B_Hello , F2BHello )
+    END_DEFINE_PROTOCOL()
 }
 
 

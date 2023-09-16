@@ -17,10 +17,11 @@ namespace Protocol
 class F2BHello : public Base
 {
 public:
-    F2BHello() = default;
-    virtual ~F2BHello() = default;
+    using Base::Base;
 
     void Serialize( IOStreamBase &stream ) ;
+private:
+    Version _version;
 };
 
 

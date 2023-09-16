@@ -4,5 +4,20 @@
 
 #include "DebuggerProtocol.h"
 
-namespace LXX {
+namespace LXX
+{
+namespace Debugger
+{
+namespace Protocol
+{
+
+
+void Base::Serialize( IOStreamBase &stream )
+{
+    stream << _protocolType;
+}
+
+
+}
+}
 } // LXX
