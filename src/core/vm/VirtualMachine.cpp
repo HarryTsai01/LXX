@@ -5,11 +5,13 @@
 #include <iostream>
 #include <core/mem/MemoryAllocator.h>
 #include <core/exceptions/ExceptionBase.h>
+#include <core/log/log.h>
 
 
 namespace LXX
 {
 
+using namespace LOG;
 
 VirtualMachine::VirtualMachine()
     : _globalState( nullptr )
@@ -28,6 +30,7 @@ bool VirtualMachine::Startup()
         std::cout << e.ToString() << std::endl;
         return false;
     }
+    Log( LogCategory::LXX , "[VirtualMachine] Startup " );
     return true;
 }
 
@@ -42,6 +45,7 @@ void VirtualMachine::Shutdown()
     {
         std::cout << e.ToString() << std::endl;
     }
+    Log( LogCategory::LXX , "[VirtualMachine] Shutdown " );
 }
 
 

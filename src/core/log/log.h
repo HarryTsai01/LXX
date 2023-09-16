@@ -5,6 +5,7 @@
 #ifndef XLUA_LOG_H
 #define XLUA_LOG_H
 #include <utility>
+#include <iostream>
 namespace LXX
 {
 namespace LOG
@@ -26,8 +27,20 @@ enum class LogCategory
     Interpreter,
 };
 
+const char* GetLogCategoryName( LogCategory logCategory );
+const char* GetLogLevelName( LogLevel logLevel );
+
 template< typename ... Args>
-void Logf( LogLevel level , LogCategory category , const char* format , Args ...args );
+void Logf( LogLevel level , LogCategory category , const char* format , Args ...args )
+{
+    char buff[ 1024 ];
+    snprintf(buff, sizeof(buff), format, args...) ;
+    std::cout
+            << "[" << GetLogCategoryName( category ) << "]"
+            << "[" << GetLogLevelName( level ) << "]"
+            << buff
+            << std::endl;
+}
 
 template< typename ... Args>
 void LogCritical( LogCategory category , const char* format , Args ... args )
