@@ -4,6 +4,8 @@
 
 #include "DebuggerSessionServer.h"
 #include <core/debugger/connection/DebuggerConnectionServer.h>
+#include <core/debugger/protocol/B2FWelcome.h>
+#include <core/debugger/protocol/B2FCloseConnection.h>
 
 namespace LXX
 {
@@ -28,9 +30,17 @@ void SessionServer::OnRegisterProtocolHandler()
 }
 
 
-IMPLEMENT_PROTOCOL_HANDLER(SessionServer,F2BHello)
+IMPLEMENT_PROTOCOL_HANDLER( SessionServer,F2BHello )
 {
-
+    auto frontendVersion = protocol->GetVersion();
+    if( GLXXDebuggerVersion < frontendVersion )
+    {
+        _channel->Send( new Protocol::B2FCloseConnection( Protocol::B2FCloseConnection::Reason::FrontendVersionGreaterThanBackend ) );
+    }
+    else
+    {
+        _channel->Send( new Protocol::B2FWelcome() );
+    }
 }
 
 

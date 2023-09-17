@@ -48,6 +48,12 @@ void Session::OnDisconnected()
 }
 
 
+void Session::Close()
+{
+    _channel->Close();
+}
+
+
 void Session::UnRegisterAllProtocolHandler()
 {
     for( auto [_,protocolHandler] : _protocolHandlers)

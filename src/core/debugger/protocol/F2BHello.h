@@ -21,6 +21,8 @@ public:
     using Base::Base;
 
     void Serialize( IOStreamBase &stream ) ;
+
+    Version GetVersion() const { return _version; }
 private:
     Version _version;
 };

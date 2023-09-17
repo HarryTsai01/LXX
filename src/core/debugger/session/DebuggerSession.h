@@ -38,6 +38,7 @@ public:
 
     bool Initialize();
     void Destroy();
+    void Close();
     virtual Role GetRole() const =  0;
 
     template<typename ConnectionType>
@@ -59,7 +60,7 @@ protected:
 #define DECLARE_PROTOCOL_HANDLER(protocolType) void OnProtocol_##protocolType( Protocol::protocolType *protocol );
 #define IMPLEMENT_PROTOCOL_HANDLER( Class , protocolType) void Class::OnProtocol_##protocolType( Protocol::protocolType *protocol )
 
-    protected:
+protected:
     virtual bool OnInitialize() = 0;
     virtual void OnRegisterProtocolHandler() = 0 ;
 private:

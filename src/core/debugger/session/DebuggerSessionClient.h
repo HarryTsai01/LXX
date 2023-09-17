@@ -6,6 +6,8 @@
 #define XLUA_DEBUGGERSESSIONCLIENT_H
 #include "DebuggerSession.h"
 #include <core/debugger/connection/DebuggerConnectionClient.h>
+#include <core/debugger/protocol/B2FWelcome.h>
+#include <core/debugger/protocol/B2FCloseConnection.h>
 
 namespace LXX
 {
@@ -24,6 +26,11 @@ public:
 private:
     virtual bool OnInitialize() override;
     virtual void OnRegisterProtocolHandler() override;
+
+    // >>> Protocol Handler
+    DECLARE_PROTOCOL_HANDLER(B2FWelcome);
+    DECLARE_PROTOCOL_HANDLER(B2FCloseConnection);
+    // <<< Protocol Handler
 
 };
 

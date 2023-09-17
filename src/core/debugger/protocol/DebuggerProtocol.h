@@ -25,6 +25,8 @@ enum class ProtocolType
 
     // >> the protocol from frontend to backend
     B2F_Start,
+    B2F_Welcome,
+    B2F_CloseConnection,
     Max,
     // << the protocol from backend to frontend
 };
