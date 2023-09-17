@@ -67,7 +67,7 @@ IMPLEMENT_PROTOCOL_HANDLER( SessionClient , B2FWelcome)
 
 IMPLEMENT_PROTOCOL_HANDLER( SessionClient , B2FCloseConnection )
 {
-    LOG::LogWarning( LOG::LogCategory::Debugger ,
+    LOG::LogCritical( LOG::LogCategory::Debugger ,
                      "Backend close connection ,the reason is %s",
                      protocol->GetReason()
             );

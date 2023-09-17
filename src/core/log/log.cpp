@@ -11,6 +11,9 @@ namespace LOG
 {
 
 
+EventOnPreLogEvent GOnPreLogEvent;
+EventOnPostLogEvent GOnPostLogEvent;
+
 static UnorderedMap< LogLevel , const char* > logLevelToNames =
 {
         { LogLevel::Critical , "Critical" } ,
@@ -25,6 +28,7 @@ static UnorderedMap< LogCategory , const char* > logCategoryToNames =
         { LogCategory::LXX , "LXX" } ,
         { LogCategory::Debugger , "Debugger" } ,
         { LogCategory::Interpreter , "Interpreter" } ,
+        { LogCategory::StateMachine , "StateMachine" } ,
 };
 
 

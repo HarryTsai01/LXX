@@ -4,30 +4,22 @@
 #include <core/LXX.h>
 #include <core/log/log.h>
 #include <iostream>
+#include "StateMachine.h"
 
 using namespace LXX;
 using namespace LXX::LOG;
-
-void PrintVersionInfo()
-{
-    Log( LogCategory::Debugger , " Welcome to use LXX debugger, current version is %d.%d.%d.%d"
-             , GLXXDebuggerVersion._major
-            , GLXXDebuggerVersion._minor
-            , GLXXDebuggerVersion._build
-            , GLXXDebuggerVersion._revision
-         );
-}
+using namespace LXX::Debugger;
 
 int main( int argc , const char ** argv )
 {
-    PrintVersionInfo();
-    std::cout << ">>>";
-    while( true )
+    StateMachine::GetInstance().Initialize();
+    StateMachine::GetInstance().Startup();
+
+    while( !StateMachine::GetInstance().IsRequestExitProgram() )
     {
-        char buff[1024] = { 0 };
-        std::cin >> buff;
-        std::cout << buff << std::endl;
-        std::cout << ">>>";
+        StateMachine::GetInstance().Update();
     }
+    StateMachine::GetInstance().Shutdown();
+    StateMachine::GetInstance().Destroy();
     return 0;
 }

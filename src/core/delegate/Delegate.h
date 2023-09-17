@@ -81,6 +81,11 @@ public:
         _bindings = nullptr;
     }
 
+    ReturnType InvokeIfBound(Args... args)
+    {
+        if( !IsBound() ) return ReturnType();
+        Invoke( std::forward<Args>(args)... );
+    }
     ReturnType Invoke(Args... args)
     {
         assert( IsBound() );
