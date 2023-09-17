@@ -24,7 +24,7 @@ public:
     virtual bool Initialize() override;
     virtual void Close() override;
     virtual bool Send( Protocol::Base* protocol ) override;
-    virtual bool Receive( Protocol::Base* protocol ) override;
+    virtual bool Receive( Protocol::Base*& protocol ) override;
 protected:
     String *_pipeName;
     System::PipeInstance _pipeInst;
@@ -35,8 +35,8 @@ class ChannelPipeServer : public ChannelPipe
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    ChannelPipeServer();
-    virtual ~ChannelPipeServer() ;
+    ChannelPipeServer() = default;
+    virtual ~ChannelPipeServer()  = default;
 
     virtual bool Bind( BindingArgument* argument ) override;
     virtual bool Listen() override;

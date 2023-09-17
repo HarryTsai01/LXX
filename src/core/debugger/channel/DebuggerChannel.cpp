@@ -4,5 +4,10 @@
 
 #include "DebuggerChannel.h"
 
-namespace LXX {
+namespace LXX
+{
+namespace Debugger
+{
+
+} // Debugger
 } // LXX

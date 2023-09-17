@@ -23,9 +23,13 @@ bool Frontend::Startup( Session::ChannelType channelType )
 }
 
 
-bool Frontend::Connect( ConnectArgument* argument )
+void Frontend::Destroy()
 {
-    return _session->Connect( argument );
+    if( _session )
+    {
+        _session->Destroy();
+        _session = nullptr;
+    }
 }
 
 

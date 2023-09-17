@@ -23,5 +23,15 @@ bool Backend::Startup( Session::ChannelType channelType )
 }
 
 
+void Backend::Destroy()
+{
+    if( _session )
+    {
+        _session->Destroy();
+        _session = nullptr;
+    }
+}
+
+
 }
 } // LXX

@@ -28,15 +28,33 @@ bool Session::Initialize()
     if( !OnInitialize() )
         return false;
 
-    _connection->BindOnDisconnect(this, &Session::OnDisconnected );
+    _channel->BindOnChannelDisconnect(this, &Session::OnDisconnected );
+
+    OnRegisterProtocolHandler();
 
     return true;
+}
+
+
+void Session::Destroy()
+{
+    UnRegisterAllProtocolHandler();
 }
 
 
 void Session::OnDisconnected()
 {
     InvokeOnSessionClosed();
+}
+
+
+void Session::UnRegisterAllProtocolHandler()
+{
+    for( auto [_,protocolHandler] : _protocolHandlers)
+    {
+        delete protocolHandler;
+    }
+    _protocolHandlers.Clear();
 }
 
 } // Debugger

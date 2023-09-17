@@ -19,6 +19,7 @@ class Backend :  public Singleton<Backend>
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     bool Startup( Session::ChannelType channelType );
+    void Destroy();
 private:
     Backend();
     Backend( const Backend& ) = delete;

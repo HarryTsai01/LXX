@@ -4,5 +4,24 @@
 
 #include "DebuggerConnection.h"
 
-namespace LXX {
+namespace LXX
+{
+namespace Debugger
+{
+
+
+bool Connection::Send( Channel *channel , Protocol::Base * protocol )
+{
+    return channel->Send( protocol );
+}
+
+
+bool Connection::Receive( Channel *channel , Protocol::Base *&protocol )
+{
+    return channel->Receive( protocol );
+}
+
+
+
+} // Debugger
 } // LXX

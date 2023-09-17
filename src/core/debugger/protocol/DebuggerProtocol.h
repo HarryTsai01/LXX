@@ -5,6 +5,7 @@
 #ifndef XLUA_DEBUGGERPROTOCOL_H
 #define XLUA_DEBUGGERPROTOCOL_H
 #include <core/archive/iostream/IOStream.h>
+#include <core/objects/GCObject.h>
 #include "DebuggerProtocolFactory.h"
 
 namespace LXX
@@ -37,8 +38,9 @@ IOStreamBase& operator >> ( IOStreamBase &stream, ProtocolType& type )
     return stream >> reinterpret_cast<s32&>( type );
 }
 
-class Base
+class Base : public GCObject
 {
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     Base( ProtocolType protocolType )
         : _protocolType( protocolType )
@@ -75,6 +77,38 @@ IOStream<BigEndian> & operator >>( IOStream<BigEndian> &stream, Base *&base )
     return stream;
 }
 
+
+class ProtocolHandler
+{
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    ProtocolHandler() = default;
+    virtual ~ProtocolHandler() = default;
+    virtual void Invoke( Base* protocol ) = 0 ;
+};
+
+template< typename ProtocolClass , typename Class , typename CallbackFunction>
+class ProtocolHandlerImpl : public ProtocolHandler
+{
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    ProtocolHandlerImpl( Class* inst , CallbackFunction inCallback )
+        : _inst( inst )
+        , _callback( inCallback )
+    {
+
+    }
+    virtual ~ProtocolHandlerImpl() = default;
+
+    virtual void Invoke( Base *protocol ) override
+    {
+        (_inst->*_callback)( dynamic_cast< ProtocolClass* >( protocol ) );
+    }
+
+private:
+    Class *_inst;
+    CallbackFunction _callback;
+};
 
 } // Protocol
 } // Debugger

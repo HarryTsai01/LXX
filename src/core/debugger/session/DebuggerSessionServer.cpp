@@ -20,5 +20,19 @@ bool SessionServer::OnInitialize()
 }
 
 
+void SessionServer::OnRegisterProtocolHandler()
+{
+    PROTOCOL_HANDLER_BEGIN()
+        PROTOCOL_HANDLER( Protocol::ProtocolType::F2B_Hello, Protocol::F2BHello ,this,SessionServer::OnProtocol_F2BHello )
+    PROTOCOL_HANDLER_END()
+}
+
+
+IMPLEMENT_PROTOCOL_HANDLER(SessionServer,F2BHello)
+{
+
+}
+
+
 } // Debugger
 } // LXX

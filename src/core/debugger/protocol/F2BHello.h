@@ -16,6 +16,7 @@ namespace Protocol
 
 class F2BHello : public Base
 {
+    OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
     using Base::Base;
 

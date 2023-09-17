@@ -48,22 +48,25 @@ bool ChannelPipe::Send( Protocol::Base* protocol )
 }
 
 
-bool ChannelPipe::Receive( Protocol::Base* protocol )
+bool ChannelPipe::Receive( Protocol::Base*& protocol )
 {
-    u8 _buffer[ Config::DEBUGGER_MAX_PROTOCOL_SIZE];
+    u8 _buffer[ Config::DEBUGGER_MAX_PROTOCOL_SIZE ];
     u32 _receiveSize = Config::DEBUGGER_MAX_PROTOCOL_SIZE;
     if( !_pipeInst.Read( _buffer, _receiveSize ) )
     {
         MemoryArchiveReader archive(  _buffer, _receiveSize );
         IOStreamBE stream( archive );
         stream >> protocol;
-
         return true;
     }
-
     return false;
 }
 
+
+bool ChannelPipeServer::Bind( BindingArgument *argument )
+{
+    return true;
+}
 
 } // Debugger
 } // LXX

@@ -22,7 +22,8 @@ public:
 
     bool Connect( ConnectArgument* connectionArgument );
 private:
-    virtual bool OnInitialize();
+    virtual bool OnInitialize() override;
+    virtual void OnRegisterProtocolHandler() override;
 
 };
 

@@ -36,6 +36,10 @@ bool SessionClient::Connect(  ConnectArgument* connectionArgument )
     return clientConnection->Connect( _channel , connectionArgument );
 }
 
+void SessionClient::OnRegisterProtocolHandler()
+{
+
+}
 
 }
 } // LXX

@@ -21,6 +21,7 @@ class Frontend : public Singleton<Frontend>
 public:
     bool Startup( Session::ChannelType channelType );
     bool Connect( ConnectArgument* argument );
+    void Destroy( );
 private:
     Frontend();
     Frontend(const Frontend&) = delete;
