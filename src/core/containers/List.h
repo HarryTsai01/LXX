@@ -103,6 +103,8 @@ public:
 
     typedef typename NodeType::IndexType IndexType;
     typedef ElementType ValueType;
+    typedef ValueType* ValueTypePointer;
+    typedef ValueType& ValueTypeReference;
     typedef s32 DifferenceType;
 
     typedef Iterator< List > IteratorType;

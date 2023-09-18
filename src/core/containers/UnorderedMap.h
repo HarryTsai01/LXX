@@ -28,6 +28,8 @@ public:
     };
 
     typedef Pair ValueType;
+    typedef ValueType* ValueTypePointer;
+    typedef ValueType& ValueTypeReference;
 
     typedef Iterator< UnorderedMap > IteratorType;
     typedef ConstIterator< UnorderedMap > ConstIteratorType;

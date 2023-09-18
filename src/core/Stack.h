@@ -58,6 +58,12 @@ public:
         ( Push( args ), ...);
     }
 
+    template<typename Arg>
+    void Push( Arg )
+    {
+        assert( false );
+    }
+
     void Push( s32 value )
     {
         PushInteger(value );

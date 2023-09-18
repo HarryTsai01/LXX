@@ -26,6 +26,8 @@ class Array
 public:
     typedef u32 IndexType;
     typedef ElementType ValueType;
+    typedef ElementType* ValueTypePointer;
+    typedef ElementType& ValueTypeReference;
     typedef s32 DifferenceType;
 
     typedef Iterator< Array > IteratorType;
