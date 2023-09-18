@@ -5,6 +5,8 @@
 #ifndef XLUA_LEXERUTIL_H
 #define XLUA_LEXERUTIL_H
 #include <core/LXX.h>
+#include <core/containers/Array.h>
+#include <core/objects/string/String.h>
 
 namespace LXX {
 
@@ -19,9 +21,18 @@ public:
     static bool IsTableFieldSeparator( s32 tokenType );
 
     static bool IsBinaryOperator( char ch );
-    static bool IsEndOfToken(char ch );
+    static bool IsEndOfToken( char ch );
 
     static void GetLine(char *destBuff , u32 buffSize , const char* lineStartPos , const char* sourceEndPos );
+
+    static void StringToTokenList( const char* str , Array< String *> &tokens);
+
+    static inline bool CharIsSpace( char ch )
+    {
+        return ch == ' '
+                || ch == '\t'
+                || ch == '\v';
+    }
 };
 
 

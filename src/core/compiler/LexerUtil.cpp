@@ -157,4 +157,29 @@ void LexerUtil::GetLine(char *destBuff , u32 buffSize , const char* lineStartPos
     std::strncpy( destBuff , lineStartPos , curLineLength );
 }
 
+
+void LexerUtil::StringToTokenList(const char *str, Array<LXX::String *> &tokens)
+{
+    const char * currentChar = str;
+    const char * endChar = currentChar + std::strlen( str );
+    while( currentChar < endChar )
+    {
+        // skip white space
+        while( LexerUtil::CharIsSpace( currentChar[0] ) ) ++currentChar;
+
+        const char* tokenStart = currentChar;
+        while( !LexerUtil::CharIsSpace( currentChar[0] ) ) ++currentChar;
+
+        u32 tokenLen = currentChar - tokenStart;
+        if( tokenLen > 0 )
+        {
+            String *strToken = NEW_STRING_WITH_SIZE( tokenLen );
+            char *tokenBuff = strToken->GetData();
+            std::strncpy(   tokenBuff , tokenStart , tokenLen );
+            tokenBuff[tokenLen] = '\0';
+            tokens.Add( strToken ) ;
+        }
+    }
+}
+
 } // LXX

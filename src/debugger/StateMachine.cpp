@@ -16,7 +16,7 @@ void StateMachine::OnRegisterState()
 {
     _states =
     {
-        { StateType::Default , new DefaultState() },
+        { StateType::Default , new DefaultState( this ) },
     };
 
     LOG::Log( LOG::LogCategory::StateMachine ,
@@ -39,6 +39,7 @@ void StateMachine::OnUnRegisterState()
             , GetName()
     );
 }
+
 
 
 } // Debugger

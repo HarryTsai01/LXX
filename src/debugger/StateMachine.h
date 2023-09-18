@@ -29,8 +29,9 @@ public:
         return "DebuggerStateMachine";
     }
 
-    bool IsRequestExitProgram() const { return false; }
+    bool IsRequestExitProgram() const { return _requestExitProgram; }
     void RequestExitProgram() { _requestExitProgram = true ;}
+
 
 private:
     StateMachine()
@@ -44,7 +45,7 @@ private:
     StateMachine& operator=(const StateMachine& other) = delete;
     StateMachine& operator=(const StateMachine&& other) = delete;
 
-
+    void RegisterCommands();
 private:
     bool _requestExitProgram;
 

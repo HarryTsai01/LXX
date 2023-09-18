@@ -5,6 +5,7 @@
 #ifndef XLUA_STATEBASE_H
 #define XLUA_STATEBASE_H
 #include <core/statemachine/StateMachineBase.h>
+#include <core/utilities/CommandSystem.h>
 
 namespace LXX
 {
@@ -13,10 +14,15 @@ namespace Debugger
 
 
 using namespace SM;
+class StateMachine;
 class DebuggerStateBase : public StateBase
 {
 public:
-    DebuggerStateBase() = default;
+    DebuggerStateBase( StateMachine *stateMachine )
+    : _stateMachine( stateMachine )
+    {
+
+    }
     virtual ~DebuggerStateBase() = default;
 
     virtual void OnEnter() override;
@@ -27,7 +33,16 @@ private:
     void OnPostLogEvent();
     void ShowIndicator();
     void NewLine();
-
+protected:
+    // >>> Commands
+    bool ProcessCommand( const char *command );
+    virtual void OnRegisterCommand();
+    virtual void OnUnRegisterCommand();
+    void OnCommandExit(const Array< String *> & Arguments );
+    // <<< Commands
+protected:
+    StateMachine *_stateMachine;
+    CommandSystem _commandSystem;
 };
 
 

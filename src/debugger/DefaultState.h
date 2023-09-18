@@ -14,12 +14,18 @@ class DefaultState : public DebuggerStateBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    DefaultState() = default;
+    using DebuggerStateBase::DebuggerStateBase;
     virtual ~DefaultState() = default;
     virtual const char* GetName() const override { return "DebuggerDefaultState"; }
     virtual void OnEnter() override;
     virtual void OnUpdate() override;
     virtual void OnLeave() override;
+
+protected:
+    // >>> Commands
+    virtual void OnRegisterCommand() override;
+    virtual void OnUnRegisterCommand() override;
+    // <<< Commands
 
 }; //DefaultState
 } //Debugger

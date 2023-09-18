@@ -35,5 +35,17 @@ void DefaultState::OnUpdate()
 }
 
 
+void DefaultState::OnRegisterCommand()
+{
+    DebuggerStateBase::OnRegisterCommand();
+}
+
+
+void DefaultState::OnUnRegisterCommand()
+{
+    DebuggerStateBase::OnUnRegisterCommand();
+}
+
+
 }
 } // LXX

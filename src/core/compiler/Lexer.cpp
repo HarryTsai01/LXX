@@ -138,9 +138,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
 #define SKIP_WHITESPACE() { \
         while ( _currentChar < _endChar \
             && (            \
-                _currentChar[0] == ' ' \
-                || _currentChar[0] == '\t' \
-                || _currentChar[0] == '\v' \
+                LexerUtil::CharIsSpace( _currentChar[0] )            \
                 ) \
             ) \
         {                   \

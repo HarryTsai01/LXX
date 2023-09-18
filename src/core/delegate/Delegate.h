@@ -8,12 +8,13 @@
 #include <core/LXX.h>
 #include <core/mem/MemoryAllocator.h>
 #include <cassert>
+#include <core/objects/GCObject.h>
 
 namespace LXX
 {
 
 template<typename ReturnType, typename ...Args>
-class DelegateBindings
+class DelegateBindings : public GCObject
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
@@ -74,12 +75,40 @@ template<typename ReturnType, typename ...Args>
 class Delegate
 {
 public:
-    Delegate() = default;
+    Delegate()
+     : _bindings( nullptr )
+    {
+    }
 
-    ~Delegate() {
-        delete _bindings;
+    Delegate(const Delegate & other)
+            : _bindings( other._bindings )
+    {
+    }
+
+    Delegate(Delegate && other)
+    :_bindings(other._bindings)
+    {
+        other._bindings = nullptr;
+    }
+
+    virtual ~Delegate()
+    {
         _bindings = nullptr;
     }
+
+    Delegate &operator=(const Delegate & other)
+    {
+        _bindings = other._bindings;
+        return *this;
+    }
+
+    Delegate &operator=(Delegate && other )
+    {
+        _bindings = other._bindings;
+        other._bindings = nullptr;
+        return *this;
+    }
+
 
     ReturnType InvokeIfBound(Args... args)
     {
@@ -107,20 +136,17 @@ public:
                                                                                                  classMethod);
     }
 
+    void Unbind()
+    {
+        _bindings = nullptr;
+    }
+
     template<typename StaticMethod>
     void Bind(StaticMethod staticMethod) {
         assert(!IsBound());
         _bindings = new StaticDelegateBindings<StaticMethod, ReturnType, Args...>(staticMethod);
     }
 
-private:
-    Delegate(const Delegate &) = delete;
-
-    Delegate(Delegate &&) = delete;
-
-    Delegate &operator=(const Delegate &) = delete;
-
-    Delegate &operator=(Delegate &&) = delete;
 
 private:
     DelegateBindings<ReturnType, Args...> *_bindings;
