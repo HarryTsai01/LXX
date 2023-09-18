@@ -62,9 +62,6 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
             Table* globalTable = context._state->GetGlobalState()->GetGlobalTable();
 
             Value* upValue = globalTable->GetField( context._vm , *upValueKey );
-
-            if( !upValue )
-                ThrowError("invalid identifier:%s",upValueKey->As<String*>()->GetData() );
             return upValue;
         }
         else if( operand._type == OperandType::GlobalVariable )
@@ -78,7 +75,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         return nullptr;
     };
 
-    InstructionValue instructionValue ;
+    InstructionValue &instructionValue = context._instructionValue ;
     Decoder::Decode( code , instructionValue );
 
     context._opcode = instructionValue._opcode;
@@ -440,11 +437,29 @@ void VirtualMachine::InstructionExecute_Assignment( InstructionExecuteContext &c
      * the third source operand is none
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid assignment opcode with null destination operand" );
+    {
+        if( context._instructionValue._operand1._type != OperandType::UpValue )
+            ThrowError("invalid assignment opcode with null destination operand" );
+    }
     if( srcOperand1 == nullptr )
         ThrowError("invalid assignment opcode with null source operand" );
 
-    destOperand->Set( srcOperand1 );
+    if( destOperand )
+    {
+        destOperand->Set( srcOperand1 );
+    }
+    else
+    {
+        // assign up value
+        u32 upValueIndex = context._instructionValue._operand1._index;
+        Value* upValueKey = context._chunk->GetConstValue( upValueIndex );
+        if( !upValueKey )
+            ThrowError("invalid upvalue key");
+
+        Table* globalTable = context._state->GetGlobalState()->GetGlobalTable();
+
+        globalTable->SetField( context._vm , *upValueKey , *srcOperand1 );
+    }
 }
 
 

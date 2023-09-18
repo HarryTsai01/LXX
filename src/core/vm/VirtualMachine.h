@@ -206,6 +206,7 @@ private:
         VirtualMachine* _vm;
         State* _state;
         ByteCodeChunk* _chunk;
+        InstructionValue _instructionValue;
         Opcode _opcode;
         Value* _destOperand;
         Value* _srcOperand1;
