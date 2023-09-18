@@ -9,6 +9,7 @@
 #include <core/vm/ByteCodeChunk.h>
 #include <core/vm/Instructions/InstructionEncoder.h>
 #include <core/exceptions/ExceptionCompileError.h>
+#include <core/log/log.h>
 
 namespace LXX
 {
@@ -53,7 +54,7 @@ StatementBase* Compiler::CompileAST( String* scriptContent )
     FunctionStatement *functionStatement = parser->CompileLuaClosure();
     if( functionStatement == nullptr )
     {
-        std::cerr << "Compile failed" << std::endl;
+        LOG::LogError( LOG::LogCategory::LXX , "%s" , "Compile failed" );
         return nullptr;
     }
     return functionStatement;

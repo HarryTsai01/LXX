@@ -11,12 +11,22 @@ namespace LXX
 
 u32 MemoryArchiveWriter::Serialize( void* buffer, u32 size )
 {
-   if( _pos + size > _data.Size() )
-       _data.AddZero( _pos + size - _data.Size() );
+    assert(false);
+    return 0;
+}
 
-   std::memcpy( &_data[_pos] , buffer, size );
 
-   return size;
+u32 MemoryArchiveWriter::Serialize(const void *buffer, u32 size)
+{
+    if( _pos + size > _data.Size() )
+        _data.AddZero( _pos + size - _data.Size() );
+
+    std::memcpy( &_data[_pos] , buffer, size );
+
+    _pos += size;
+
+    return size;
+
 }
 
 

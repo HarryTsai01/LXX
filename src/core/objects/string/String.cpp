@@ -33,4 +33,11 @@ std::ostream& operator<<( std::ostream &os , const String *str )
     return os;
 }
 
+
+IOStreamBase& operator<<( IOStreamBase &os , const String *str )
+{
+    os << str->GetData();
+    return os;
+}
+
 } // LXX

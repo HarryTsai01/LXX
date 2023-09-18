@@ -32,11 +32,14 @@ void DebuggerStateBase::OnLeave()
 
 void DebuggerStateBase::OnUpdate()
 {
-    char buff[1024] = { 0 };
-    std::cin >> buff;
-    std::cout << buff << std::endl;
+    string strLine;
+    std::getline( std::cin , strLine );
+    //Log( LogCategory::Debugger , "%s" , strLine.c_str() );
 
-    ProcessCommand(buff);
+    if( !ProcessCommand( strLine.c_str()) )
+    {
+        OnProcessCommand( strLine.c_str() );
+    }
 }
 
 

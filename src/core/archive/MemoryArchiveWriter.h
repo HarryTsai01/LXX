@@ -14,7 +14,9 @@ class MemoryArchiveWriter : public MemoryArchive
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
+    using MemoryArchive::MemoryArchive;
     virtual u32 Serialize( void* buffer, u32 size ) override ;
+    virtual u32 Serialize( const void* buffer, u32 size ) override ;
     virtual bool IsReader() const { return false; }
 
 };

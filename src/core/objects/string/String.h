@@ -11,6 +11,7 @@
 #include <core/Containers/Array.h>
 #include <initializer_list>
 #include "StringTable.h"
+#include <core/archive/iostream/IOStreamBase.h>
 
 namespace LXX
 {
@@ -141,6 +142,7 @@ template<>
 bool IsEqual( String *lhs , String *rhs );
 
 std::ostream& operator<<( std::ostream &os , const String *str );
+IOStreamBase& operator<<( IOStreamBase &os , const String *str );
 
 
 #define NEW_STRING( str ) StringTable::GetInstance().FindOrCreateString( str )

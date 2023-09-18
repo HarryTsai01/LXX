@@ -21,6 +21,7 @@ extern EventOnPostLogEvent GOnPostLogEvent;
 enum class LogLevel
 {
     Critical,
+    Error,
     Warning,
     Log,
     Display,
@@ -61,6 +62,11 @@ template< typename ... Args>
 void LogWarning( LogCategory category , const char* format , Args ... args )
 {
     Logf( LogLevel::Warning , category , format , std::forward<Args>(args)... );
+}
+template< typename ... Args>
+void LogError( LogCategory category , const char* format , Args ... args )
+{
+    Logf( LogLevel::Error , category , format , std::forward<Args>(args)... );
 }
 template< typename ... Args>
 void Log( LogCategory category , const char* format , Args ... args )

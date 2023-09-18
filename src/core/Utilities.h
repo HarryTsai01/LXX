@@ -39,10 +39,10 @@ void ReadFromBuffer( T& dest , u8* buffer )
 }
 
 template<typename T , bool bigEndian = true>
-void WriteToBuffer( T& data , u8* buffer )
+void WriteToBuffer( const T& data , u8* buffer )
 {
     u32 byteNum = sizeof( T );
-    u8 * src = reinterpret_cast<u8*>( &data );
+    const u8 * src = reinterpret_cast<const u8*>( &data );
     for( u32 i = 0 ; i < byteNum ; i++ )
         buffer[i] = src[ bigEndian ? i :byteNum - i - 1 ];
 }

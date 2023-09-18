@@ -21,6 +21,9 @@ public:
     virtual void OnUpdate() override;
     virtual void OnLeave() override;
 
+private:
+    virtual void OnProcessCommand( const char *command ) override;
+
 protected:
     // >>> Commands
     virtual void OnRegisterCommand() override;

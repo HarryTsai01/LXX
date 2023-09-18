@@ -21,4 +21,10 @@ void IOStreamBase::Serialize( void* data, size_t size )
 }
 
 
+void IOStreamBase::Serialize( const void* data, size_t size )
+{
+    _archive.Serialize( data, size );
+}
+
+
 } // LXX

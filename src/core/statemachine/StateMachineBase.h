@@ -43,10 +43,12 @@ public:
     void Initialize()
     {
         OnRegisterState();
+        OnInitialize();
     }
 
     void Destroy()
     {
+        OnDestroy();
         OnUnRegisterState();
     }
 
@@ -99,6 +101,8 @@ protected:
     virtual void OnRegisterState() = 0 ;
     virtual void OnUnRegisterState() = 0 ;
     virtual const char* GetName() = 0 ;
+    virtual void OnInitialize() {}
+    virtual void OnDestroy() {}
 
 protected:
     bool _bStartup;

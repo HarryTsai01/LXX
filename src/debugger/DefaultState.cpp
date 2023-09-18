@@ -3,6 +3,8 @@
 //
 
 #include "DefaultState.h"
+#include "StateMachine.h"
+#include <core/exceptions/ExceptionBase.h>
 
 namespace LXX
 {
@@ -39,6 +41,20 @@ void DefaultState::OnRegisterCommand()
 void DefaultState::OnUnRegisterCommand()
 {
     DebuggerStateBase::OnUnRegisterCommand();
+}
+
+
+void DefaultState::OnProcessCommand( const char *command )
+{
+    VirtualMachine& vm = _stateMachine->GetVM();
+
+    try
+    {
+        vm.Execute( command );
+    } catch ( ExceptionBase &e )
+    {
+        LogWarning( LogCategory::Debugger , "%s", e.ToString()->GetData() );
+    }
 }
 
 

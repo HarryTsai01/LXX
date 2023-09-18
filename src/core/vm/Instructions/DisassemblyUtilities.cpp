@@ -5,7 +5,9 @@
 #include "InstructionDecoder.h"
 #include <core/containers/UnorderedMap.h>
 #include <core/vm/ByteCodeChunk.h>
-#include <iostream>
+#include <core/archive/iostream/IOStream.h>
+#include <core/archive/MemoryArchiveWriter.h>
+#include <core/log/log.h>
 
 namespace LXX
 {
@@ -74,35 +76,71 @@ void PrintInstruction( ByteCodeChunk* chunk
         , OperandType operandType3 , u32 operandIndex3
 )
 {
-    auto printOperand = [&]( ostream &os, OperandType type , u32 index )
+    struct OperandInfo
     {
-        os << _opcodeTypeMaps[type] << index;
+        char Name[16] = {0};
+        char Value[16] = {0};
+    };
+    auto GetOperandInfo = [&]( OperandInfo &operandInfo , const OperandType type , const u32 index )
+    {
+        std::strncpy( operandInfo.Name , _opcodeTypeMaps[type] , 15);
         if( type == OperandType::Constant )
         {
             Value* constValue = chunk->GetConstValue( index );
             if( constValue->IsString() )
-                os << "=" << constValue->As<String*>();
+            {
+                std::strncpy(  operandInfo.Value
+                               , constValue->As<String*>()->GetData()
+                               , 15 );
+            }
             else if( constValue->IsInteger() )
-                os << "=" << constValue->As<s32>();
+            {
+                std::sprintf(
+                        operandInfo.Value
+                        ,"%d"
+                        , constValue->As<s32>()
+                        );
+            }
             else if( constValue->IsReal() )
-                os << "=" << constValue->As<f64>();
+            {
+                std::sprintf(
+                        operandInfo.Value
+                        ,"%f"
+                        , constValue->As<f64>()
+                );
+            }
         }
         else if( type == OperandType::Immediate )
         {
-            os << "=" << index;
+            std::sprintf(
+                    operandInfo.Value
+                    ,"%d"
+                    , index
+            );
         }
-        else if( type == OperandType::Stack )
+        else if( type == OperandType::Stack
+            || type == OperandType::TempVariable
+            || type == OperandType::LocalVariable )
         {
-            os << "=" << Decoder::GetOperandIndex( index );
+            std::sprintf(
+                    operandInfo.Value
+                    ,"Index:%d"
+                    , Decoder::GetOperandIndex( index )
+            );
         }
     };
-   std::cout << _opcodeMaps[opcode] << "(";
-   printOperand( std::cout , operandType1 , operandIndex1 );
-   std::cout << ", ";
-   printOperand( std::cout , operandType2 , operandIndex2 );
-    std::cout << ", ";
-   printOperand( std::cout , operandType3 , operandIndex3 );
-   std::cout<< ")" << std::endl;
+    Array< OperandInfo > operandInfos;
+    GetOperandInfo( *operandInfos.Add() , operandType1 , operandIndex1 );
+    GetOperandInfo( *operandInfos.Add() , operandType2 , operandIndex2 );
+    GetOperandInfo( *operandInfos.Add() , operandType3 , operandIndex3 );
+
+    LOG::Log( LOG::LogCategory::LXX ,
+              "%s(%s=%s,%s=%s,%s=%s)"
+              , _opcodeMaps[opcode]
+              , operandInfos[0].Name , operandInfos[0].Value
+            , operandInfos[1].Name , operandInfos[1].Value
+            , operandInfos[2].Name , operandInfos[2].Value
+    );
 }
 
 } // namespace Disassembly

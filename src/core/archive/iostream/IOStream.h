@@ -18,19 +18,19 @@ public:
     using IOStreamBase::IOStreamBase;
 
     template<typename T>
+    void SerializeData( const T& data )
+    {
+        u8 buffer[sizeof(T)];
+        WriteToBuffer< T , IsBigEndian >( data , buffer );
+        IOStreamBase::Serialize( static_cast<const void*>(buffer), 8 );
+    }
+
+    template<typename T>
     void SerializeData( T& data )
     {
         u8 buffer[sizeof(T)];
-        if( _archive.IsReader() )
-        {
-            IOStreamBase::Serialize( buffer, 8 );
-            ReadFromBuffer<T , IsBigEndian >( data , buffer );
-        }
-        else
-        {
-            WriteToBuffer< T , IsBigEndian >( data , buffer );
-            IOStreamBase::Serialize( buffer, 8 );
-        }
+        IOStreamBase::Serialize( buffer, 8 );
+        ReadFromBuffer<T , IsBigEndian >( data , buffer );
     }
 
     virtual void Serialize( u64& data )
@@ -74,6 +74,51 @@ public:
         IOStreamBase::Serialize( &data , 1 );
     }
     virtual void Serialize( s8& data )
+    {
+        IOStreamBase::Serialize( &data , 1 );
+    }
+
+    virtual void Serialize( const u64& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const s64& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const f32& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const f64& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const bool& data )
+    {
+        IOStreamBase::Serialize( &data , 1 );
+    }
+    virtual void Serialize( const u32& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const s32& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const u16& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const s16& data )
+    {
+        SerializeData( data );
+    }
+    virtual void Serialize( const u8& data )
+    {
+        IOStreamBase::Serialize( &data , 1 );
+    }
+    virtual void Serialize( const s8& data )
     {
         IOStreamBase::Serialize( &data , 1 );
     }

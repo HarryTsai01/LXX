@@ -24,6 +24,7 @@ public:
     virtual ~ArchiveBase() = default;
 
     virtual u32 Serialize( void* buffer, u32 size ) = 0;
+    virtual u32 Serialize( const void* buffer, u32 size ) = 0;
     virtual bool IsReader() const = 0;
     bool IsWriter() const { return !IsReader(); }
 

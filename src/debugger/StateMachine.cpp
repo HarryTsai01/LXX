@@ -41,6 +41,18 @@ void StateMachine::OnUnRegisterState()
 }
 
 
+void StateMachine::OnInitialize()
+{
+    _vm.Startup();
+}
+
+
+void StateMachine::OnDestroy()
+{
+    _vm.Shutdown();
+}
+
+
 
 } // Debugger
 } // LXX

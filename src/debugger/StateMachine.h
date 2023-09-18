@@ -6,6 +6,7 @@
 #define XLUA_STATEMACHINE_H
 #include <core/Singleton.h>
 #include <core/statemachine/StateMachineBase.h>
+#include <core/vm/VirtualMachine.h>
 
 namespace LXX
 {
@@ -24,6 +25,8 @@ class StateMachine : public StateMachineBase< StateType > , public Singleton<Sta
 public:
     virtual void OnRegisterState() override;;
     virtual void OnUnRegisterState() override;
+    virtual void OnInitialize() override;
+    virtual void OnDestroy() override;
     virtual const char* GetName() override
     {
         return "DebuggerStateMachine";
@@ -31,6 +34,8 @@ public:
 
     bool IsRequestExitProgram() const { return _requestExitProgram; }
     void RequestExitProgram() { _requestExitProgram = true ;}
+
+    VirtualMachine& GetVM() { return _vm; }
 
 
 private:
@@ -48,7 +53,7 @@ private:
     void RegisterCommands();
 private:
     bool _requestExitProgram;
-
+    VirtualMachine _vm;
 };
 
 

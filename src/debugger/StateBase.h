@@ -35,6 +35,7 @@ private:
     void NewLine();
 protected:
     // >>> Commands
+    virtual void OnProcessCommand( const char *command ) { }
     bool ProcessCommand( const char *command );
     virtual void OnRegisterCommand();
     virtual void OnUnRegisterCommand();

@@ -16,6 +16,7 @@ public:
     using MemoryArchive::MemoryArchive;
     MemoryArchiveReader( const u8 * buffer, u32 size );
     virtual u32 Serialize( void* buffer, u32 size ) override;
+    virtual u32 Serialize( const void* buffer, u32 size ) override;
     virtual bool IsReader() const { return true; }
 
 };

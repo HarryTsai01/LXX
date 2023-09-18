@@ -34,7 +34,7 @@ bool Lexer::LoadScriptContent( String *scriptContent , String *sourceFileName )
     this->scriptContent = scriptContent;
     this->sourceFileName = sourceFileName;
 
-    currentChar = scriptContent->GetData();
+    currentLineStart = currentChar = scriptContent->GetData();
     endChar = currentChar + scriptContent->GetLength();
 
     return  true;

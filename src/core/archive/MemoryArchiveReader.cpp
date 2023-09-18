@@ -30,4 +30,11 @@ u32 MemoryArchiveReader::Serialize( void* buffer, u32 size )
 }
 
 
+u32 MemoryArchiveReader::Serialize( const void* buffer, u32 size )
+{
+    assert(false);
+    return 0;
+}
+
+
 } // LXX
