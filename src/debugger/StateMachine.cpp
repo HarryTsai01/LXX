@@ -19,7 +19,9 @@ void StateMachine::OnRegisterState()
         { StateType::Default , new DefaultState( this ) },
     };
 
-    LOG::Log( LOG::LogCategory::StateMachine ,
+    LOG::SetLogLevel( LOG::LogLevel::Display );
+
+    LOG::LogDebug( LOG::LogCategory::StateMachine ,
               "[%s] OnRegisterState"
                     , GetName()
     );
@@ -34,7 +36,7 @@ void StateMachine::OnUnRegisterState()
     }
     _states.Clear();
 
-    LOG::Log( LOG::LogCategory::StateMachine ,
+    LOG::LogDebug( LOG::LogCategory::StateMachine ,
               "[%s] OnUnRegisterState"
             , GetName()
     );

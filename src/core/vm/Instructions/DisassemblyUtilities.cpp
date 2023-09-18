@@ -134,7 +134,7 @@ void PrintInstruction( ByteCodeChunk* chunk
     GetOperandInfo( *operandInfos.Add() , operandType2 , operandIndex2 );
     GetOperandInfo( *operandInfos.Add() , operandType3 , operandIndex3 );
 
-    LOG::Log( LOG::LogCategory::LXX ,
+    LOG::LogDebug( LOG::LogCategory::LXX ,
               "%s(%s=%s,%s=%s,%s=%s)"
               , _opcodeMaps[opcode]
               , operandInfos[0].Name , operandInfos[0].Value

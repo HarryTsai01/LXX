@@ -34,12 +34,14 @@ void DebuggerStateBase::OnUpdate()
 {
     string strLine;
     std::getline( std::cin , strLine );
-    //Log( LogCategory::Debugger , "%s" , strLine.c_str() );
+    LogDebug( LogCategory::Debugger , "%s" , strLine.c_str() );
 
     if( !ProcessCommand( strLine.c_str()) )
     {
         OnProcessCommand( strLine.c_str() );
     }
+    NewLine();
+    ShowIndicator();
 }
 
 
@@ -94,7 +96,7 @@ void DebuggerStateBase::OnCommandExit( const Array<LXX::String *> &Arguments )
 
 void DebuggerStateBase::OnCommandVersion( const Array<LXX::String *> &Arguments )
 {
-    Log( LogCategory::Debugger , " Welcome to use LXX debugger, current version is %d.%d.%d.%d"
+    LogDisplay( LogCategory::Debugger , " Welcome to use LXX debugger, current version is %d.%d.%d.%d"
             , GLXXDebuggerVersion._major
             , GLXXDebuggerVersion._minor
             , GLXXDebuggerVersion._build

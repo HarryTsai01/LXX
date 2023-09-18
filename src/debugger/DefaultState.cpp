@@ -53,7 +53,7 @@ void DefaultState::OnProcessCommand( const char *command )
         vm.Execute( command );
     } catch ( ExceptionBase &e )
     {
-        LogWarning( LogCategory::Debugger , "%s", e.ToString()->GetData() );
+        LogError( LogCategory::Debugger , "%s", e.ToString()->GetData() );
     }
 }
 

@@ -42,7 +42,7 @@ u32 LXX_Print( State *state )
     {
         auto curArgument = stack.GetValue( curArgumentIdx + 1 );
 
-        Log( LogCategory::LXX , "%s", curArgument->ToString()->GetData() );
+        LogDisplay( LogCategory::LXX , "%s", curArgument->ToString()->GetData() );
 
         ++curArgumentIdx;
     }

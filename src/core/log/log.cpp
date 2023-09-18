@@ -13,6 +13,7 @@ namespace LOG
 
 EventOnPreLogEvent GOnPreLogEvent;
 EventOnPostLogEvent GOnPostLogEvent;
+LogLevel GLogLevel = LogLevel::Verbose;
 
 static UnorderedMap< LogLevel , const char* > logLevelToNames =
 {
@@ -47,6 +48,16 @@ const char* GetLogCategoryName( LogCategory logCategory )
     return It->Second;
 }
 
+void SetLogLevel( LogLevel logLevel )
+{
+    GLogLevel = logLevel;
+}
+
+
+LogLevel GetLogLevel()
+{
+    return GLogLevel;
+}
 
 }
 }

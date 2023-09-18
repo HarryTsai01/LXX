@@ -20,12 +20,13 @@ extern EventOnPostLogEvent GOnPostLogEvent;
 
 enum class LogLevel
 {
-    Critical,
-    Error,
-    Warning,
+    Verbose,
+    Debug,
     Log,
     Display,
-    Verbose,
+    Warning,
+    Error,
+    Critical,
 };
 
 enum class LogCategory
@@ -39,9 +40,14 @@ enum class LogCategory
 const char* GetLogCategoryName( LogCategory logCategory );
 const char* GetLogLevelName( LogLevel logLevel );
 
+void SetLogLevel( LogLevel logLevel );
+LogLevel GetLogLevel();
+
 template< typename ... Args>
 void Logf( LogLevel level , LogCategory category , const char* format , Args ...args )
 {
+    if( level < GetLogLevel() ) return;
+
     GOnPreLogEvent.InvokeIfBound();
     char buff[ 1024 ];
     snprintf(buff, sizeof(buff), format, args...) ;
@@ -67,6 +73,11 @@ template< typename ... Args>
 void LogError( LogCategory category , const char* format , Args ... args )
 {
     Logf( LogLevel::Error , category , format , std::forward<Args>(args)... );
+}
+template< typename ... Args>
+void LogDebug( LogCategory category , const char* format , Args ... args )
+{
+    Logf( LogLevel::Debug , category , format , std::forward<Args>(args)... );
 }
 template< typename ... Args>
 void Log( LogCategory category , const char* format , Args ... args )
