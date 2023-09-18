@@ -10,9 +10,8 @@ namespace LXX
 void VirtualMachine::RegisterAPI()
 {
     Table* globalTable = _globalState->GetGlobalTable();
-    Value key("assert");
-    Value value(LXX_Assert);
-    globalTable->RawSetField(key, value);
+    globalTable->RawSetField( Value("assert"), Value(LXX_Assert) );
+    globalTable->RawSetField( Value("print"), Value(LXX_Print) );
 }
 
 

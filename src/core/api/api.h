@@ -11,6 +11,7 @@ namespace LXX
 {
 
 u32 LXX_Assert( State *state );
+u32 LXX_Print( State *state );
 
 }
 

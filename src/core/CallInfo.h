@@ -35,6 +35,7 @@ public:
 
     void SetActualReturnValueNum(u32 actualResultNums) { _actualReturnValueNum = actualResultNums; }
     u32 GetActualReturnValueNum() const { return _actualReturnValueNum; }
+    u32 GetActualArgumentNum() const { return _actualArgumentVariableNum; }
 
     void GetCurrentStackFrame( StackFrame * outFrame );
     u32 LocalVariableIndexToStackIndex( u32 localVariableIndex );
