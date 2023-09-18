@@ -39,6 +39,7 @@ protected:
     virtual void OnRegisterCommand();
     virtual void OnUnRegisterCommand();
     void OnCommandExit(const Array< String *> & Arguments );
+    void OnCommandVersion(const Array< String *> & Arguments );
     // <<< Commands
 protected:
     StateMachine *_stateMachine;

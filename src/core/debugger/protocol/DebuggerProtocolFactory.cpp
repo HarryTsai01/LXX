@@ -38,6 +38,7 @@ Base* Factory::Create( s32 protocolType )
     return It->Second->Create();
 }
 
+
 } //Protocol
 } // Debugger
 } // LXX

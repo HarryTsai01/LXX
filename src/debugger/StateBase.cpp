@@ -11,6 +11,8 @@ namespace LXX
 namespace Debugger
 {
 
+
+using namespace LOG;
 void DebuggerStateBase::OnEnter()
 {
     OnRegisterCommand();
@@ -70,7 +72,8 @@ bool DebuggerStateBase::ProcessCommand( const char *command )
 
 void DebuggerStateBase::OnRegisterCommand()
 {
-    _commandSystem.RegisterCommand("exit",this,&DebuggerStateBase::OnCommandExit);
+    _commandSystem.RegisterCommand("exit",this,&DebuggerStateBase::OnCommandExit );
+    _commandSystem.RegisterCommand("version",this,&DebuggerStateBase::OnCommandVersion );
 }
 
 
@@ -83,6 +86,17 @@ void DebuggerStateBase::OnUnRegisterCommand()
 void DebuggerStateBase::OnCommandExit( const Array<LXX::String *> &Arguments )
 {
     _stateMachine->RequestExitProgram();
+}
+
+
+void DebuggerStateBase::OnCommandVersion( const Array<LXX::String *> &Arguments )
+{
+    Log( LogCategory::Debugger , " Welcome to use LXX debugger, current version is %d.%d.%d.%d"
+            , GLXXDebuggerVersion._major
+            , GLXXDebuggerVersion._minor
+            , GLXXDebuggerVersion._build
+            , GLXXDebuggerVersion._revision
+    );
 }
 
 }

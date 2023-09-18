@@ -14,12 +14,7 @@ using namespace LOG;
 void DefaultState::OnEnter()
 {
     DebuggerStateBase::OnEnter();
-    Log( LogCategory::Debugger , " Welcome to use LXX debugger, current version is %d.%d.%d.%d"
-            , GLXXDebuggerVersion._major
-            , GLXXDebuggerVersion._minor
-            , GLXXDebuggerVersion._build
-            , GLXXDebuggerVersion._revision
-    );
+    ProcessCommand("version" );
 }
 
 

@@ -31,14 +31,15 @@ enum class ProtocolType
     // << the protocol from backend to frontend
 };
 
-IOStreamBase& operator <<( IOStreamBase &stream, ProtocolType& type )
+inline IOStreamBase& operator <<( IOStreamBase &stream, ProtocolType& type )
 {
     return stream << reinterpret_cast<s32&>( type );
 }
-IOStreamBase& operator >> ( IOStreamBase &stream, ProtocolType& type )
+inline IOStreamBase& operator >> ( IOStreamBase &stream, ProtocolType& type )
 {
     return stream >> reinterpret_cast<s32&>( type );
 }
+
 
 class Base : public GCObject
 {

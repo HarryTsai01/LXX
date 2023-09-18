@@ -49,7 +49,7 @@ void GC::AddObject( GCObject *Object )
 
 void GC::Initialize()
 {
-    lastGCTime = std::chrono::system_clock::now();
+    lastGCTime = Clock::now();
 }
 
 
@@ -63,7 +63,7 @@ void GC::Tick()
 {
     if ( CurrentPhrase  == Phrase::WaitForGC )
     {
-        TimePoint curTime = std::chrono::system_clock::now();
+        TimePoint curTime = Clock::now();
         std::chrono::duration<double> diff = curTime - lastGCTime;
         if ( diff.count() >= Config::GC_INTERVAL )
         {
@@ -151,7 +151,7 @@ void GC::Tick()
             CurrentPhrase = Phrase::WaitForGC;
             ObjectHeadBeforeGC = nullptr;
             PreviousObjectHeadBeforeGC  = nullptr;
-            lastGCTime  = std::chrono::system_clock::now();
+            lastGCTime  = Clock::now();
         }
     }
 }
