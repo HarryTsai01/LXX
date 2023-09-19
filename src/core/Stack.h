@@ -79,6 +79,12 @@ public:
         PushBoolean(value );
     }
 
+    void Push( LuaClosure *lc )
+    {
+        PushLuaClosure( lc );
+    }
+
+
     void Pop( u32 n = 1 );
     bool IsNumber(  s32 idx );
     bool IsInteger( s32 idx );
@@ -108,17 +114,17 @@ public:
     void CheckIsThread( s32 idx );
 
     Value* GetValue( s32 idx = -1 );
-    s32 GetInteger( s32 idx = -1 , bool bCheck = false);
-    f64 GetReal( s32 idx = -1 , bool bCheck = false);
-    void* GetLightUserData( s32 idx = -1 , bool bCheck = false);
-    bool GetBoolean( s32 idx = -1 , bool bCheck = false);
-    String* GetString( s32 idx = -1 , bool bCheck = false);
-    CFunction GetLightCFunction( s32 idx = -1 , bool bCheck = false);
-    CFunction GetCClosure( s32 idx = -1, bool bCheck = false );
-    LuaClosure* GetLuaClosure( s32 idx = -1 , bool bCheck = false);
+    s32 GetInteger( s32 idx = -1 , bool bCheck = true);
+    f64 GetReal( s32 idx = -1 , bool bCheck = true);
+    void* GetLightUserData( s32 idx = -1 , bool bCheck = true);
+    bool GetBoolean( s32 idx = -1 , bool bCheck = true);
+    String* GetString( s32 idx = -1 , bool bCheck = true);
+    CFunction GetLightCFunction( s32 idx = -1 , bool bCheck = true);
+    CFunction GetCClosure( s32 idx = -1, bool bCheck = true );
+    LuaClosure* GetLuaClosure( s32 idx = -1 , bool bCheck = true);
 
     template<typename T>
-    T As( s32 idx , bool bCheck = true );
+    T As( s32 idx );
 
     void SetValue( s32 destIdx , u32 srcIdx );
     void SetNil( s32 destIdx );
@@ -135,13 +141,16 @@ private:
 };
 
 template<>
-s32 Stack::As<s32>( s32 idx , bool bCheck );
+s32 Stack::As<s32>( s32 idx );
 
 template<>
-f64 Stack::As<f64>( s32 idx , bool bCheck );
+f64 Stack::As<f64>( s32 idx );
 
 template<>
-Value* Stack::As<Value*>( s32 idx , bool bCheck );
+Value* Stack::As<Value*>( s32 idx );
+
+template<>
+String* Stack::As<String*>( s32 idx );
 
 template<>
 void Stack::PushFunction( CFunction func );

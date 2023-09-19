@@ -26,6 +26,10 @@ private:
 
 protected:
     // >>> Commands
+    // >>> chunk command
+    void PrintChunkHelpCommand();
+    void OnCommandChunk(const Array< String *> & Arguments );
+    // <<< chunk command
     virtual void OnRegisterCommand() override;
     virtual void OnUnRegisterCommand() override;
     // <<< Commands

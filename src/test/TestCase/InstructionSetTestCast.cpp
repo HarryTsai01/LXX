@@ -14,6 +14,7 @@ InstructionSetTestCase::InstructionSetTestCase()
 {
     m_scriptContents =
             {
+                "loadScript('main')\n"
                 "g = 100 \n"
                 "local a = '12' \n"
                 "a = 1 \n"

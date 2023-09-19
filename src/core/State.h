@@ -23,7 +23,7 @@ class State : public GCObject
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    State( GlobalState *G );
+    State( VirtualMachine *vm , GlobalState *G );
 
     Stack& GetStack() { return _stack ; }
 
@@ -38,6 +38,7 @@ public:
     void SetLastFunctionCallReturnValueCount( u32 count ) { _lastFunctionCallReturnValueCount = count; }
 
     GlobalState* GetGlobalState() { return _G; }
+    VirtualMachine* GetVM() { return _vm; }
 
     template<typename ...Args>
     void ThrowError( const char *format, Args ...args )
@@ -45,6 +46,7 @@ public:
         throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
     }
 private:
+    VirtualMachine *_vm;
     Stack _stack;
     GlobalState *_G;
     CallInfo *_currentCI;

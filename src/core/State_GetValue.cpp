@@ -67,23 +67,31 @@ LuaClosure* Stack::GetLuaClosure( s32 idx, bool bCheck)
 
 
 template<>
-s32 Stack::As<s32>( s32 idx , bool bCheck )
+s32 Stack::As<s32>( s32 idx )
 {
-    return GetInteger( idx , bCheck );
+    return GetInteger( idx , true );
 }
 
 template<>
-f64 Stack::As<f64>( s32 idx , bool bCheck )
+f64 Stack::As<f64>( s32 idx )
 {
-    return GetReal( idx , bCheck );
+    return GetReal( idx , true );
 }
 
 
 template<>
-Value* Stack::As<Value*>( s32 idx , bool /*bCheck*/ )
+Value* Stack::As<Value*>( s32 idx )
 {
     return GetValue( idx );
 }
+
+
+template<>
+String* Stack::As<String*>( s32 idx )
+{
+    return GetString( idx , true );
+}
+
 
 }
 

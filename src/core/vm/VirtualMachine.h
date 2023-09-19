@@ -139,7 +139,7 @@ public:
     template< typename FunctionType, typename ...Args>
     bool Invoke( FunctionType func , Args ...args )
     {
-        State *state = _globalState->NewState();
+        State *state = _globalState->NewState( this );
         state->GetStack().PushFunction<FunctionType>(  func );
         u32 oldTop = state->GetStack().GetTop();
         state->GetStack().Push( args ... );
@@ -159,7 +159,7 @@ public:
     template< typename FunctionType, typename resultType , typename ...Args>
     bool InvokeWithResult( FunctionType func , resultType &result , Args ...args )
     {
-        State *state = _globalState->NewState();
+        State *state = _globalState->NewState( this );
 
         state->GetStack().PushFunction<FunctionType>(  func );
         u32 oldTop = state->GetStack().GetTop();

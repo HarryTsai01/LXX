@@ -14,9 +14,9 @@ GlobalState::GlobalState()
 }
 
 
-State *GlobalState::NewState()
+State *GlobalState::NewState( VirtualMachine* vm )
 {
-    return _states.PushBack( new State( this ) );
+    return _states.PushBack( new State( vm , this ) );
 }
 
 

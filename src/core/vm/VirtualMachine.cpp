@@ -27,10 +27,10 @@ bool VirtualMachine::Startup()
     }
     catch ( ExceptionBase& e)
     {
-        std::cout << e.ToString() << std::endl;
+        LogError(LogCategory::LXX,"[VirtualMachine] Startup Error : %s" , e.ToString()->GetData() );
         return false;
     }
-    Log( LogCategory::LXX , "[VirtualMachine] Startup " );
+    LogDebug( LogCategory::LXX , "[VirtualMachine] Startup " );
     return true;
 }
 
@@ -43,9 +43,9 @@ void VirtualMachine::Shutdown()
     }
     catch ( ExceptionBase& e)
     {
-        std::cout << e.ToString() << std::endl;
+        LogError(LogCategory::LXX,"[VirtualMachine] Shutdown Error : %s" , e.ToString()->GetData() );
     }
-    Log( LogCategory::LXX , "[VirtualMachine] Shutdown " );
+    LogDebug( LogCategory::LXX , "[VirtualMachine] Shutdown " );
 }
 
 
@@ -112,7 +112,7 @@ bool VirtualMachine::ProtectCall( State *state , u32 nArgs )
     }
     catch ( ExceptionBase& e)
     {
-        std::cout << e.ToString() << std::endl;
+        LogError(LogCategory::LXX,"[VirtualMachine] ProtectCall Error : %s" , e.ToString()->GetData() );
         return false;
     }
     return true;

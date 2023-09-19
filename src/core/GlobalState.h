@@ -12,12 +12,13 @@
 namespace LXX
 {
 
+class VirtualMachine;
 class GlobalState
 {
 public:
     GlobalState();
 
-    State *NewState();
+    State *NewState( VirtualMachine* vm );
     ByteCodeChunk *NewChunk( Array< String* > params );
 
     Table *GetGlobalTable() { return _globalTable; }

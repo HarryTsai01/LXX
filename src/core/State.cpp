@@ -7,14 +7,16 @@
 #include <core/GlobalState.h>
 #include <core/vm/ByteCodeChunk.h>
 #include <iostream>
+#include <core/log/log.h>
 
 
 namespace LXX
 {
 
 
-State::State( GlobalState* G )
-    : _stack( Config::STACK_SIZE )
+State::State( VirtualMachine *vm  , GlobalState* G )
+    : _vm( vm )
+    , _stack( Config::STACK_SIZE )
     , _G( G )
     , _currentCI( nullptr )
     , _lastFunctionCallReturnValueCount( 0 )
@@ -64,7 +66,7 @@ void State::EndFunctionCall()
         // we shouldn't throw any exception here ,because the EndFunctionCall come from the destructor of `FunctionCallScope`,
         // so if  we throw any exception here ,the exception can't be caught outside.
         _stack.SetTop( lastFrame._oldTop );
-        std::cerr << String::Format( "[STACK CHECK]Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d\n"
+        LOG::LogError( LOG::LogCategory::LXX, "[STACK CHECK]Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d\n"
                 , lastFrame._oldTop
                 , curStackTop
                 , _lastFunctionCallReturnValueCount

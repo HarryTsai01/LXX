@@ -149,6 +149,8 @@ bool LexerUtil::IsEndOfToken( char ch )
 
 void LexerUtil::GetLine(char *destBuff , u32 buffSize , const char* lineStartPos , const char* sourceEndPos )
 {
+    if( lineStartPos == nullptr ) return;
+
     const char *_curLinePos = lineStartPos;
     while( _curLinePos[0] != '\n' && _curLinePos < sourceEndPos ) ++ _curLinePos;
     u32 curLineLength = _curLinePos - lineStartPos;

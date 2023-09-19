@@ -24,12 +24,11 @@ ExceptionCompileError::ExceptionCompileError( const char *msg , const String *fi
 
 String* ExceptionCompileError::ToString() const
 {
-    const char* szFileName = _fileName ? _fileName->GetData() : "";
     return String::Format(" %s:lineNo:%d %s detail:%s \n",
-                          szFileName ,
+                          _fileName ? _fileName->GetData() : "" ,
                           _lineNo ,
-                          _line->GetData() ,
-                          _msg->GetData()
+                          _line ? _line->GetData() : "" ,
+                          _msg ? _msg->GetData() : ""
                            );
 }
 

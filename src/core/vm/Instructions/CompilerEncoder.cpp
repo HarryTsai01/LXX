@@ -1597,6 +1597,7 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
         Encoder::Helper encodeHelper( context );
         u32 argumentNumIdx;
         CompileFunctionCallExpression( context , functionCallExpression , argumentNumIdx );
+        // pop return value from stack
         encodeHelper.Pop( OperandType::TempVariable , context->GetLastTempVariableIndex() ); ;
 
         // pop all argument and function

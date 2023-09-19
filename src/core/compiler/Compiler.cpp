@@ -15,8 +15,8 @@ namespace LXX
 {
 Compiler::Compiler()
     : scriptFileName( nullptr )
-    , lexer( nullptr )
-    , parser( nullptr )
+    , lexer( new Lexer )
+    , parser( new Parser )
 {
 
 }
@@ -45,10 +45,7 @@ LuaClosure* Compiler::CompileFile( String* scriptFileName )
 
 StatementBase* Compiler::CompileAST( String* scriptContent )
 {
-    lexer = new Lexer();
     lexer->LoadScriptContent( scriptContent , scriptFileName );
-
-    parser = new Parser();
     parser->SetLexer( lexer );
 
     FunctionStatement *functionStatement = parser->CompileLuaClosure();
@@ -87,7 +84,7 @@ String* Compiler::LoadScriptContent( String* scriptFileName )
     FILE *fp = fopen( scriptFileName->GetData() , "r" );
     if ( fp == nullptr )
     {
-        ThrowError( "File not found" );
+        ThrowError( "%s File not found" , scriptFileName->GetData() );
     }
 
     // read all script content from file
@@ -104,7 +101,7 @@ String* Compiler::LoadScriptContent( String* scriptFileName )
 void Compiler::ThrowError( const char* message )
 {
     //throw ExceptionCompileError( message ,  scriptFileName , -1 );
-    lexer->ThrowError( message );
+    lexer->ThrowError( "%s",message );
 }
 
 } // LXX

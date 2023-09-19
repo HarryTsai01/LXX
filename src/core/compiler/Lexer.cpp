@@ -19,6 +19,7 @@ namespace LXX
 Lexer::Lexer()
     : sourceFileName( nullptr )
     , scriptContent( nullptr )
+    , currentLineStart( nullptr )
     , currentChar(nullptr )
     , endChar(nullptr )
     , lineNo( 1 )

@@ -51,11 +51,22 @@ void Logf( LogLevel level , LogCategory category , const char* format , Args ...
     GOnPreLogEvent.InvokeIfBound();
     char buff[ 1024 ];
     snprintf(buff, sizeof(buff), format, args...) ;
-    std::cout
-            << "[" << GetLogCategoryName( category ) << "]"
-            << "[" << GetLogLevelName( level ) << "]"
-            << buff
-            << std::endl;
+    if( level >= LogLevel::Error )
+    {
+        std::cerr
+                << "[" << GetLogCategoryName( category ) << "]"
+                << "[" << GetLogLevelName( level ) << "]"
+                << buff
+                << std::endl;
+    }
+    else
+    {
+        std::cout
+                << "[" << GetLogCategoryName( category ) << "]"
+                << "[" << GetLogLevelName( level ) << "]"
+                << buff
+                << std::endl;
+    }
     GOnPostLogEvent.InvokeIfBound();
 }
 
