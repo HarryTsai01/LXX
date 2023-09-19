@@ -1372,7 +1372,7 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
 
         Array< VarExpression * > &varExpressions = varListExpression->GetVarExpressions();
 
-        CompileComplicatedExpressionListStatement(context, expressionList);
+        CompileComplicatedExpressionListStatement( context, expressionList );
 
         u32 testConditionIdx = context->AddTempVariable();
         for( u32 iVar = 0 ; iVar < varExpressions.Size() ; iVar++ )

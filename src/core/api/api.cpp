@@ -40,7 +40,7 @@ u32 LXX_Print( State *state )
     u32 curArgumentIdx = 0 ;
     while( curArgumentIdx < argumentNum )
     {
-        auto curArgument = stack.GetValue( curArgumentIdx + 1 );
+        auto curArgument = stack.GetValue( - curArgumentIdx - 1  );
 
         LogDisplay( LogCategory::LXX , "%s", curArgument->ToString()->GetData() );
 

@@ -17,11 +17,13 @@ LogLevel GLogLevel = LogLevel::Verbose;
 
 static UnorderedMap< LogLevel , const char* > logLevelToNames =
 {
-        { LogLevel::Critical , "Critical" } ,
-        { LogLevel::Warning , "Warning" } ,
+        { LogLevel::Verbose , "Verbose" } ,
+        { LogLevel::Debug , "Debug" } ,
         { LogLevel::Log , "Log" } ,
         { LogLevel::Display , "Display" } ,
-        { LogLevel::Verbose , "Verbose" } ,
+        { LogLevel::Warning , "Warning" } ,
+        { LogLevel::Error , "Error" } ,
+        { LogLevel::Critical , "Critical" } ,
 };
 
 static UnorderedMap< LogCategory , const char* > logCategoryToNames =
