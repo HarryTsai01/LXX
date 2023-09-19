@@ -1352,18 +1352,36 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
             CompileVarExpression( context , varExpressions[ iVar ] ,  operandType , operandIdx , bIsTable );
             if( !bIsTable )
             {
-                encodeHelper.Assign( operandType , operandIdx ,
-                                     OperandType::TempVariable , ExpressionValueIdx[ iVar ]
-                                     );
+                if( iVar < ExpressionValueIdx.Size() )
+                {
+                    encodeHelper.Assign( operandType , operandIdx ,
+                                         OperandType::TempVariable , ExpressionValueIdx[ iVar ]
+                    );
+                }
+                else
+                {
+                    encodeHelper.Assign( operandType , operandIdx ,
+                                         OperandType::Constant , chunk->GetConstNilValueIndex()
+                    );
+                }
             }
             else
             {
                 u32 tableIdx = context->GetLastTempVariableIndex();
-
-                encodeHelper.SetField( OperandType::TempVariable, tableIdx
-                        , operandType , operandIdx
-                        , OperandType::TempVariable , ExpressionValueIdx[ iVar ]
-                        );
+                if( iVar < ExpressionValueIdx.Size() )
+                {
+                    encodeHelper.SetField( OperandType::TempVariable, tableIdx
+                            , operandType , operandIdx
+                            , OperandType::TempVariable , ExpressionValueIdx[ iVar ]
+                    );
+                }
+                else
+                {
+                    encodeHelper.SetField( OperandType::TempVariable, tableIdx
+                            , operandType , operandIdx
+                            , OperandType::Constant , chunk->GetConstNilValueIndex()
+                    );
+                }
             }
         }
     }
