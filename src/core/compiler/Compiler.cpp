@@ -67,6 +67,7 @@ LuaClosure* Compiler::CompileStringImpl( String* scriptContent )
 #if GENERATE_DEBUGGER_SYMBOL
         lexer->DebuggerSymbolCollectLineInfo( lc->GetDebuggerSymbol() );
 #endif
+        return lc;
     }
     return nullptr;
 }

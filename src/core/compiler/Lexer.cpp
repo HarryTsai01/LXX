@@ -689,6 +689,8 @@ void Lexer::DebuggerSymbolCollectLineInfo(Debugger::DebuggerSymbol *symbol)
         const char* _lineStartPos = _curChar;
         while( _curChar < endChar && _curChar[0] != '\n') ++ _curChar;
 
+        // skip '\n'
+        ++ _curChar;
         ++lineNo;
         u32 len = _curChar - _lineStartPos;
         if( len == 0 || LexerUtil::IsNullLine( _lineStartPos , _curChar ) )
