@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-IfStatement::IfStatement()
-    :  _condition( nullptr )
+IfStatement::IfStatement( u32 lineNo )
+    : StatementBase( lineNo )
+    , _condition( nullptr )
     , _then ( nullptr )
     , _else ( nullptr )
 

@@ -13,7 +13,7 @@ class LoopStatementBase : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    LoopStatementBase();
+    LoopStatementBase( u32 lineNo );
 
     void SetCondition( StatementBase *condition ) { _condition = condition; }
     void SetBody( StatementBase *body ) { _body = body; }

@@ -7,8 +7,9 @@
 namespace LXX
 {
 
-AssignmentStatement::AssignmentStatement()
-    : _left( nullptr )
+AssignmentStatement::AssignmentStatement( u32 lineNo)
+    : StatementBase( lineNo )
+    , _left( nullptr )
     , _right( nullptr )
 {
 

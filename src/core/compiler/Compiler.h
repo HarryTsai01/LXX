@@ -92,7 +92,7 @@ private:
         lexer->ThrowError( format , std::forward<Args>(args)... );
     }
     String* LoadScriptContent( String* scriptFileName );
-    StatementBase* CompileAST(String* scriptContent );
+    StatementBase* CompileAST( String* scriptContent );
     LuaClosure* CompileStringImpl( String* scriptContent );
     LuaClosure* CompileStatement( StatementBase* statement );
     void CompileStatement( CompileContext *context , StatementBase * statement );

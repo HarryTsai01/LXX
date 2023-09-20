@@ -15,7 +15,7 @@ class ExpressionListStatement : public ExpressionStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    ExpressionListStatement() = default;
+    using ExpressionStatementBase::ExpressionStatementBase;
     void AddExpression( StatementBase* expression ) { _expressions.PushBack( expression ); }
 
     Array< StatementBase* >& GetExpressions() { return _expressions; }

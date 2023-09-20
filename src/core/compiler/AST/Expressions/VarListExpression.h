@@ -16,7 +16,7 @@ class VarListExpression : public ExpressionStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    VarListExpression() = default;
+    using ExpressionStatementBase::ExpressionStatementBase;
 
     void AddVarExpression( VarExpression* varExpression ) { _varExpressions.Add( varExpression ); }
     Array< VarExpression* >& GetVarExpressions() { return _varExpressions; }

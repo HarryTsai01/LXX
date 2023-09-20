@@ -14,7 +14,7 @@ class ReturnStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    ReturnStatement();
+    ReturnStatement( u32 lineNo );
     void SetReturnValue( StatementBase* returnValue ) { _returnValue = returnValue; }
     StatementBase* GetReturnValue() { return _returnValue; }
 private:

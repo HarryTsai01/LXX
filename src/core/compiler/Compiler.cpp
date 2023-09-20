@@ -63,7 +63,10 @@ LuaClosure* Compiler::CompileStringImpl( String* scriptContent )
     StatementBase* statement = CompileAST( scriptContent );
     if( statement != nullptr )
     {
-        return CompileStatement( statement );
+        LuaClosure *lc =  CompileStatement( statement );
+#if GENERATE_DEBUGGER_SYMBOL
+        lexer->DebuggerSymbolCollectLineInfo( lc->GetDebuggerSymbol() );
+#endif
     }
     return nullptr;
 }

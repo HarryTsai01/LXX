@@ -15,7 +15,7 @@ class TableConstructorStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    TableConstructorStatement() = default;
+    using StatementBase::StatementBase;
 
     void AddField( StatementBase *field );
 

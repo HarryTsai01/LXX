@@ -14,7 +14,7 @@ class FunctionCallExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    FunctionCallExpression();
+    FunctionCallExpression( u32 lineNo );
     virtual ~FunctionCallExpression();
 
     void SetArguments( StatementBase* inArguments ) { _arguments = inArguments; }

@@ -13,7 +13,7 @@ class IntegerNumberExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    IntegerNumberExpression( s32 value );
+    IntegerNumberExpression( u32 lineNo , s32 value );
 
     s32 GetValue() const { return _value; }
 private:

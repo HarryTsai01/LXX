@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-LoopStatementBase::LoopStatementBase()
-    :  _condition( nullptr )
+LoopStatementBase::LoopStatementBase( u32 lineNo )
+    : StatementBase( lineNo )
+    , _condition( nullptr )
     , _body( nullptr )
 {
 

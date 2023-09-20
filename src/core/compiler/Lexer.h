@@ -9,7 +9,9 @@
 #include <core/objects/GCObject.h>
 #include <core/objects/GCObjectCollector.h>
 #include <core/objects/string/String.h>
-
+#ifdef GENERATE_DEBUGGER_SYMBOL
+#include <core/debugger/DebuggerSymbol.h>
+#endif
 namespace LXX
 {
 
@@ -36,6 +38,12 @@ public:
 
     void SaveCurrentPosition();
     void RestoreCurrentPosition();
+
+    s32 GetCurrentLineNo() const { return lineNo; }
+
+#ifdef GENERATE_DEBUGGER_SYMBOL
+    void DebuggerSymbolCollectLineInfo( Debugger::DebuggerSymbol *symbol );
+#endif
 
 private:
     bool NextTokenImpl( CompatToken& token  , const char* & _currentChar , const char* & _endChar , u32 & _lineNo , const char* & _currentLineStart );

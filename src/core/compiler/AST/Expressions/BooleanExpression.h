@@ -12,7 +12,7 @@ class BooleanExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    BooleanExpression(bool value);
+    BooleanExpression( u32 lineNo , bool value );
 
     bool GetValue() const { return _value; }
 private:

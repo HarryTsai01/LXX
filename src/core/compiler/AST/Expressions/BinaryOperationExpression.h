@@ -14,7 +14,7 @@ class BinaryOperationExpression : public ExpressionStatementBase
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
 public:
-    BinaryOperationExpression( s32 op , StatementBase* left, StatementBase* right );
+    BinaryOperationExpression( u32 lineNo , s32 op , StatementBase* left, StatementBase* right );
     virtual ~BinaryOperationExpression();
 
     virtual void CollectReferences( GCObjectCollector& collector ) override;

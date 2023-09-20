@@ -16,6 +16,10 @@ class StringUtil {
 public:
     static u32 Hash( const char* str , u32 len );
     static String* CreateLongString( u32 len );
+
+    static String* NewString( const char* begin , const char * end );
+
+    static void Strncpy( char *dest , const char * src , u32 len );
 };
 
 

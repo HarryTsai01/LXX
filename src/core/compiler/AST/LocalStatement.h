@@ -14,7 +14,7 @@ class LocalStatement  : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    LocalStatement() = default;
+    using StatementBase::StatementBase;
 
     void SetChild( StatementBase* child ) { _child = child; }
     StatementBase* GetChild() { return _child; }

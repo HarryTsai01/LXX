@@ -8,8 +8,9 @@
 namespace LXX
 {
 
-IdentifierExpression::IdentifierExpression( String* identifier )
-        : _identifier( identifier )
+IdentifierExpression::IdentifierExpression( u32 lineNo ,  String* identifier )
+        :  SimpleExpression( lineNo )
+        , _identifier( identifier )
 {
 }
 

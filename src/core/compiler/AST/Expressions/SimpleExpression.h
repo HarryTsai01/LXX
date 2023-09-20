@@ -13,6 +13,8 @@ namespace LXX
 class SimpleExpression : public ExpressionStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using ExpressionStatementBase::ExpressionStatementBase;
 };
 
 

@@ -11,6 +11,8 @@ namespace LXX {
 class ContinueStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using StatementBase::StatementBase;
 };
 
 } // LXX

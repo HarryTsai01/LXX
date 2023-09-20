@@ -12,6 +12,8 @@ namespace LXX {
 class NilExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using SimpleExpression::SimpleExpression;
 };
 
 

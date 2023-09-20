@@ -11,6 +11,8 @@ namespace LXX {
 class ForLoopStatement : public LoopStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using LoopStatementBase::LoopStatementBase;
 };
 
 } // LXX

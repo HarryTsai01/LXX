@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-IntegerNumberExpression::IntegerNumberExpression( s32 value )
-        : _value( value )
+IntegerNumberExpression::IntegerNumberExpression( u32 lineNo ,  s32 value )
+        : SimpleExpression( lineNo )
+        , _value( value )
 {
 }
 

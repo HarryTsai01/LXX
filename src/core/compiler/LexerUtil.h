@@ -33,6 +33,8 @@ public:
                 || ch == '\t'
                 || ch == '\v';
     }
+
+    static bool IsNullLine( const char* lineStart , const char * lineEnd );
 };
 
 

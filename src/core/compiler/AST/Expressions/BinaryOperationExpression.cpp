@@ -9,8 +9,9 @@ namespace LXX
 {
 
 
-BinaryOperationExpression::BinaryOperationExpression( s32 op , StatementBase* left, StatementBase* right )
-    : _operator( op )
+BinaryOperationExpression::BinaryOperationExpression( u32 lineNo ,  s32 op , StatementBase* left, StatementBase* right )
+    : ExpressionStatementBase( lineNo )
+    , _operator( op )
     , _left( left )
     , _right( right )
 {

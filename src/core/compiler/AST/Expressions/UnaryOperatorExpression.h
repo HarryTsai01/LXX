@@ -13,7 +13,7 @@ class UnaryOperatorExpression : public ExpressionStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    UnaryOperatorExpression( s32 tokenType , StatementBase* expression );
+    UnaryOperatorExpression( u32 lineNo , s32 tokenType , StatementBase* expression );
 
     s32 GetTokenType() const { return  _tokenType; }
     StatementBase* GetExpression() const { return _expression; }

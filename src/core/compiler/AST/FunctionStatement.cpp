@@ -10,8 +10,9 @@ namespace LXX
 {
 
 
-FunctionStatement::FunctionStatement()
-: _functionName( nullptr )
+FunctionStatement::FunctionStatement( u32 lineNo )
+: StatementBase( lineNo )
+, _functionName( nullptr )
 , _body( nullptr )
 {
 
@@ -23,9 +24,9 @@ Array< String* > FunctionStatement::FetchParameterNames() const
     Array< String* > parameterNames;
     for(  auto parameter : _parameters )
     {
-        if( auto identifer = parameter->Cast<IdentifierExpression>() )
+        if( auto identifier = parameter->Cast<IdentifierExpression>() )
         {
-            parameterNames.PushBack( identifer->GetIdentifier() );
+            parameterNames.PushBack( identifier->GetIdentifier() );
         }
     }
     return std::move( parameterNames );
@@ -67,7 +68,7 @@ void FunctionStatement::AddParameter( StatementBase* parameter )
 
 void FunctionStatement::AddSelfParameter()
 {
-    _parameters.PushFront( new IdentifierExpression( NEW_STRING( "self" ) ) );
+    _parameters.PushFront( new IdentifierExpression( _lineNo ,NEW_STRING( "self" ) ) );
 }
 
 u32 FunctionStatement::GetParameterCount() const

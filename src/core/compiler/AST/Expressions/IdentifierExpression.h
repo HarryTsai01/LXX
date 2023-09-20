@@ -15,7 +15,7 @@ class IdentifierExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    IdentifierExpression( String* identifier );
+    IdentifierExpression( u32 lineNo , String* identifier );
 
     virtual void CollectReferences( GCObjectCollector &Collector ) override;
 

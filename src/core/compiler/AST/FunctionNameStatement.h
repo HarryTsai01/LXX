@@ -14,7 +14,7 @@ class FunctionNameStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    FunctionNameStatement() ;
+    FunctionNameStatement( u32 lineNo ) ;
 
     void SetLastConcatToken( s32 lastConcatToken );
     void AddName( StatementBase* name );

@@ -15,7 +15,7 @@ class VarExpression : public  ExpressionStatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    VarExpression( StatementBase* statement ) ;
+    VarExpression( u32 lineNo , StatementBase* statement ) ;
 
     void AddStatement( StatementBase* statement ) { _statements.Add( statement ); }
     Array< StatementBase* >& GetStatements() { return _statements; }

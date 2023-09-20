@@ -12,6 +12,8 @@ namespace LXX {
 class BreakStatement :  public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using StatementBase::StatementBase;
 };
 
 

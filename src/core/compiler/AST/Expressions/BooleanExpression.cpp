@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-BooleanExpression::BooleanExpression( bool value )
-        : _value( value )
+BooleanExpression::BooleanExpression( u32 lineNo , bool value )
+        : SimpleExpression( lineNo )
+        , _value( value )
 {
 
 }

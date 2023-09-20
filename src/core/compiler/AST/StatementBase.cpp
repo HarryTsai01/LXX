@@ -9,7 +9,8 @@ namespace LXX
 {
 
 
-StatementBase::StatementBase()
+StatementBase::StatementBase( u32 lineNo )
+ :_lineNo( lineNo )
 {
 
 }

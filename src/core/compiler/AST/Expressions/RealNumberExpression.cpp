@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-RealNumberExpression::RealNumberExpression( f64 value )
-        : _value( value )
+RealNumberExpression::RealNumberExpression( u32 lineNo ,  f64 value )
+        : SimpleExpression( lineNo )
+        , _value( value )
 {
 }
 

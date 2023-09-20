@@ -147,7 +147,7 @@ bool Lexer::NextTokenImpl( CompatToken& token  , const char* & _currentChar , co
         }                   \
     }
 
-    while (_currentChar < _endChar )
+    while ( _currentChar < _endChar && _currentChar[0] != '\0' )
     {
         switch ( _currentChar[0] )
         {
@@ -677,5 +677,27 @@ void Lexer::RestoreCurrentPosition()
     lineNo = savedLineNo;
     currentChar = savedCurrentChar;
 }
+
+#if GENERATE_DEBUGGER_SYMBOL
+void Lexer::DebuggerSymbolCollectLineInfo(Debugger::DebuggerSymbol *symbol)
+{
+    const char* _curChar = scriptContent->GetData();
+    const char* _endChar = _curChar + scriptContent->GetLength();
+    u32 lineNo = 1;
+    while ( _curChar < _endChar && _curChar[0] != '\0' )
+    {
+        const char* _lineStartPos = _curChar;
+        while( _curChar < endChar && _curChar[0] != '\n') ++ _curChar;
+
+        ++lineNo;
+        u32 len = _curChar - _lineStartPos;
+        if( len == 0 || LexerUtil::IsNullLine( _lineStartPos , _curChar ) )
+            continue;
+
+        String *line = StringUtil::NewString( _lineStartPos , _curChar );
+        symbol->AddLine( lineNo , line );
+    }
+}
+#endif
 
 } // LXX

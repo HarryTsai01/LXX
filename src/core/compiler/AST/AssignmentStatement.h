@@ -15,7 +15,7 @@ class AssignmentStatement :  public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    AssignmentStatement();
+    AssignmentStatement( u32 lineNo );
     virtual ~AssignmentStatement();
 
     void SetOperators( StatementBase* left, StatementBase* right );

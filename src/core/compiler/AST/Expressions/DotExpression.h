@@ -11,6 +11,8 @@ namespace LXX {
 class DotExpression :  public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using SimpleExpression::SimpleExpression;
 };
 
 } // LXX

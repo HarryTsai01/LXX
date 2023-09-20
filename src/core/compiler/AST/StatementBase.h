@@ -17,10 +17,14 @@ class StatementBase : public GCObject
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    StatementBase();
+    StatementBase( u32 lineNo );
     virtual ~StatementBase();
 
     virtual void CollectReferences( GCObjectCollector& collector ) override;
+
+    u32 GetLineNo() const { return _lineNo ; }
+protected:
+    u32 _lineNo;
 };
 
 

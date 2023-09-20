@@ -184,4 +184,17 @@ void LexerUtil::StringToTokenList(const char *str, Array<LXX::String *> &tokens)
     }
 }
 
+
+bool LexerUtil::IsNullLine(const char *lineStart, const char *lineEnd )
+{
+    const char* curChar = lineStart;
+    while( curChar < lineEnd )
+    {
+        if( !LexerUtil::CharIsSpace( curChar[0] ) )
+            return false;
+        ++curChar;
+    }
+    return true;
+}
+
 } // LXX

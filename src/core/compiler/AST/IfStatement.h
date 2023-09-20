@@ -13,7 +13,7 @@ class IfStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    IfStatement() ;
+    IfStatement( u32 lineNo ) ;
 
     StatementBase* GetCondition() const { return _condition; }
     StatementBase* GetThen() const { return _then; }

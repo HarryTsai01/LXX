@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-FunctionNameStatement::FunctionNameStatement()
- : _lastConcatToken( '.' )
+FunctionNameStatement::FunctionNameStatement( u32 lineNo )
+ : StatementBase( lineNo )
+ , _lastConcatToken( '.' )
 {
 
 }

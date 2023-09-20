@@ -16,7 +16,7 @@ class FunctionStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    FunctionStatement();
+    FunctionStatement( u32 lineNo );
     virtual ~FunctionStatement();
 
     virtual void CollectReferences( GCObjectCollector &collector ) override;

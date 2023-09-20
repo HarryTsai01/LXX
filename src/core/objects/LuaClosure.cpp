@@ -14,6 +14,9 @@ LuaClosure::LuaClosure( ByteCodeChunk* chunk )
     , _parameterCount( 0 )
     , _parent( nullptr )
     , _name( nullptr )
+#if GENERATE_DEBUGGER_SYMBOL
+    , _symbol( new Debugger::DebuggerSymbol() )
+#endif
 {
 
 }

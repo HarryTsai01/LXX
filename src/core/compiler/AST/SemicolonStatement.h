@@ -11,6 +11,8 @@ namespace LXX {
 class SemicolonStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using StatementBase::StatementBase;
 };
 
 } // LXX

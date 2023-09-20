@@ -51,5 +51,20 @@ String* StringUtil::CreateLongString( u32 len )
     return newString;
 }
 
+String* StringUtil::NewString( const char* begin , const char * end )
+{
+    if( end <= begin ) return nullptr;
+    u32 len = end - begin;
+    String* newStr = CreateLongString( len );
+    Strncpy( newStr->GetData() , begin , len );
+    newStr->GetData()[len] = '\0';
+    return newStr;
+}
+
+
+void StringUtil::Strncpy(char *dest, const char *src, u32 len)
+{
+    std::strncpy( dest , src , len );
+}
 
 }

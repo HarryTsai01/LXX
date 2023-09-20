@@ -7,7 +7,8 @@
 namespace LXX
 {
 
-VarExpression::VarExpression( StatementBase* statement )
+VarExpression::VarExpression( u32 lineNo ,  StatementBase* statement )
+: ExpressionStatementBase( lineNo )
 {
     _statements.PushBack( statement )   ;
 }

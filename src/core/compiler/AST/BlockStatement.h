@@ -14,7 +14,7 @@ class BlockStatement : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    BlockStatement() = default;
+    using StatementBase::StatementBase;
 
     void AddStatement( StatementBase* statement );
 

@@ -9,8 +9,9 @@ namespace LXX
 {
 
 
-StringExpression::StringExpression(String* value )
-        : _value( value )
+StringExpression::StringExpression( u32 lineNo , String* value )
+        : SimpleExpression( lineNo )
+        , _value( value )
 {
 }
 

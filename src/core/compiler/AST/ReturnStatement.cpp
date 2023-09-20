@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-ReturnStatement::ReturnStatement()
-: _returnValue( nullptr )
+ReturnStatement::ReturnStatement( u32 lineNo )
+: StatementBase( lineNo )
+, _returnValue( nullptr )
 {
 
 }

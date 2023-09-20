@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-UnaryOperatorExpression::UnaryOperatorExpression( s32 tokenType , StatementBase* expression )
-: _tokenType( tokenType )
+UnaryOperatorExpression::UnaryOperatorExpression( u32 lineNo , s32 tokenType , StatementBase* expression )
+: ExpressionStatementBase( lineNo )
+, _tokenType( tokenType )
 , _expression( expression )
 {
 }

@@ -15,7 +15,7 @@ class StringExpression : public SimpleExpression
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    StringExpression(String* value );
+    StringExpression( u32 lineNo , String* value );
     virtual ~StringExpression();
     virtual void CollectReferences( GCObjectCollector &collector ) override;
 

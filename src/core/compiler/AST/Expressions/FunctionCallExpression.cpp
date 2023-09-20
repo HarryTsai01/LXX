@@ -9,8 +9,9 @@ namespace LXX
 {
 
 
-FunctionCallExpression::FunctionCallExpression()
-    :  _functionName( nullptr )
+FunctionCallExpression::FunctionCallExpression( u32 lineNo )
+    : SimpleExpression( lineNo )
+    , _functionName( nullptr )
     , _varExpression( nullptr )
     , _arguments( nullptr )
 {

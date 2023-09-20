@@ -13,6 +13,8 @@ namespace LXX
 class ExpressionStatementBase : public StatementBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
+public:
+    using StatementBase::StatementBase;
 };
 
 

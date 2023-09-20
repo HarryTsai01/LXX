@@ -8,8 +8,9 @@ namespace LXX
 {
 
 
-TableFieldStatement::TableFieldStatement()
-: _key( nullptr )
+TableFieldStatement::TableFieldStatement( u32 lineNo )
+: StatementBase( lineNo )
+, _key( nullptr )
 , _value( nullptr )
 {
 
