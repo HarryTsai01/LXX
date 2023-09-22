@@ -12,7 +12,8 @@ namespace Debugger
 
 #if GENERATE_DEBUGGER_SYMBOL
 DebuggerSymbol::DebuggerSymbol()
-: _bBatchInstruction( false )
+    : _scriptFileName( nullptr )
+    ,_bBatchInstruction( false )
 {
 
 }

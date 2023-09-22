@@ -19,12 +19,22 @@ String * GetBacktrace( State* state )
     {
         u32 programCounter = ci->GetProgramCounter();
         LuaClosure* lc = ci->GetLuaClosure();
-        DebuggerSymbol *debuggerSymbol = lc->GetDebuggerSymbol();
-        u32 lineNo;
-        String *strLine = debuggerSymbol->GetLine( programCounter , lineNo );
+        String *strLine = nullptr;
+        u32 lineNo = -1;
+        String *scriptFileName = nullptr;
+        if( lc )
+        {
+            DebuggerSymbol *debuggerSymbol = lc->GetDebuggerSymbol();
+            strLine = debuggerSymbol->GetLine( programCounter , lineNo );
+            scriptFileName = debuggerSymbol->GetScriptFileName();
+        }
+        else
+        {
+            strLine = NEW_STRING("CFunction");
+        }
         backtrace = StringUtil::Concat( backtrace ,
                                         String::Format("[%s:%d]%s\n"
-                                                       , "MemoryString"
+                                                       , scriptFileName ? scriptFileName->GetData() : "MemoryString"
                                                        ,lineNo
                                                         ,strLine->GetData()
                                                        )

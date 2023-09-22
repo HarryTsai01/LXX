@@ -14,9 +14,8 @@ InstructionSetTestCase::InstructionSetTestCase()
 {
     m_scriptContents =
             {
-                "local script = loadScript('main')\n"
+                "local script = loadScript('testcase')\n"
                 "script()\n"
-                "return\n"
             };
 }
 

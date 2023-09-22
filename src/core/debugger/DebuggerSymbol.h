@@ -35,8 +35,11 @@ public:
     void EndBatchInstruction( u32 instructionNum  , u32 linNo );
     void EndBatchInstructionDuplicate( u32 instructionNum  );
     bool GetIsBatchInstruction() const { return _bBatchInstruction ; }
+    String *GetScriptFileName() const { return _scriptFileName ; }
+    void SetScriptFileName( String *scriptFileName ) { _scriptFileName = scriptFileName; }
 
 private:
+    String *_scriptFileName;
     UnorderedMap< u32 ,  String * > _lines;
     Array< u32 > _instructionLines;
     bool _bBatchInstruction;
