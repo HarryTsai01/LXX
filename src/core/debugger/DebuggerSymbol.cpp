@@ -12,6 +12,7 @@ namespace Debugger
 
 #if GENERATE_DEBUGGER_SYMBOL
 DebuggerSymbol::DebuggerSymbol()
+: _bBatchInstruction( false )
 {
 
 }
@@ -27,6 +28,51 @@ void DebuggerSymbol::AddLine( u32 lineNo , String *line )
 {
     _lines.Add( lineNo , line );
 }
+
+
+void DebuggerSymbol::AddInstructionLine( u32 lineNo )
+{
+    if( !_bBatchInstruction )
+        _instructionLines.Add( lineNo );
+}
+
+
+void DebuggerSymbol::DuplicateInstructionLine()
+{
+    if( !_bBatchInstruction )
+        _instructionLines.Add( _instructionLines.GetLast() );
+}
+
+
+String* DebuggerSymbol::GetLine( u32 programCounter , u32 &lineNo )
+{
+    assert( programCounter < _instructionLines.Size() );
+    lineNo = _instructionLines[ programCounter ];
+    return _lines[lineNo];
+}
+
+
+void DebuggerSymbol::BeginBatchInstruction( )
+{
+    _bBatchInstruction = true;
+}
+
+
+void DebuggerSymbol::EndBatchInstruction( u32 instructionNum, u32 lineNo )
+{
+    while( _instructionLines.Size() < instructionNum )
+        _instructionLines.Add( lineNo );
+
+    _bBatchInstruction = false;
+}
+
+
+void DebuggerSymbol::EndBatchInstructionDuplicate( u32 instructionNum )
+{
+    EndBatchInstruction( instructionNum , _instructionLines.GetLast() );
+}
+
+
 #endif
 }
 } // LXX

@@ -76,6 +76,7 @@ public:
     u32 AddPlaceholder();
 
     u32 GetNextInstructionLocation() const { return _bytecode.Size(); }
+    u32 GetInstructionNum() const { return _bytecode.Size() ; }
 
     bool IsPlaceHolder( u32 index );
 

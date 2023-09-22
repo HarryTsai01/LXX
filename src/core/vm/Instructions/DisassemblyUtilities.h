@@ -16,8 +16,9 @@ namespace Disassembly
 
 using namespace LXX::Instruction;
 
-void PrintInstruction( ByteCodeChunk* chunk
-                       ,Opcode opcode
+void PrintInstruction(  State *state
+                       , ByteCodeChunk* chunk
+                       , Opcode opcode
                        , OperandType operandType1 , u32 operandIndex1
                        , OperandType operandType2 , u32 operandIndex2
                        , OperandType operandType3 , u32 operandIndex3

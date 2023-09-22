@@ -15,6 +15,56 @@ CompilerTestCase::CompilerTestCase()
     m_pCompiler = new Compiler();
     m_scriptContents =
             {
+                    // for statement
+                    "for i = 1, 10 do\n"
+                    "   if i % 2 == 0 then\n"
+                    "       print(i)\n"
+                    "       break\n"
+                    "   else\n"
+                    "       continue\n"
+                    "   end\n"
+                    "end",
+                    "for i = 10, 1, -1 do\n"
+                    "   print(i)\n"
+                    "end",
+                    "for k, v in pairs(tb) do\n"
+                    "   print(k, v)\n"
+                    "end",
+                    // do end block statement
+                    "do\n"
+                    "   print(\"Hello,World!\")\n"
+                    "end",
+                    // if statement
+                    "if true then\n"
+                    "   print(\"Hello,World!\")\n"
+                    "end",
+                    "if a == 1 then\n"
+                    "   print(\" a is equal to 1\")\n"
+                    "elseif a == 2 then\n"
+                    "   print(\" a is equal to 2\")\n"
+                    "else\n"
+                    "   print(\" a is not equal to 1 or 2\")\n"
+                    "end",
+                    // comment
+                    "-- this is a comment\n",
+                    "--[[  this is a comment --]]\n",
+                    // function definition
+                    "function foo() \n"
+                    "   print(\"Hello,World!\")\n "
+                    "end",
+                    "function add( a , b ) \n"
+                    "   return a + b\n "
+                    "end",
+                    "function tb.add( a , b ) \n"
+                    "   return a + b\n "
+                    "end",
+                    "function ui.widget:add( child ) \n"
+                    "   return self:AddChild( child )\n "
+                    "end",
+                    // local statement
+                    "local a = 1",
+                    "local b = 2",
+                    "local c, d = 3, 4",
                     // return statement
                     "return \n",
                     "return 1\n",
@@ -106,56 +156,6 @@ CompilerTestCase::CompilerTestCase()
                     "   print(a)\n"
                     "   a = a + 1\n"
                     "until a > 10\n",
-                    // for statement
-                    "for i = 1, 10 do\n"
-                    "   if i % 2 == 0 then\n"
-                    "       print(i)\n"
-                    "       break\n"
-                    "   else\n"
-                    "       continue\n"
-                    "   end\n"
-                    "end",
-                    "for i = 10, 1, -1 do\n"
-                    "   print(i)\n"
-                    "end",
-                    "for k, v in pairs(tb) do\n"
-                    "   print(k, v)\n"
-                    "end",
-                    // do end block statement
-                    "do\n"
-                    "   print(\"Hello,World!\")\n"
-                    "end",
-                    // if statement
-                    "if true then\n"
-                    "   print(\"Hello,World!\")\n"
-                    "end",
-                    "if a == 1 then\n"
-                    "   print(\" a is equal to 1\")\n"
-                    "elseif a == 2 then\n"
-                    "   print(\" a is equal to 2\")\n"
-                    "else\n"
-                    "   print(\" a is not equal to 1 or 2\")\n"
-                    "end",
-                    // comment
-                    "-- this is a comment\n",
-                    "--[[  this is a comment --]]\n",
-                    // function definition
-                    "function foo() \n"
-                    "   print(\"Hello,World!\")\n "
-                    "end",
-                    "function add( a , b ) \n"
-                    "   return a + b\n "
-                    "end",
-                    "function tb.add( a , b ) \n"
-                    "   return a + b\n "
-                    "end",
-                    "function ui.widget:add( child ) \n"
-                    "   return self:AddChild( child )\n "
-                    "end",
-                    // local statement
-                    "local a = 1",
-                    "local b = 2",
-                    "local c, d = 3, 4",
             };
 }
 

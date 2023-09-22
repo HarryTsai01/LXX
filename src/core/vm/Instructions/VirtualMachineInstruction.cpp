@@ -17,7 +17,8 @@ Value* VirtualMachine::FindImmediateValue( s32 valueId )
     auto it = _immediateValues.Find( valueId );
     if( it == _immediateValues.End() )
     {
-        return _immediateValues.Add( valueId , Value( valueId ) );
+        _immediateValues.Add( valueId , Value( valueId ) );
+        it = _immediateValues.Find( valueId );
     }
     return &it->Second;
 }
@@ -48,7 +49,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         else if( operand._type == OperandType::Constant )
         {
             if( !context._chunk->ConstValueIdxIsValid( operand._index ) )
-                ThrowError("invalid constant index" );
+                ThrowError( context._state , "invalid constant index" );
 
             return context._chunk->GetConstValue( operand._index );
         }
@@ -57,7 +58,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
             u32 upValueIndex = operand._index;
             Value* upValueKey = chunk->GetConstValue( upValueIndex );
             if( !upValueKey )
-                ThrowError("invalid upvalue key");
+                ThrowError( context._state , "invalid upvalue key");
 
             Table* globalTable = context._state->GetGlobalState()->GetGlobalTable();
 
@@ -66,7 +67,7 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
         }
         else if( operand._type == OperandType::GlobalVariable )
         {
-            ThrowError("not implemented");
+            ThrowError( context._state , "not implemented");
         }
         else if( operand._type == OperandType::Immediate )
         {
@@ -83,7 +84,9 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
     context._srcOperand1 = _decodeOperand( instructionValue._operand2 );
     context._srcOperand2 = _decodeOperand( instructionValue._operand3 );
 
-    Disassembly::PrintInstruction( context._chunk
+    Disassembly::PrintInstruction(
+            context._state
+            , context._chunk
             ,instructionValue._opcode ,
            instructionValue._operand1._type , instructionValue._operand1._index ,
            instructionValue._operand2._type , instructionValue._operand2._index ,
@@ -152,37 +155,37 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     BEGIN_INSTRUCTION_EXECUTE;
     /*
      * this instruction is used to call a function
-     * the first source operand is the argument count
-     * the second source operand is the destination operand used to store the return value count
+     * the first source operand is the destination operand used to store the return value count
+     * the second source operand is the argument count
      * the third source operand is none
      * */
 
     if( !srcOperand1->IsNumber() )
-        ThrowError("function call with non-number argument count" );
+        ThrowError( context._state , "function call with non-number argument count" );
 
     s32 argumentValueCount = srcOperand1->As<s32>();
     if( argumentValueCount < 0 )
-        ThrowError("function call with negative argument count:%d", argumentValueCount );
+        ThrowError( context._state , "function call with negative argument count:%d", argumentValueCount );
     if( destOperand == nullptr )
-        ThrowError( " the return value count var is not specified" );
+        ThrowError( context._state ,  " the return value count var is not specified" );
 
     s32 functionIdx =  - argumentValueCount - 1 ;
     Value *function = state->GetStack().IndexToValue( functionIdx );
     if( function == nullptr )
-        ThrowError( " invalid call instruction, function is null" );
+        ThrowError( context._state ,  " invalid call instruction, function is null" );
     if( function->IsFunction() )
     {
         Call( state, argumentValueCount );
-        destOperand->Set(callInfo->GetActualReturnValueNum() );
+        destOperand->Set( context._state->GetLastFunctionCallReturnValueCount() );
         return;
     }
     // the `function` is not a function
     MetaMethodHandler *metaMethodHandler = MetaTableMgr::GetInstance().GetMetaMethodHandler( function->GetType() );
     if( metaMethodHandler == nullptr )
-        ThrowError( "invalid call instruction, meta method handler is null, function type:%d", function->GetType() );
+        ThrowError( context._state ,  "invalid call instruction, meta method handler is null, function type:%d", function->GetType() );
 
-    if( !metaMethodHandler->Invoke( MetaMethodHandler::META_METHOD_KEY_CALL , destOperand , srcOperand1 , srcOperand2  ) )
-        ThrowError( "invalid call instruction, meta method handler invoke failed" );
+    if( !metaMethodHandler->Invoke(  context._state , MetaMethodHandler::META_METHOD_KEY_CALL , destOperand , srcOperand1 , srcOperand2  ) )
+        ThrowError( context._state ,  "invalid call instruction, meta method handler invoke failed" );
 }
 
 
@@ -195,10 +198,10 @@ void VirtualMachine::InstructionExecute_OpcodeReturn( InstructionExecuteContext 
      * the third source operand is none
      * */
     if( !srcOperand1->IsNumber() )
-        ThrowError("invalid return opcode with non-number return value count" );
+        ThrowError( context._state , "invalid return opcode with non-number return value count" );
     s32 returnValueCount = srcOperand1->As<s32>();
     if( returnValueCount < 0 )
-        ThrowError(" invalid return opcode with negative return value count:%d", returnValueCount );
+        ThrowError( context._state , " invalid return opcode with negative return value count:%d", returnValueCount );
 
     state->SetLastFunctionCallReturnValueCount(returnValueCount );
     state->GetCurrentCallInfo()->SetActualReturnValueNum(returnValueCount);
@@ -213,14 +216,23 @@ void VirtualMachine::InstructionExecute_OpcodeJump( InstructionExecuteContext &c
      *   the first operand is the jump condition
      *   the second operand is the jump offset
      * */
-    if( !srcOperand1->IsBoolean() )
-        ThrowError("invalid jump opcode with non-boolean jump condition" );
+    if( !srcOperand1->IsBoolean() && !srcOperand1->IsInteger() )
+        ThrowError( context._state , "invalid jump opcode with non-boolean and non-integer jump condition" );
     if( !srcOperand2->IsNumber() )
-        ThrowError("invalid jump opcode with non-number jump offset" );
-    if( srcOperand1->As<bool>() )
+        ThrowError( context._state , "invalid jump opcode with non-number jump offset" );
+    bool bJump = false;
+    if( srcOperand1->IsBoolean() )
+    {
+        bJump = srcOperand1->As<bool>();
+    }
+    else if( srcOperand1->IsInteger() )
+    {
+        bJump = srcOperand1->As<s32>() != 0 ;
+    }
+    if( bJump )
     {
         if( !callInfo->JumpOffset( srcOperand2->As<s32>() ) )
-            ThrowError("invalid jump opcode offset:%d , out of range", srcOperand2->As<s32>());
+            ThrowError( context._state , "invalid jump opcode offset:%d , out of range", srcOperand2->As<s32>());
     }
 }
 
@@ -235,17 +247,17 @@ void VirtualMachine::InstructionExecute_OpcodeSystemCall( InstructionExecuteCont
      * */
 
     if( destOperand == nullptr || !destOperand->IsNumber() )
-        ThrowError("invalid system call opcode , the system function is invalid " );
+        ThrowError( context._state , "invalid system call opcode , the system function is invalid " );
     if( srcOperand1 == nullptr || !srcOperand1->IsNumber() )
-        ThrowError("invalid system call opcode , the first argument is invalid " );
+        ThrowError( context._state , "invalid system call opcode , the first argument is invalid " );
     if( srcOperand2 == nullptr || !srcOperand2->IsNumber() )
-        ThrowError("invalid system call opcode , the second argument is invalid " );
+        ThrowError( context._state , "invalid system call opcode , the second argument is invalid " );
 
     u32 systemFunction = srcOperand1->As<u32>();
     u32 argument1 = srcOperand1->As<u32>();
     u32 argument2 = srcOperand2->As<u32>();
 
-    OnSystemFunction( systemFunction , argument1 , argument2 );
+    OnSystemFunction( context._state , systemFunction , argument1 , argument2 );
 }
 
 
@@ -256,10 +268,10 @@ void VirtualMachine::InstructionExecute_OpcodeAssert( InstructionExecuteContext 
      * the first operand is assert type
      */
     if( !srcOperand1->IsNumber() )
-        ThrowError("invalid assert opcode with non-assert type" );
+        ThrowError( context._state , "invalid assert opcode with non-assert type" );
     AssertType assertType = srcOperand1->As<AssertType>();
     if( assertType >= AssertType::Max )
-        ThrowError("invalid assert opcode with assert type:%d", assertType );
+        ThrowError( context._state , "invalid assert opcode with assert type:%d", assertType );
 
     if( assertType == AssertType::ValueType )
     {
@@ -268,15 +280,15 @@ void VirtualMachine::InstructionExecute_OpcodeAssert( InstructionExecuteContext 
          * the third operand is value type
          * */
         if( srcOperand1 == nullptr )
-            ThrowError("invalid assert opcode with null target operand" );
+            ThrowError( context._state , "invalid assert opcode with null target operand" );
         if( srcOperand2 == nullptr )
-            ThrowError("invalid assert opcode with null value type" );
+            ThrowError( context._state , "invalid assert opcode with null value type" );
         if( !srcOperand2->IsNumber() )
-            ThrowError("invalid assert opcode with non-value type" );
+            ThrowError( context._state , "invalid assert opcode with non-value type" );
         ValueType valueType = srcOperand2->As<ValueType>();
 
         if( srcOperand2->GetType() != valueType )
-            ThrowError("assert failed , the target operand type :%d is not equal to the value type:%d", srcOperand2->GetType(), valueType );
+            ThrowError( context._state , "assert failed , the target operand type :%d is not equal to the value type:%d", srcOperand2->GetType(), valueType );
     }
 }
 
@@ -290,7 +302,7 @@ void VirtualMachine::InstructionExecute_OpcodePush( InstructionExecuteContext &c
      * the third source operand is none
      * */
     if( srcOperand1 == nullptr )
-        ThrowError("invalid push opcode with null source operand" );
+        ThrowError( context._state , "invalid push opcode with null source operand" );
 
     state->GetStack().Push( srcOperand1 );
 }
@@ -305,14 +317,14 @@ void VirtualMachine::InstructionExecute_OpcodePop( InstructionExecuteContext &co
      * the third source operand is none
      * */
     if( srcOperand1 == nullptr )
-        ThrowError("invalid pop opcode with null source operand" );
+        ThrowError( context._state , "invalid pop opcode with null source operand" );
     if( !srcOperand1->IsNumber() )
-        ThrowError("invalid pop opcode with non-number pop count" );
+        ThrowError( context._state , "invalid pop opcode with non-number pop count" );
 
     s32 popCount = srcOperand1->As<s32>();
     if( popCount < 0 )
     {
-        ThrowError("invalid pop opcode with negative pop count or zero pop count, count :%d", popCount );
+        ThrowError( context._state , "invalid pop opcode with negative pop count or zero pop count, count :%d", popCount );
     }
     else if( popCount > 0 )
     {
@@ -331,7 +343,7 @@ void VirtualMachine::InstructionExecute_OpcodeNewTable( InstructionExecuteContex
      * the third source operand is none
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid new table opcode with null destination operand" );
+        ThrowError( context._state , "invalid new table opcode with null destination operand" );
 
     destOperand->Set( new Table() );
 }
@@ -347,14 +359,14 @@ void VirtualMachine::InstructionExecute_OpcodeGetField( InstructionExecuteContex
      * the third source operand is the field name
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid get field opcode with null destination operand" );
+        ThrowError( context._state , "invalid get field opcode with null destination operand" );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid get field opcode with null table operand or null full userdata" );
+        ThrowError( context._state , "invalid get field opcode with null table operand or null full userdata" );
     if( srcOperand2 == nullptr )
-        ThrowError("invalid get field opcode with null field name" );
+        ThrowError( context._state , "invalid get field opcode with null field name" );
     if( srcOperand1->GetType() != ValueType::Table
     &&  srcOperand1->GetType() != ValueType::FullUserdata )
-        ThrowError("invalid get field opcode with invalid table operand or full userdata" );
+        ThrowError( context._state , "invalid get field opcode with invalid table operand or full userdata" );
 
     if( srcOperand1->GetType() == ValueType::Table )
     {
@@ -366,9 +378,9 @@ void VirtualMachine::InstructionExecute_OpcodeGetField( InstructionExecuteContex
     {
         MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( srcOperand1->GetType() );
         if( handler == nullptr )
-            ThrowError("invalid get field for valueType:%d" , srcOperand1->GetType() );
+            ThrowError( context._state , "invalid get field for valueType:%d" , srcOperand1->GetType() );
 
-        handler->Invoke( MetaMethodHandler::META_METHOD_KEY_INDEX , destOperand , srcOperand1 , srcOperand2 );
+        handler->Invoke( context._state , MetaMethodHandler::META_METHOD_KEY_INDEX , destOperand , srcOperand1 , srcOperand2 );
     }
 }
 
@@ -383,9 +395,9 @@ void VirtualMachine::InstructionExecute_OpcodeSetField( InstructionExecuteContex
      * the third source operand is the value to set
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid set field opcode with null table operand or null full userdata" );
+        ThrowError( context._state , "invalid set field opcode with null table operand or null full userdata" );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid set field opcode with null field value" );
+        ThrowError( context._state , "invalid set field opcode with null field value" );
 
     if( destOperand->IsTable() )
     {
@@ -396,9 +408,9 @@ void VirtualMachine::InstructionExecute_OpcodeSetField( InstructionExecuteContex
     {
         MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( destOperand->GetType() );
         if( handler == nullptr )
-            ThrowError("could not set field for valueType:%d" , srcOperand1->GetType() );
+            ThrowError( context._state , "could not set field for valueType:%d" , srcOperand1->GetType() );
 
-        handler->Invoke( MetaMethodHandler::META_METHOD_KEY_NEW_INDEX , destOperand , srcOperand1 , srcOperand2 );
+        handler->Invoke( context._state , MetaMethodHandler::META_METHOD_KEY_NEW_INDEX , destOperand , srcOperand1 , srcOperand2 );
     }
 }
 
@@ -412,11 +424,11 @@ void VirtualMachine::InstructionExecute_OpcodeGetVariableArgument( InstructionEx
      * the third source operand is used to store the end index of the variable argument in the stack
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid get variable argument opcode , the first operand is null" );
+        ThrowError( context._state , "invalid get variable argument opcode , the first operand is null" );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid get variable argument opcode , the second source operand is null" );
+        ThrowError( context._state , "invalid get variable argument opcode , the second source operand is null" );
     if( srcOperand2 == nullptr )
-        ThrowError("invalid get variable argument opcode , the third source operand is null" );
+        ThrowError( context._state , "invalid get variable argument opcode , the third source operand is null" );
 
     u32 variableArgumentStartIndex = -1;
     u32 variableArgumentEndIndex = -1;
@@ -439,10 +451,10 @@ void VirtualMachine::InstructionExecute_Assignment( InstructionExecuteContext &c
     if( destOperand == nullptr )
     {
         if( context._instructionValue._operand1._type != OperandType::UpValue )
-            ThrowError("invalid assignment opcode with null destination operand" );
+            ThrowError( context._state , "invalid assignment opcode with null destination operand" );
     }
     if( srcOperand1 == nullptr )
-        ThrowError("invalid assignment opcode with null source operand" );
+        ThrowError( context._state , "invalid assignment opcode with null source operand" );
 
     if( destOperand )
     {
@@ -454,7 +466,7 @@ void VirtualMachine::InstructionExecute_Assignment( InstructionExecuteContext &c
         u32 upValueIndex = context._instructionValue._operand1._index;
         Value* upValueKey = context._chunk->GetConstValue( upValueIndex );
         if( !upValueKey )
-            ThrowError("invalid upvalue key");
+            ThrowError( context._state , "invalid upvalue key");
 
         Table* globalTable = context._state->GetGlobalState()->GetGlobalTable();
 
@@ -484,16 +496,16 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpValueType( InstructionE
      * the second source operand is immediate value to specific the value type
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid compare value type opcode with null destination operand" );
+        ThrowError( context._state , "invalid compare value type opcode with null destination operand" );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid compare value type opcode with null source operand" );
+        ThrowError( context._state , "invalid compare value type opcode with null source operand" );
     if( srcOperand2 == nullptr )
-        ThrowError("invalid compare value type opcode with null value type operand" );
+        ThrowError( context._state , "invalid compare value type opcode with null value type operand" );
     if( !srcOperand2->IsNumber()
         || srcOperand2->As<ValueType>() < ValueType::Start
         || srcOperand2->As<ValueType>() > ValueType::Max
         )
-        ThrowError("invalid compare value type opcode with invalid value type operand" );
+        ThrowError( context._state , "invalid compare value type opcode with invalid value type operand" );
 
     destOperand->Set(  srcOperand1->GetType() == srcOperand2->As<ValueType>() );
 }
@@ -641,11 +653,11 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalAnd( InstructionExe
      * the third operand is boolean operand
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid logical and opcode with null destination operand");
+        ThrowError( context._state , "invalid logical and opcode with null destination operand");
     if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
-        ThrowError("invalid logical and opcode with null or non-boolean source operand1");
+        ThrowError( context._state , "invalid logical and opcode with null or non-boolean source operand1");
     if( srcOperand2 == nullptr || !srcOperand2->IsBoolean() )
-        ThrowError("invalid logical and opcode with null or non-boolean source operand2");
+        ThrowError( context._state , "invalid logical and opcode with null or non-boolean source operand2");
 
     destOperand->Set( srcOperand1->As<bool>() && srcOperand2->As<bool>() );
 }
@@ -661,11 +673,11 @@ void VirtualMachine::InstructionExecute_OpcodeBinaryOpLogicalOr( InstructionExec
      * the third operand is boolean operand
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid logical or opcode with null destination operand");
+        ThrowError( context._state , "invalid logical or opcode with null destination operand");
     if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
-        ThrowError("invalid logical or opcode with null or non-boolean source operand1");
+        ThrowError( context._state , "invalid logical or opcode with null or non-boolean source operand1");
     if( srcOperand2 == nullptr || !srcOperand2->IsBoolean() )
-        ThrowError("invalid logical or opcode with null or non-boolean source operand2");
+        ThrowError( context._state , "invalid logical or opcode with null or non-boolean source operand2");
 
     destOperand->Set( srcOperand1->As<bool>() || srcOperand2->As<bool>() );
 
@@ -696,9 +708,9 @@ void VirtualMachine::InstructionExecute_OpcodeUnaryNot( InstructionExecuteContex
      * the third operand is ignored
      * */
     if( destOperand == nullptr )
-        ThrowError("invalid logical not opcode with null destination operand");
+        ThrowError( context._state , "invalid logical not opcode with null destination operand");
     if( srcOperand1 == nullptr || !srcOperand1->IsBoolean() )
-        ThrowError("invalid logical not opcode with null or non-boolean source operand1");
+        ThrowError( context._state , "invalid logical not opcode with null or non-boolean source operand1");
 
     destOperand->Set( !srcOperand1->As<bool>() );
 }
@@ -714,20 +726,20 @@ void VirtualMachine::InstructionExecute_MetaMethodBinaryOpCall(InstructionExecut
 {
     BEGIN_INSTRUCTION_EXECUTE;
     if( destOperand == nullptr )
-        ThrowError("invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
+        ThrowError( context._state , "invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
+        ThrowError( context._state , "invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
     if( srcOperand2 == nullptr )
-        ThrowError("invalid meta method call opcode with null source operand2 , methodKey:%s" , methodKey );
+        ThrowError( context._state , "invalid meta method call opcode with null source operand2 , methodKey:%s" , methodKey );
 
     if( srcOperand1->IsNumber()
     && srcOperand2->IsNumber() )
     {
         MetaMethodHandler *handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( ValueType::Number );
         if( handler == nullptr )
-            ThrowError("invalid meta method call opcode can't find meta method handler , methodKey:%s" , methodKey );
-        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
-            ThrowError(" failed to invoke binary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
+            ThrowError( context._state , "invalid meta method call opcode can't find meta method handler , methodKey:%s" , methodKey );
+        if( !handler->Invoke(context._state , methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError( context._state , " failed to invoke binary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
     }
     else
     {
@@ -743,14 +755,14 @@ void VirtualMachine::InstructionExecute_MetaMethodBinaryOpCall(InstructionExecut
         if( handler == nullptr )
             handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( context._srcOperand2->GetType() );
         if( handler == nullptr )
-            ThrowError("invalid meta method call opcode neither can find meta method handler in the first nor in the second operand, methodKey:%s srcOperand1:%d , srcOperand2:%d"
+            ThrowError( context._state , "invalid meta method call opcode neither can find meta method handler in the first nor in the second operand, methodKey:%s srcOperand1:%d , srcOperand2:%d"
                        , methodKey
                        , context._srcOperand1->GetType( )
                        , context._srcOperand2->GetType( )
                        );
 
-        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
-            ThrowError(" failed to invoke binary operator in meta method handler , methodKey:%s , srcOperand1:%d , srcOperand2:%d "
+        if( !handler->Invoke(context._state , methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError( context._state , " failed to invoke binary operator in meta method handler , methodKey:%s , srcOperand1:%d , srcOperand2:%d "
                        , methodKey
                        , context._srcOperand1->GetType( )
                        , context._srcOperand2->GetType( )
@@ -763,29 +775,29 @@ void VirtualMachine::InstructionExecute_MetaMethodUnaryOpCall(InstructionExecute
 {
     BEGIN_INSTRUCTION_EXECUTE;
     if( destOperand == nullptr )
-        ThrowError("invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
+        ThrowError( context._state , "invalid meta method call opcode with null destination operand , methodKey:%s" , methodKey );
     if( srcOperand1 == nullptr )
-        ThrowError("invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
+        ThrowError( context._state , "invalid meta method call opcode with null source operand1 , methodKey:%s" , methodKey );
 
     if( srcOperand1->IsNumber() )
     {
         MetaMethodHandler *handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( ValueType::Number );
         if( handler == nullptr )
-            ThrowError("invalid meta method call opcode , can't find meta method handler , methodKey:%s" , methodKey );
-        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
-            ThrowError(" failed to invoke unary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
+            ThrowError( context._state , "invalid meta method call opcode , can't find meta method handler , methodKey:%s" , methodKey );
+        if( !handler->Invoke(context._state , methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError( context._state , " failed to invoke unary operator in meta method handler , methodKey:%s , ValueType:%d" , methodKey , ValueType::Number );
     }
     else
     {
         MetaMethodHandler * handler = MetaTableMgr::GetInstance().GetMetaMethodHandler( context._srcOperand1->GetType() );
         if( handler == nullptr )
-            ThrowError("invalid meta method call opcode , can't find meta method handler in the first operand, methodKey:%s srcOperand1:%d "
+            ThrowError( context._state , "invalid meta method call opcode , can't find meta method handler in the first operand, methodKey:%s srcOperand1:%d "
                     , methodKey
                     , context._srcOperand1->GetType( )
             );
 
-        if( !handler->Invoke(methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
-            ThrowError(" failed to invoke unary operator in meta method handler , methodKey:%s , srcOperand1:%d "
+        if( !handler->Invoke(context._state , methodKey, context._destOperand, context._srcOperand1, context._srcOperand2) )
+            ThrowError( context._state , " failed to invoke unary operator in meta method handler , methodKey:%s , srcOperand1:%d "
                     , methodKey
                     , context._srcOperand1->GetType( )
             );
@@ -801,10 +813,10 @@ u32 VirtualMachine::CallLuaClosure( State *state , LuaClosure *closure )
     {
         u32 opcodeIdx = static_cast< u32 >( context._opcode );
         if( !_instructionExecuteFunctions.IsValidIndex( opcodeIdx ) )
-            ThrowError(" Invalid  opcode : %d " , context._opcode );
+            ThrowError( context._state , " Invalid  opcode : %d " , context._opcode );
         auto executeFunction = _instructionExecuteFunctions[ static_cast< u32 >( context._opcode ) ];
         if( executeFunction == nullptr )
-            ThrowError("opcode:%d not implemented" , context._opcode );
+            ThrowError( context._state , "opcode:%d not implemented" , context._opcode );
         return executeFunction;
     };
 

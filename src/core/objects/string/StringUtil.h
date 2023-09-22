@@ -19,7 +19,12 @@ public:
 
     static String* NewString( const char* begin , const char * end );
 
-    static void Strncpy( char *dest , const char * src , u32 len );
+    static u32 StrLen( const char *str );
+
+
+    static u32 Strncpy( char *dest , const char * src , u32 len );
+
+    static String* Concat( String* str1 , String *str2 );
 };
 
 

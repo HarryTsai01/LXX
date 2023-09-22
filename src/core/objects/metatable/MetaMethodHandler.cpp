@@ -8,12 +8,12 @@ namespace LXX
 {
 
 
-bool MetaMethodHandler::Invoke(const char * metaMethodKey , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 )
+bool MetaMethodHandler::Invoke( State * state , const char * metaMethodKey , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 )
 {
     auto it = _metaMethodMap.Find( metaMethodKey );
     if( it != _metaMethodMap.End() )
     {
-        (this->*(it->Second))( destOperand , srcOperand1 , srcOperand2 );
+        (this->*(it->Second))( state , destOperand , srcOperand1 , srcOperand2 );
         return true;
     }
 

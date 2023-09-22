@@ -36,7 +36,7 @@ MetaMethodHandlerNumber::MetaMethodHandlerNumber()
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber, META_METHOD_KEY_BIN_OP_ADD )
 {
     if( destOperand == nullptr )
-       ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_ADD" );
+       ThrowError( state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_ADD" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -56,7 +56,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber, META_METHOD_KEY_BIN_OP_ADD )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SUB )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SUB" );
+        ThrowError( state ,  "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SUB" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -76,7 +76,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SUB )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_MUL )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MUL" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MUL" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -96,13 +96,13 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_MUL )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_DIV )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_DIV" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_DIV" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
 
     if( std::fabs( src2 ) < 0.000001 )
-        ThrowError( "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_DIV" );
+        ThrowError(  state , "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_DIV" );
 
     f64 result = src1 / src2;
 
@@ -120,12 +120,12 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_DIV )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_MOD )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MOD" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MOD" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
     if( std::fabs( src2 ) < 0.000001 )
-        ThrowError( "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MOD" );
+        ThrowError(  state , "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_MOD" );
 
     f64 result = std::fmod( src1, src2 );
 
@@ -143,7 +143,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_MOD )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_POW )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_POW" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_POW" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -163,7 +163,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_POW )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_UNA_OP_MINUS )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_UNA_OP_MINUS" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_UNA_OP_MINUS" );
 
     if( srcOperand1->IsReal() )
     {
@@ -179,12 +179,12 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_UNA_OP_MINUS )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_IDIV )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_IDIV" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_IDIV" );
 
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     if( src2 == 0 )
-        ThrowError( "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_IDIV" );
+        ThrowError(  state , "Division by zero in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_IDIV" );
     s32 result = src1 / src2;
 
     destOperand->SetAsInt( result );
@@ -194,9 +194,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_IDIV )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_AND )
 {
     if ( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_AND" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_AND" );
     if( srcOperand1->IsReal() || srcOperand2->IsReal() )
-        ThrowError( "Bitwise AND is not supported for real numbers" );
+        ThrowError(  state , "Bitwise AND is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     s32 result = src1 & src2;
@@ -207,9 +207,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_AN
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_OR )
 {
     if ( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_OR" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_OR" );
     if( srcOperand1->IsReal() || srcOperand2->IsReal() )
-        ThrowError( "Bitwise OR is not supported for real numbers" );
+        ThrowError(  state , "Bitwise OR is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     s32 result = src1 | src2;
@@ -220,9 +220,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_OR
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_XOR )
 {
     if ( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_XOR" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_BITWISE_XOR" );
     if( srcOperand1->IsReal() || srcOperand2->IsReal() )
-        ThrowError( "Bitwise XOR is not supported for real numbers" );
+        ThrowError(  state , "Bitwise XOR is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     s32 result = src1 ^ src2;
@@ -233,9 +233,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_BITWISE_XO
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_UNA_OP_BITWISE_NOT )
 {
     if ( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_UNA_OP_BITWISE_NOT" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_UNA_OP_BITWISE_NOT" );
     if( srcOperand1->IsReal() )
-        ThrowError( "Bitwise NOT is not supported for real numbers" );
+        ThrowError(  state , "Bitwise NOT is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 result = ~src1;
     destOperand->SetAsInt( result );
@@ -245,9 +245,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_UNA_OP_BITWISE_NO
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SHIFT_LEFT )
 {
     if ( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SHIFT_LEFT" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SHIFT_LEFT" );
     if( srcOperand1->IsReal() || srcOperand2->IsReal() )
-        ThrowError( "Bitwise shift is not supported for real numbers" );
+        ThrowError(  state , "Bitwise shift is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     s32 result = src1 << src2;
@@ -258,9 +258,9 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SHIFT_LEFT
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SHIFT_RIGHT )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SHIFT_RIGHT" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_SHIFT_RIGHT" );
     if( srcOperand1->IsReal() || srcOperand2->IsReal() )
-        ThrowError( "Bitwise shift is not supported for real numbers" );
+        ThrowError(  state , "Bitwise shift is not supported for real numbers" );
     s32 src1 = srcOperand1->AsInt();
     s32 src2 = srcOperand2->AsInt();
     s32 result = src1 >> src2;
@@ -271,7 +271,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_SHIFT_RIGH
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_CONCAT )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_CONCAT" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_CONCAT" );
     String* result = nullptr;
     if( srcOperand1->IsReal() )
     {
@@ -295,7 +295,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_CONCAT )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_EQUAL )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_EQUAL" );
+        ThrowError(  state , "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_EQUAL" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -307,7 +307,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_EQUAL )
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_LESS_THAN )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_LESS_THAN" );
+        ThrowError( state ,  "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_LESS_THAN" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();
@@ -319,7 +319,7 @@ IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_LESS_THAN 
 IMPLEMENT_META_METHOD( MetaMethodHandlerNumber,META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL )
 {
     if( destOperand == nullptr )
-        ThrowError( "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL" );
+        ThrowError( state ,  "destOperand is null in MetaMethodHandlerNumber::META_METHOD_KEY_BIN_OP_LESS_THAN_OR_EQUAL" );
 
     f64 src1 = srcOperand1->AsReal();
     f64 src2 = srcOperand2->AsReal();

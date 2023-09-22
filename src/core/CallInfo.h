@@ -46,6 +46,8 @@ public:
     void SetLastFunctionCallReturnValueNum( u32 count ) { _lastFunctionCallReturnValueCount = count; }
     void SetProgramCounter( u32 pc ) { _programCounter = pc; }
     u32 GetProgramCounter() const { return _programCounter; }
+    u32 GetCurrentProgramCounter() const { return _currentProgramCounter ; }
+    LuaClosure *GetLuaClosure() const { return _luaClosure; }
     bool FetchNextInstruction(u64 &outInstruction );
     bool JumpOffset( s32 offset );
 
@@ -63,6 +65,7 @@ private:
     u32 _localVariableStartIndex;
     u32 _temporaryVariableStartIndex;
     s32 _programCounter;
+    s32 _currentProgramCounter;
     u32 _lastFunctionCallReturnValueCount;
     bool _bMarkAsReturn;
 };

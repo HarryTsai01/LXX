@@ -69,7 +69,7 @@ bool VirtualMachine::Call(State *state, u32 nArgs )
     s32 functionIdx = -nArgs - 1;
 
     if( !stack.IsFunction( functionIdx ) )
-        ThrowError( "call a invalid function" );
+        ThrowError( state , "call a invalid function" );
     if( stack.IsLightCFunction( functionIdx ) )
     {
         FunctionCallScope scope( state
@@ -97,7 +97,7 @@ bool VirtualMachine::Call(State *state, u32 nArgs )
     }
     else if( stack.IsCClosure( functionIdx ) )
     {
-        ThrowError( "not implemented" );
+        ThrowError( state , "not implemented" );
     }
 
     return true;

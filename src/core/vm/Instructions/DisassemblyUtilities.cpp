@@ -8,6 +8,9 @@
 #include <core/archive/iostream/IOStream.h>
 #include <core/archive/MemoryArchiveWriter.h>
 #include <core/log/log.h>
+#include <core/objects/string/string.h>
+#include <core/objects/string/StringUtil.h>
+#include <core/debugger/DebuggerUtil.h>
 
 namespace LXX
 {
@@ -69,7 +72,8 @@ static UnorderedMap< OperandType , const char* > _opcodeTypeMaps =
 };
 
 
-void PrintInstruction( ByteCodeChunk* chunk
+void PrintInstruction( State * state
+        , ByteCodeChunk* chunk
         , Opcode opcode
         , OperandType operandType1 , u32 operandIndex1
         , OperandType operandType2 , u32 operandIndex2
@@ -83,15 +87,17 @@ void PrintInstruction( ByteCodeChunk* chunk
     };
     auto GetOperandInfo = [&]( OperandInfo &operandInfo , const OperandType type , const u32 index )
     {
-        std::strncpy( operandInfo.Name , _opcodeTypeMaps[type] , 15);
+        StringUtil::Strncpy( operandInfo.Name , _opcodeTypeMaps[type] , 15 );
         if( type == OperandType::Constant )
         {
             Value* constValue = chunk->GetConstValue( index );
             if( constValue->IsString() )
             {
-                std::strncpy(  operandInfo.Value
+                u32 cpLen = StringUtil::Strncpy(  operandInfo.Value + 1
                                , constValue->As<String*>()->GetData()
-                               , 15 );
+                               , 13 );
+                operandInfo.Value[0]='\"';
+                operandInfo.Value[ cpLen + 1 ]='\"';
             }
             else if( constValue->IsInteger() )
             {
@@ -128,12 +134,34 @@ void PrintInstruction( ByteCodeChunk* chunk
                     , Decoder::GetOperandIndex( index )
             );
         }
+        else if( type == OperandType::UpValue )
+        {
+            Value* identifierName = chunk->GetConstValue( index );
+            assert( identifierName->IsString() );
+            std::sprintf(
+                    operandInfo.Value
+                    ,"%s"
+                    , identifierName->As<String*>()->GetData()
+            );
+
+        }
     };
     Array< OperandInfo > operandInfos;
     GetOperandInfo( *operandInfos.Add() , operandType1 , operandIndex1 );
     GetOperandInfo( *operandInfos.Add() , operandType2 , operandIndex2 );
     GetOperandInfo( *operandInfos.Add() , operandType3 , operandIndex3 );
 
+#if GENERATE_DEBUGGER_SYMBOL
+    String* sourceCodeLine = Debugger::DebuggerUtil::GetSourceCodeLine( state );
+    LOG::LogDebug( LOG::LogCategory::LXX ,
+              "%s(%s=%s,%s=%s,%s=%s) ; %s"
+              , _opcodeMaps[opcode]
+              , operandInfos[0].Name , operandInfos[0].Value
+            , operandInfos[1].Name , operandInfos[1].Value
+            , operandInfos[2].Name , operandInfos[2].Value
+            , sourceCodeLine ? sourceCodeLine->GetData() : "none"
+    );
+#else
     LOG::LogDebug( LOG::LogCategory::LXX ,
               "%s(%s=%s,%s=%s,%s=%s)"
               , _opcodeMaps[opcode]
@@ -141,6 +169,7 @@ void PrintInstruction( ByteCodeChunk* chunk
             , operandInfos[1].Name , operandInfos[1].Value
             , operandInfos[2].Name , operandInfos[2].Value
     );
+#endif
 }
 
 } // namespace Disassembly

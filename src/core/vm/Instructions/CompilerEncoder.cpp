@@ -42,6 +42,21 @@
 
 namespace LXX
 {
+#if GENERATE_DEBUGGER_SYMBOL
+#define DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(lineNo) context->GetLuaClosure()->GetDebuggerSymbol()->AddInstructionLine( lineNo );
+#define DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE() context->GetLuaClosure()->GetDebuggerSymbol()->DuplicateInstructionLine( );
+#define DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION() context->GetLuaClosure()->GetDebuggerSymbol()->BeginBatchInstruction( );
+#define DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION(instructionNum,lineNo) context->GetLuaClosure()->GetDebuggerSymbol()->EndBatchInstruction( instructionNum , lineNo );
+#define DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION_DUPLICATE(instructionNum) context->GetLuaClosure()->GetDebuggerSymbol()->EndBatchInstructionDuplicate( instructionNum );
+#define DEBUGGER_SYMBOL_ASSERT()    assert(   context->GetByteCodeChunk()->GetDebuggerSymbol()->GetIsBatchInstruction() \
+              || context->GetByteCodeChunk()->GetInstructionNum() == context->GetByteCodeChunk()->GetDebuggerSymbol()->GetInstructionLineNum() );
+#else
+#define DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(lineNo)
+#define DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE()
+#define DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION()
+#define DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION(instructionNum,lineNo)
+#define DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION_DUPLICATE(instructionNum)
+#endif
 
 
 static void ProcessBreakAndContinueStatementInLoopStatement( CompileContext *context , u32 loopBeginLocation , u32 loopEndLocation )
@@ -154,9 +169,11 @@ void CompileContext::RetrieveLocation( const Array< u32 > &locations , u32 begin
     }
 }
 
+
 void Compiler::CompileFunctionCallExpression( CompileContext *context , FunctionCallExpression * functionCallExpression , u32 &argumentNumIdx )
 {
     Encoder::Helper encodeHelper( context );
+    DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION()
 
     ByteCodeChunk *chunk = context->GetLuaClosure()->GetChunk();
 
@@ -221,7 +238,11 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
     CompileFunctionCallPrefix( functionIdx , selfIdx );
     encodeHelper.Push( OperandType::TempVariable , functionIdx );
     if( selfIdx != -1 )
+    {
         encodeHelper.Push( OperandType::TempVariable , selfIdx );
+    }
+
+    DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION( encodeHelper.GetInstructionNum() , functionCallExpression->GetLineNo() );
 
     // push arguments
     auto expressionList = LXX::Cast< ExpressionListStatement >( functionCallExpression->GetArguments() );
@@ -230,25 +251,33 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
         CompileComplicatedExpressionListStatement(context, expressionList);
         encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
         OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
         // pop arguments count
         encodeHelper.Pop( OperandType::Immediate , 1 );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
         if( selfIdx != -1 )
         {
             encodeHelper.Increase(
                     OperandType::TempVariable , argumentNumIdx ,
                     1
             );
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
         }
     }
     else
     {
         encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
                              OperandType::Immediate , 0 );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
     }
 
     // call function
     encodeHelper.Call( OperandType::TempVariable , argumentNumIdx ,
                        OperandType::TempVariable ,context->AddTempVariable() );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -283,6 +312,7 @@ void Compiler::CompileVarExpression( CompileContext *context , VarExpression * v
         u32 tableIdx = context->AddTempVariable();
         encodeHelper.Assign( OperandType::TempVariable , tableIdx ,
                              destType , destIdx );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varExpression->GetLineNo() );
         auto CompileVarStatement = [&]( StatementBase *statement , OperandType &outType , u32 &outIdx )
         {
             if( auto identifierExpression = LXX::Cast< IdentifierExpression >( statement ) )
@@ -306,13 +336,18 @@ void Compiler::CompileVarExpression( CompileContext *context , VarExpression * v
             encodeHelper.GetField( OperandType::TempVariable , tableIdx ,
                                    OperandType::TempVariable , tableIdx ,
                                    keyType , keyIdx );
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varStatements[ iVarStatement ] ->GetLineNo() );
         }
 
         CompileVarStatement( varStatements.GetLast() , operandType , operandIndex );
 
         encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable() ,
                             OperandType::TempVariable , tableIdx );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varExpression->GetLineNo() );
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -328,14 +363,20 @@ void Compiler::CompileWhileStatement( CompileContext *context , WhileStatement *
     u32 conditionResIdx = -1;
     encodeHelper.EncodeWhileStatement(
             [&](Encoder::Helper &helper) {
-                CompileExpressionAndProcessReturnValue(context, condition);
+                CompileExpressionAndProcessReturnValue( context, condition );
                 conditionResIdx = context->GetLastTempVariableIndex();
+                DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(condition->GetLineNo() );
             },
             OperandType::TempVariable, conditionResIdx,
             [&](Encoder::Helper &helper) {
-                CompileStatement(context, body);
+                CompileStatement( context, body );
+                // the jump placeholder instruction lineNo is the lineNo of the last statement in loop body statement
+                DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE();
             }
     );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -343,6 +384,10 @@ void Compiler::CompileContinueStatement( CompileContext *context , ContinueState
 {
     Encoder::Helper encodeHelper( context );
     context->AddContinueLocation( encodeHelper.AddPlaceholder() );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(continueStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -350,6 +395,10 @@ void Compiler::CompileBreakStatement( CompileContext *context , BreakStatement *
 {
     Encoder::Helper encodeHelper( context );
     context->AddBreakLocation( encodeHelper.AddPlaceholder() );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(breakStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -365,14 +414,20 @@ void Compiler::CompileRepeatStatement( CompileContext *context , RepeatStatement
     u32 conditionResIdx = -1;
     encodeHelper.EncodeRepeatStatement(
             [&](Encoder::Helper &helper) {
-                CompileExpressionAndProcessReturnValue(context, condition);
+                CompileExpressionAndProcessReturnValue( context, condition );
                 conditionResIdx = context->GetLastTempVariableIndex();
+                // after loop body was invoked , there are two instruction to test and jump to loop start location
+                DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( condition->GetLineNo() );
+                DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( condition->GetLineNo() );
             },
             OperandType::TempVariable, conditionResIdx,
             [&](Encoder::Helper &helper) {
-                CompileStatement(context, body);
+                CompileStatement( context, body );
             }
     );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 void Compiler::CompileIfStatement( CompileContext *context , IfStatement * ifStatement )
@@ -411,18 +466,18 @@ void Compiler::CompileIfStatement( CompileContext *context , IfStatement * ifSta
     Array< u32 > breakLocations;
     for( u32 i = 0 ; i < conditions.Size() ; ++ i )
     {
+        DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
         CompileExpressionAndProcessReturnValue( context , conditions[ i ] );
         u32 conditionResIdx = context->GetLastTempVariableIndex();
         encodeHelper.UnaryNot( OperandType::TempVariable , conditionResIdx ,
                                OperandType::TempVariable , conditionResIdx );
-        u32 jumpLocation = code.Size();
-        code.PushBack( 0 );
+        u32 jumpLocation = encodeHelper.AddPlaceholder();
         CompileStatement( context , thenBodies[ i ] );
-        breakLocations.PushBack( code.Size() );
-        code.PushBack( 0 );
+        breakLocations.PushBack( encodeHelper.AddPlaceholder() );
         encodeHelper.Jump(Encoder::MakeOperand( OperandType::TempVariable , conditionResIdx ) ,
                         jumpLocation ,
                 code.Size() );
+        DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION( encodeHelper.GetInstructionNum() , conditions[ i ]->GetLineNo() );
     }
 
     // else block
@@ -438,6 +493,9 @@ void Compiler::CompileIfStatement( CompileContext *context , IfStatement * ifSta
                             code.Size() );
     }
 
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -510,6 +568,7 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
                  *  4. if the count is three , we fetch the value from the stack ( index : -4 )
                  *      ...
                  */
+                DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
                 helper.Assign(
                          OperandType::TempVariable , firstExpressionValueIdx ,
                          OperandType::Constant , chunk->GetConstNilValueIndex()
@@ -701,9 +760,11 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
                             );
                         }
                 );
+                DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION( helper.GetInstructionNum() , forLoopStatement->GetLineNo() );
             },
             [&](Encoder::Helper &helper) {
 
+                DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
                 /*
                  *  if the first expression is a function ,
                  *      we call it with
@@ -835,10 +896,14 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
 
                         }
                 );
+                DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION( helper.GetInstructionNum() , condition->GetLineNo() );
+                // the jump instruction placeholder
+                DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE();
             },
             OperandType::TempVariable, conditionResIdx,
             [&](Encoder::Helper &helper) {
                 CompileStatement( context, body );
+                DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
                 helper.EncodeSimpleIfStatement(
                         [&](Encoder::Helper &helper) {
                             helper.CompareValueType(
@@ -856,9 +921,15 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
                                     );
                         }
                 );
+                DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION_DUPLICATE( helper.GetInstructionNum() );
+                // at the end of loop body , an `always jump` instruction would jump to loop start location
+                DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE();
             }
     );
 
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 void Compiler::CompileReturnStatement( CompileContext *context , ReturnStatement * returnStatement )
@@ -875,11 +946,17 @@ void Compiler::CompileReturnStatement( CompileContext *context , ReturnStatement
         CompileComplicatedExpressionListStatement(context, expressionList);
         encodeHelper.Assign( OperandType::TempVariable , returnValueCountIdx ,
                              OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(returnStatement->GetLineNo() );
         // pop out argument count
         encodeHelper.Pop( OperandType::Immediate , 1 );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(returnStatement->GetLineNo() );
     }
 
     encodeHelper.Return( OperandType::TempVariable , returnValueCountIdx );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(returnStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -902,6 +979,10 @@ void Compiler::CompileIdentifierExpression( CompileContext *context , Identifier
         OperandType::TempVariable , context->AddTempVariable() ,
          identifierType , identifierIdx
             );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(identifierExpression->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -935,6 +1016,7 @@ void Compiler::CompileComplicatedExpressionListStatement(CompileContext *context
     u32 expressionValueCountIndex = context->AddTempVariable();
     encodeHelper.Assign( OperandType::TempVariable , expressionValueCountIndex ,
                          OperandType::Immediate , 0 );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(expressionListStatement->GetLineNo() );
 
     Array< u64 > valueNeedToPop;
     Array< u32 > tempExpressions;
@@ -946,6 +1028,7 @@ void Compiler::CompileComplicatedExpressionListStatement(CompileContext *context
         {
             u32 returnValueCountIdx = context->GetLastTempVariableIndex();
             u32 testConditionIdx = context->AddTempVariable();
+            u32 instructionNumBefore = encodeHelper.GetInstructionNum();
             encodeHelper.EncodeSimpleIfStatement(
                     [&]( Encoder::Helper &helper )
                     {
@@ -955,7 +1038,7 @@ void Compiler::CompileComplicatedExpressionListStatement(CompileContext *context
                         encodeHelper.EncodeDirectly( Opcode::BinaryOpCmpEqual ,
                                                      OperandType::TempVariable , testConditionIdx ,
                                                      OperandType::TempVariable , returnValueCountIdx ,
-                                                     OperandType::None , 0 );
+                                                     OperandType::Immediate , 0 );
                     }
                     ,OperandType::TempVariable , testConditionIdx ,
                     [&]( Encoder::Helper &helper ) {
@@ -978,15 +1061,26 @@ void Compiler::CompileComplicatedExpressionListStatement(CompileContext *context
                                                      OperandType::TempVariable , returnValueCountIdx );
                     }
             );
+            u32 instructionNum = encodeHelper.GetInstructionNum() - instructionNumBefore;
+            for( u32 j = 0 ; j < instructionNum ; ++ j )
+            {
+                DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(expressions[i]->GetLineNo() );
+            }
         }
         else
         {
             encodeHelper.Increase( OperandType::TempVariable , expressionValueCountIndex , 1 );
             encodeHelper.Push( OperandType::TempVariable , context->GetLastTempVariableIndex() );
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(expressions[i]->GetLineNo() );
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(expressions[i]->GetLineNo() );
         }
     }
 
     encodeHelper.Push( OperandType::TempVariable , expressionValueCountIndex );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(expressionListStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -998,6 +1092,7 @@ void Compiler::CompileDotExpression( CompileContext *context , DotExpression * d
     u32 startIdx = context->AddTempVariable();
     u32 endIdx = context->AddTempVariable();
     u32 variableArgumentCountIdx = context->AddTempVariable();
+    u32 instructionBefore = encodeHelper.GetInstructionNum();
 
     encodeHelper.GetVariableArgument(
             OperandType::TempVariable , startIdx ,
@@ -1029,6 +1124,15 @@ void Compiler::CompileDotExpression( CompileContext *context , DotExpression * d
 
     encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable() ,
                          OperandType::TempVariable , variableArgumentCountIdx );
+
+    u32 instructionNum = encodeHelper.GetInstructionNum() - instructionBefore;
+    for( u32 i = 0 ; i < instructionNum ; ++i )
+    {
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(dotExpression->GetLineNo() );
+    }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -1040,13 +1144,14 @@ void Compiler::CompileTableConstructorStatement( CompileContext *context , Table
     u32 tableIdx = context->AddTempVariable();
     OperandType tableType = OperandType::TempVariable;
     encodeHelper.NewTable( tableType , tableIdx );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(tableConstructorStatement->GetLineNo() );
 
     Array< StatementBase * >&  fields = tableConstructorStatement->GetFields();
 
     s32 positionIdx = 1;
     for( u32 i = 0 ; i < fields.Size() ; i++ )
     {
-        if( auto  tableFieldStatement = LXX::Cast< TableFieldStatement >( fields[i] ) )
+        if( auto  tableFieldStatement = LXX::Cast< LXX::TableFieldStatement >( fields[i] ) )
         {
             StatementBase *keyStatement = tableFieldStatement->GetKey();
             StatementBase *valueStatement = tableFieldStatement->GetValue();
@@ -1072,6 +1177,7 @@ void Compiler::CompileTableConstructorStatement( CompileContext *context , Table
             OperandType valueType = OperandType::TempVariable;
 
             encodeHelper.SetField(  tableType , tableIdx , keyType , keyIdx , valueType , valueIdx );
+            DEBUGGER_SYMBOL_DUPLICATE_INSTRUCTION_LINE();
         }
         else
         {
@@ -1081,6 +1187,10 @@ void Compiler::CompileTableConstructorStatement( CompileContext *context , Table
 
     encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable() ,
                                              tableType , tableIdx );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(tableConstructorStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -1104,6 +1214,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
                     OperandType::Constant ,
                     chunk->GetConstNilValueIndex()
                     );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(nilExpression->GetLineNo() );
     }
     else if( auto booleanExpression = LXX::Cast< BooleanExpression >( statement ) )
     {
@@ -1112,6 +1223,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
                     OperandType::Constant ,
                     chunk->AddConstValue( booleanExpression->GetValue() )
         );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(booleanExpression->GetLineNo() );
     }
     else if( auto integerNumberExpression = LXX::Cast< IntegerNumberExpression >( statement ) )
     {
@@ -1120,6 +1232,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
                     OperandType::Constant ,
                     chunk->AddConstValue( integerNumberExpression->GetValue() )
         );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(integerNumberExpression->GetLineNo() );
     }
     else if( auto realNumberExpression = LXX::Cast< RealNumberExpression >( statement ) )
     {
@@ -1128,6 +1241,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
                     OperandType::Constant ,
                     chunk->AddConstValue( realNumberExpression->GetValue() )
         );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(realNumberExpression->GetLineNo() );
     }
     else if( auto stringExpress = LXX::Cast< StringExpression >(statement ) )
     {
@@ -1136,6 +1250,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
                     OperandType::Constant ,
                     chunk->AddConstValue( stringExpress->GetValue() )
         );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(stringExpress->GetLineNo() );
     }
     else if( auto tableConstructor = LXX::Cast< TableConstructorStatement >( statement ) )
     {
@@ -1160,6 +1275,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
             encodeHelper.Assign(OperandType::TempVariable ,context->AddTempVariable(),
                                 operandType , operandIndex );
         }
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varExpression->GetLineNo() );
     }
     else if( auto functionCallExpression = LXX::Cast< FunctionCallExpression >( statement ) )
     {
@@ -1182,6 +1298,9 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
     {
         ThrowError( "invalid expression" );
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT()
+#endif
 }
 
 
@@ -1191,6 +1310,7 @@ void Compiler::CompileExpressionAndProcessReturnValue( CompileContext *context ,
     if( statement->IsA< FunctionCallExpression >() || statement->IsA< DotExpression >() )
     {
         Encoder::Helper encodeHelper( context );
+        u32 instructionNumBefore = encodeHelper.GetInstructionNum();
         ByteCodeChunk *chunk = context->GetLuaClosure()->GetChunk();
         u32 returnValueCountIdx = context->GetLastTempVariableIndex();
         u32 testConditionIdx = context->AddTempVariable();
@@ -1222,7 +1342,15 @@ void Compiler::CompileExpressionAndProcessReturnValue( CompileContext *context ,
                     encodeHelper.Pop( OperandType::TempVariable , returnValueCountIdx );
                 }
         );
+        u32 instructionNum = encodeHelper.GetInstructionNum() - instructionNumBefore;
+        for( u32 i = 0 ; i < instructionNum ; ++i )
+        {
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(statement->GetLineNo() );
+        }
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1251,6 +1379,10 @@ void Compiler::CompileUnaryExpression( CompileContext *context , UnaryOperatorEx
                                  OperandType::TempVariable , expressionIdx ,
                                  OperandType::None , 0
                                  );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(unaryExpression->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1313,6 +1445,10 @@ void Compiler::CompileBinaryExpression( CompileContext *context , BinaryOperatio
                         OperandType::TempVariable , destTempIdx ,
                         OperandType::TempVariable , leftTempIdx ,
                         OperandType::TempVariable , rightTempIdx );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(binaryExpression->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1383,6 +1519,7 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
                     );
                 }
             }
+            DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varListExpression[iVar].GetLineNo() );
         }
     }
     else
@@ -1395,6 +1532,8 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
         u32 testConditionIdx = context->AddTempVariable();
         for( u32 iVar = 0 ; iVar < varExpressions.Size() ; iVar++ )
         {
+            u32 instructionNumBefore = encodeHelper.GetInstructionNum();
+
             bool bIsTable;
             OperandType operandType;
             u32 operandIdx;
@@ -1432,12 +1571,23 @@ void Compiler::CompileAssignmentStatement( CompileContext *context , AssignmentS
                         , operandType , operandIdx
                         , OperandType::Stack, Encoder::MakeOperandIndex( -2 - iVar ) );
             }
+
+            u32 instructionNum = encodeHelper.GetInstructionNum() - instructionNumBefore;
+            for( u32 i = 0 ; i < instructionNum ; ++i )
+            {
+                DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varExpressions[ iVar ]->GetLineNo() );
+            }
         }
 
-        encodeHelper.Pop( OperandType::Immediate , 1 );
         encodeHelper.Pop( OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+        encodeHelper.Pop( OperandType::Immediate , 1 );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(assignmentStatement->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(assignmentStatement->GetLineNo() );
     }
 
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1447,6 +1597,9 @@ void Compiler::CompileBlockStatement( CompileContext *context , BlockStatement *
     {
         CompileStatement( context , child );
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1461,6 +1614,10 @@ void Compiler::CompileFunctionStatementIgnoreName( CompileContext *context , Fun
     u32 luaClosureIdx = chunk->AddConstValue( newContext->GetLuaClosure() );
     encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable()
                             ,OperandType::Constant , luaClosureIdx );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionStatement->GetLineNo() );
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1494,6 +1651,7 @@ void Compiler::CompileFunctionStatementWithName( CompileContext *context , Funct
 
 
     CompileFunctionStatementIgnoreName( context , functionStatement );
+    u32 instructionNumBefore = encodeHelper.GetInstructionNum();
     u32 functionIdx = context->GetLastTempVariableIndex();
 
     bool isTable = nameList.Size() > 1;
@@ -1523,6 +1681,15 @@ void Compiler::CompileFunctionStatementWithName( CompileContext *context , Funct
         encodeHelper.Assign( varType , varIdx ,
                         OperandType::TempVariable , functionIdx );
     }
+
+    u32 instructionNum = encodeHelper.GetInstructionNum() - instructionNumBefore;
+    for( u32 i = 0 ; i < instructionNum ; ++i )
+    {
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionStatement->GetLineNo() );
+    }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 
@@ -1575,6 +1742,9 @@ void Compiler::CompileLocalStatement( CompileContext *context , LocalStatement *
 
         CompileFunctionStatementWithName( context , functionStatement );
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 void Compiler::CompileStatement( CompileContext * context, StatementBase * statement )
@@ -1607,6 +1777,9 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
                 );
         encodeHelper.Pop( OperandType::TempVariable , argumentNumIdx );
 
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
     }
     else if( auto whileStatement = LXX::Cast< WhileStatement >( statement ) )
     {
@@ -1644,6 +1817,9 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
     {
         ThrowError( "not implemented" );
     }
+#if GENERATE_DEBUGGER_SYMBOL
+    DEBUGGER_SYMBOL_ASSERT();
+#endif
 }
 
 

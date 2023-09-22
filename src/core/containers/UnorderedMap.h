@@ -355,6 +355,14 @@ private:
         {
             return currentSlotIndex == other.currentSlotIndex && currentSlot == other.currentSlot;
         }
+
+        IndexType& operator=(const IndexType &other )
+        {
+            bucket = other.bucket;
+            currentSlot = other.currentSlot;
+            currentSlotIndex = other.currentSlotIndex;
+            return *this;
+        }
     };
     typedef s32 DifferenceType;
 

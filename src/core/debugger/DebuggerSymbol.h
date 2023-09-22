@@ -26,8 +26,20 @@ public:
 
     void AddLine( u32 lineNo , String* line );
 
+    void AddInstructionLine( u32 lineNo );
+    void DuplicateInstructionLine();
+
+    String* GetLine(u32 programCounter , u32 &lineNo );
+    u32 GetInstructionLineNum() const { return _instructionLines.Size() ; }
+    void BeginBatchInstruction();
+    void EndBatchInstruction( u32 instructionNum  , u32 linNo );
+    void EndBatchInstructionDuplicate( u32 instructionNum  );
+    bool GetIsBatchInstruction() const { return _bBatchInstruction ; }
+
 private:
     UnorderedMap< u32 ,  String * > _lines;
+    Array< u32 > _instructionLines;
+    bool _bBatchInstruction;
 };
 
 

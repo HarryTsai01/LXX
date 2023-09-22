@@ -9,7 +9,6 @@
 #include <core/vm/ByteCodeChunk.h>
 #include <core/objects/string/String.h>
 #if GENERATE_DEBUGGER_SYMBOL
-#include <core/debugger/DebuggerSymbol.h>
 #endif
 
 namespace LXX
@@ -38,7 +37,7 @@ public:
     u32 GetLocalVariableCount() const { return _chunk->GetLocalVariableCount(); }
     u32 GetTemporaryVariableCount() const { return _chunk->GetTemporaryVariableCount(); }
 #if GENERATE_DEBUGGER_SYMBOL
-    Debugger::DebuggerSymbol *GetDebuggerSymbol() { return _symbol ; }
+    Debugger::DebuggerSymbol *GetDebuggerSymbol() { return _chunk->GetDebuggerSymbol() ; }
 #endif
 private:
     String *_name;
@@ -51,9 +50,6 @@ private:
     ByteCodeChunk* _chunk;
     LuaClosure* _parent;
     Array< LuaClosure* > _children;
-#if GENERATE_DEBUGGER_SYMBOL
-    Debugger::DebuggerSymbol *_symbol;
-#endif
 };
 
 } // LXX

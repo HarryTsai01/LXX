@@ -683,7 +683,7 @@ void Lexer::DebuggerSymbolCollectLineInfo(Debugger::DebuggerSymbol *symbol)
 {
     const char* _curChar = scriptContent->GetData();
     const char* _endChar = _curChar + scriptContent->GetLength();
-    u32 lineNo = 1;
+    u32 lineNo = 0;
     while ( _curChar < _endChar && _curChar[0] != '\0' )
     {
         const char* _lineStartPos = _curChar;
@@ -693,10 +693,10 @@ void Lexer::DebuggerSymbolCollectLineInfo(Debugger::DebuggerSymbol *symbol)
         ++ _curChar;
         ++lineNo;
         u32 len = _curChar - _lineStartPos;
-        if( len == 0 || LexerUtil::IsNullLine( _lineStartPos , _curChar ) )
+        if( len == 0 || LexerUtil::IsNullLine( _lineStartPos , _curChar - 1 ) )
             continue;
 
-        String *line = StringUtil::NewString( _lineStartPos , _curChar );
+        String *line = StringUtil::NewString( _lineStartPos , _curChar - 1 );
         symbol->AddLine( lineNo , line );
     }
 }

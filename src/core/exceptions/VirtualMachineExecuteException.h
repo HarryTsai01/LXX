@@ -9,19 +9,28 @@
 namespace LXX
 {
 
+
+class State;
 class VirtualMachineExecuteException : public  ExceptionBase
 {
 public:
-    VirtualMachineExecuteException( const char *message );
-    template <typename ... Args>
-    VirtualMachineExecuteException( const char *format, Args ... args )
+    VirtualMachineExecuteException(  State *state , String* message );
+    VirtualMachineExecuteException(  State *state , const char *message )
+     : VirtualMachineExecuteException( state , NEW_STRING(message) )
     {
-        _message = String::Format( format, std::forward<Args>( args )... );
+
+    }
+    template <typename ... Args>
+    VirtualMachineExecuteException( State *state , const char *format, Args ... args )
+    : VirtualMachineExecuteException( state  , String::Format( format, std::forward<Args>( args )... ) )
+    {
     }
 
     virtual String* ToString() const override;
 private:
     String *_message;
+    String *_backtrace;
+    State *_state;
 };
 
 } // LXX

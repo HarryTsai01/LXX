@@ -70,6 +70,12 @@ public:
         return temp;
     }
 
+    Iterator& operator=( const Iterator& other )
+    {
+        m_pArray = other.m_pArray;
+        m_Index = other.m_Index;
+        return *this;
+    }
 
     bool operator==( const Iterator& other ) const
     {

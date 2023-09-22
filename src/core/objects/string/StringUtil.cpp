@@ -3,7 +3,8 @@
 //
 
 #include "StringUtil.h"
-#include "core/mem/MemoryAllocator.h"
+#include <core/mem/MemoryAllocator.h>
+#include <core/Utilities.h>
 
 namespace LXX
 {
@@ -62,9 +63,30 @@ String* StringUtil::NewString( const char* begin , const char * end )
 }
 
 
-void StringUtil::Strncpy(char *dest, const char *src, u32 len)
+u32 StrLen( const char *str )
 {
+    return std::strlen( str );
+}
+
+
+u32 StringUtil::Strncpy(char *dest, const char *src, u32 len )
+{
+    u32 cpLen = LXX::StrLen( src );
     std::strncpy( dest , src , len );
+    return Min( cpLen , len );
+}
+
+
+String* StringUtil::Concat( String* str1 , String *str2 )
+{
+    if( str1 == nullptr || str2 == nullptr ) return str1 != nullptr ? str1 : str2;
+
+    u32 newLen = str1->GetLength() + str2->GetLength();
+    String *newStr = NEW_STRING_WITH_SIZE( newLen );
+    Strncpy( newStr->GetData() , str1->GetData() , str1->GetLength() );
+    Strncpy( newStr->GetData() + str1->GetLength() , str2->GetData() , str2->GetLength() );
+    newStr->GetData()[newLen]='\0';
+    return newStr;
 }
 
 }

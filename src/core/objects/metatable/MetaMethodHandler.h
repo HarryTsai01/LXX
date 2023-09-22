@@ -12,14 +12,15 @@
 namespace LXX
 {
 
+class State;
 
 class MetaMethodHandler : public GCObject
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    typedef void (MetaMethodHandler::*MetaMethod)(Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
+    typedef void (MetaMethodHandler::*MetaMethod)( State * state, Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
 
-    bool Invoke(const char * metaMethodKey , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
+    bool Invoke( State * state, const char * metaMethodKey , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
 
     constexpr static const char * META_TABLE_NAME = "__metatable";
     constexpr static const char * META_METHOD_KEY_BIN_OP_ADD = "__add";
@@ -47,9 +48,9 @@ public:
 
 protected:
     template<typename ...Args>
-    void ThrowError( const char *format, Args ...args )
+    void ThrowError( State *state , const char *format, Args ...args )
     {
-        throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
+        throw VirtualMachineExecuteException( state , format , std::forward<Args>(args) ... );
     }
 
     UnorderedMap< const char* , MetaMethod> _metaMethodMap;
@@ -58,8 +59,8 @@ protected:
 #define META_METHOD_BEGIN_REGISTER() _metaMethodMap = {
 #define META_METHOD_REGISTER(ClassName , metaMethodKey) { metaMethodKey , static_cast<MetaMethodHandler::MetaMethod>(&ClassName::MetaMethod##metaMethodKey) },
 #define META_METHOD_END_REGISTER() };
-#define DECLARE_META_METHOD( metaMethodKey ) void MetaMethod##metaMethodKey( Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
-#define IMPLEMENT_META_METHOD( className , metaMethodKey ) void className::MetaMethod##metaMethodKey( Value * destOperand , Value * srcOperand1 , Value * srcOperand2 )
+#define DECLARE_META_METHOD( metaMethodKey ) void MetaMethod##metaMethodKey( State *state , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 );
+#define IMPLEMENT_META_METHOD( className , metaMethodKey ) void className::MetaMethod##metaMethodKey( State *state , Value * destOperand , Value * srcOperand1 , Value * srcOperand2 )
 
 } // LXX
 

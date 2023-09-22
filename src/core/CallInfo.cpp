@@ -28,7 +28,7 @@ CallInfo::CallInfo( CallInfo *previous
     , _localVariableNum( localVariableNum )
     , _temporaryVariableNum( temporaryVariableNum )
     , _actualReturnValueNum( 0 )
-    , _localVariableStartIndex(functionIdx + 1 + actualArgumentVariableNum )
+    , _localVariableStartIndex( functionIdx + 1 + actualArgumentVariableNum )
     , _temporaryVariableStartIndex( _localVariableStartIndex + localVariableNum )
     , _bMarkAsReturn( false )
     , _programCounter( 0 )
@@ -72,6 +72,7 @@ bool CallInfo::FetchNextInstruction(u64 &outInstruction )
         return false;
     }
     outInstruction = bytecode[_programCounter];
+    _currentProgramCounter = _programCounter;
     _programCounter++;
 
     return true;

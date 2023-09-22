@@ -171,8 +171,8 @@ Value *Stack::IndexToValue( s32 idx )
 {
     if ( idx >= 0 )
     {
-        assert( _frameBase + idx  < _frameTop && "Stack overflow" );
-        return & _data[ _frameBase + idx ];
+        assert( idx  < _top && "Stack overflow" );
+        return & _data[ idx ];
     }
     else
     {

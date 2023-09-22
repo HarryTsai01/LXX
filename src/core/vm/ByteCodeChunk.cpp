@@ -15,6 +15,9 @@ ByteCodeChunk::ByteCodeChunk( Array< String* > parameters )
     : _parameters( std::move( parameters ) )
     , _maxTempVariableNum( 5 )
     , _lastTempVariableIndex( -1 )
+#if GENERATE_DEBUGGER_SYMBOL
+        , _symbol( new Debugger::DebuggerSymbol() )
+#endif
 {
     _consts.Add();
 }

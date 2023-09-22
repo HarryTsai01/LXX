@@ -8,6 +8,7 @@
 #include <core/Containers/Array.h>
 #include <core/Containers/UnorderedMap.h>
 #include <core/vm/Instructions/InstructionSet.h>
+#include <core/debugger/DebuggerSymbol.h>
 
 namespace LXX
 {
@@ -57,6 +58,11 @@ public:
      * Get the number of parameters exclude the variable arguments
      * */
     u32 GetDeclareArgumentVariableNum() const;
+
+    u32 GetInstructionNum() const { return _code.Size() ; }
+#if GENERATE_DEBUGGER_SYMBOL
+        Debugger::DebuggerSymbol *GetDebuggerSymbol() { return _symbol ; }
+#endif
 private:
     bool VariableIsIn( Array< String* > &variables ,  String *name ,  u32 *outIdx = nullptr );
 private:
@@ -67,6 +73,9 @@ private:
     Array< String* > _localVariables;
     u32 _lastTempVariableIndex = 0;
     u32 _maxTempVariableNum = 0;
+#if GENERATE_DEBUGGER_SYMBOL
+        Debugger::DebuggerSymbol *_symbol;
+#endif
 };
 
 } // LXX

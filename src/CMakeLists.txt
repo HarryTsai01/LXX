@@ -10,7 +10,6 @@ configure_file(
     core/LXX.config.h
 )
 
-
 add_library(
         LXX
         ${CORE_HEADER_FILES}

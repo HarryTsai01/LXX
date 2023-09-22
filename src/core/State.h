@@ -43,7 +43,7 @@ public:
     template<typename ...Args>
     void ThrowError( const char *format, Args ...args )
     {
-        throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
+        throw VirtualMachineExecuteException( this , format , std::forward<Args>(args) ... );
     }
 private:
     VirtualMachine *_vm;

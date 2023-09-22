@@ -91,7 +91,7 @@ class VMSystemCallBindingBase : public GCObject
 public:
     VMSystemCallBindingBase() = default;
     virtual ~VMSystemCallBindingBase() = default;
-    virtual void Invoke() = 0;
+    virtual void Invoke( State *state ) = 0;
 };
 
 class VirtualMachine;
@@ -102,7 +102,7 @@ class VMSystemCallBinding : public VMSystemCallBindingBase
 {
     OPERATOR_NEW_DELETE_OVERRIDE_ALL
 public:
-    typedef void (VirtualMachine::*OnSystemCall)( SystemCallArgument1 );
+    typedef void (VirtualMachine::*OnSystemCall)( State* , SystemCallArgument1 );
     VMSystemCallBinding( VirtualMachine *vm
                          , OnSystemCall onSystemCall
                          , SystemCallArgument1 systemCallArgument1
@@ -113,9 +113,9 @@ public:
     {
 
     }
-    virtual void Invoke()
+    virtual void Invoke( State *state )
     {
-        (_vm->*_onSystemCall)( _systemCallArgument1 );
+        (_vm->*_onSystemCall)( state , _systemCallArgument1 );
     }
 private:
     VirtualMachine *_vm;
@@ -186,9 +186,9 @@ private:
     void OnStartup();
     void OnShutdown();
     template<typename ...Args>
-    void ThrowError( const char *format, Args ...args )
+    void ThrowError( State * state , const char *format, Args ...args )
     {
-        throw VirtualMachineExecuteException( format , std::forward<Args>(args) ... );
+        throw VirtualMachineExecuteException( state , format , std::forward<Args>(args) ... );
     }
 
 private:
@@ -273,11 +273,11 @@ private:
                 ) \
         },
 #define DECLARE_SYSTEM_FUNCTION( systemFunction , SystemArgument ) \
-        void OnSystemFunction_##systemFunction##_##SystemArgument( SystemException systemException );
+        void OnSystemFunction_##systemFunction##_##SystemArgument( State *state , SystemException systemException );
 #define IMPLEMENTATION_SYSTEM_FUNCTION( systemFunction , SystemArgument ) \
-        void VirtualMachine::OnSystemFunction_##systemFunction##_##SystemArgument( SystemException systemException )
+        void VirtualMachine::OnSystemFunction_##systemFunction##_##SystemArgument( State *state , SystemException systemException )
 
-    void OnSystemFunction( u32 systemFunction , u32 argument1 , u32 argument2 );
+    void OnSystemFunction( State* state , u32 systemFunction , u32 argument1 , u32 argument2 );
     void RegisterSystemFunction();
     DECLARE_SYSTEM_FUNCTION( RaiseException , ExceptionForZeroReturnValueCount );
     DECLARE_SYSTEM_FUNCTION( RaiseException , ExceptionForStatementLimitExpressionIsNotNumber );
