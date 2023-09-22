@@ -16,6 +16,7 @@ InstructionSetTestCase::InstructionSetTestCase()
             {
                 "local script = loadScript('main')\n"
                 "script()\n"
+                "return\n"
             };
 }
 

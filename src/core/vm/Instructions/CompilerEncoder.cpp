@@ -251,10 +251,10 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
         CompileComplicatedExpressionListStatement(context, expressionList);
         encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
         OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
-        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( functionCallExpression->GetLineNo() );
         // pop arguments count
         encodeHelper.Pop( OperandType::Immediate , 1 );
-        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( functionCallExpression->GetLineNo() );
         if( selfIdx != -1 )
         {
             encodeHelper.Increase(
@@ -266,8 +266,16 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
     }
     else
     {
-        encodeHelper.Assign( OperandType::TempVariable , argumentNumIdx ,
-                             OperandType::Immediate , 0 );
+        if( selfIdx != -1 )
+        {
+            encodeHelper.Assign(OperandType::TempVariable, argumentNumIdx,
+                                OperandType::Immediate, 1 );
+        }
+        else
+        {
+            encodeHelper.Assign(OperandType::TempVariable, argumentNumIdx,
+                                OperandType::Immediate, 0 );
+        }
         DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
     }
 
@@ -940,6 +948,9 @@ void Compiler::CompileReturnStatement( CompileContext *context , ReturnStatement
     auto expressionList = LXX::Cast< ExpressionListStatement >( returnStatement->GetReturnValue() );
 
     u32 returnValueCountIdx = context->AddTempVariable();
+    encodeHelper.Assign( OperandType::TempVariable , returnValueCountIdx ,
+                         OperandType::Immediate , 0 );
+    DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( returnStatement->GetLineNo() );
 
     if( expressionList != nullptr )
     {
@@ -1275,7 +1286,7 @@ void Compiler::CompileExpression(CompileContext *context , StatementBase * state
             encodeHelper.Assign(OperandType::TempVariable ,context->AddTempVariable(),
                                 operandType , operandIndex );
         }
-        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(varExpression->GetLineNo() );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE( varExpression->GetLineNo() );
     }
     else if( auto functionCallExpression = LXX::Cast< FunctionCallExpression >( statement ) )
     {
@@ -1770,15 +1781,6 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
         // pop return value from stack
         encodeHelper.Pop( OperandType::TempVariable , context->GetLastTempVariableIndex() ); ;
 
-        // pop all argument and function
-        encodeHelper.Increase(
-                OperandType::TempVariable , argumentNumIdx,
-                1
-                );
-        encodeHelper.Pop( OperandType::TempVariable , argumentNumIdx );
-
-        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
-        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
         DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
     }
     else if( auto whileStatement = LXX::Cast< WhileStatement >( statement ) )

@@ -197,14 +197,14 @@ void VirtualMachine::InstructionExecute_OpcodeReturn( InstructionExecuteContext 
      * the second source operand is none
      * the third source operand is none
      * */
-    if( !srcOperand1->IsNumber() )
+    if( !destOperand->IsNumber() )
         ThrowError( context._state , "invalid return opcode with non-number return value count" );
-    s32 returnValueCount = srcOperand1->As<s32>();
+    s32 returnValueCount = destOperand->As<s32>();
     if( returnValueCount < 0 )
         ThrowError( context._state , " invalid return opcode with negative return value count:%d", returnValueCount );
 
     state->SetLastFunctionCallReturnValueCount(returnValueCount );
-    state->GetCurrentCallInfo()->SetActualReturnValueNum(returnValueCount);
+    state->GetCurrentCallInfo()->SetActualReturnValueNum(returnValueCount );
 }
 
 

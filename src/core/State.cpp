@@ -65,13 +65,37 @@ void State::EndFunctionCall()
         // just fixed the stack top in silence and print it out
         // we shouldn't throw any exception here ,because the EndFunctionCall come from the destructor of `FunctionCallScope`,
         // so if  we throw any exception here ,the exception can't be caught outside.
-        _stack.SetTop( lastFrame._oldTop );
+
         LOG::LogError( LOG::LogCategory::LXX, "[STACK CHECK]Stack is out of balance after function call , Old stack top is %d , new stack top is %d , return value count is %d\n"
                 , lastFrame._oldTop
                 , curStackTop
                 , _lastFunctionCallReturnValueCount
         );
+        for( u32 i = lastFrame._oldTop ; i < curStackTop ; ++i )
+        {
+            Value * val = _stack.IndexToValue( i );
+            LOG::LogError( LOG::LogCategory::LXX , "Stack[%d] = %s" , i , val->ToString()->GetData() );
+        }
+        _stack.SetTop( lastFrame._oldTop );
     }
+
+    // process return Value
+    s32 curSrcValueIdx =  -_lastFunctionCallReturnValueCount;
+    s32 curDestValueIdx = curSrcValueIdx - _currentCI->GetActualArgumentNum() - 1;
+    u32 processedReturnValueNum = 0;
+    while( processedReturnValueNum < _lastFunctionCallReturnValueCount )
+    {
+        Value * curSrcValue =  _stack.IndexToValue( curSrcValueIdx );
+        Value * curDestValue = _stack.IndexToValue( curDestValueIdx );
+
+        *curDestValue = *curSrcValue;
+
+        ++curDestValueIdx;
+        ++curSrcValueIdx;
+        ++ processedReturnValueNum;
+    }
+
+    _stack.Pop( _currentCI->GetActualArgumentNum() + 1 );
 
     _currentCI =  _currentCI->GetPrevious();
 
