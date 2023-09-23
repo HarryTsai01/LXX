@@ -163,17 +163,17 @@ void Helper::NewTable( OperandType destinationType , u64 destinationIdx )
 }
 
 
-void Helper::Call( u32 argumentCount , OperandType returnType , u64 returnIdx )
+void Helper::Call( u32 argumentCount )
 {
-    Call(  OperandType::Immediate , argumentCount , returnType , returnIdx );
+    Call(  OperandType::Immediate , argumentCount );
 }
 
 
-void Helper::Call( OperandType argumentCountType , u64 argumentCountIdx , OperandType returnType , u64 returnIdx )
+void Helper::Call( OperandType argumentCountType , u64 argumentCountIdx )
 {
     Encoder::Encode(_bytecode,
                     Opcode::Call ,
-                    Encoder::MakeOperand( returnType , returnIdx ) ,
+                    Encoder::MakeOperand( OperandType::None , 0 ) ,
                     Encoder::MakeOperand( argumentCountType , argumentCountIdx ) ,
                     Encoder::MakeOperand( OperandType::None , 0 )
     );
@@ -242,6 +242,17 @@ void Helper::GetVariableArgument( OperandType startIndexType , u64 startIndexIdx
                     startIndexType , startIndexIdx ,
                     endIndexType , endIndexIdx
     );
+}
+
+
+void Helper::GetReturnValueCount( OperandType destType , u64 destIdx )
+{
+    EncodeDirectly( Opcode::GetReturnValueCount ,
+                    destType , destIdx,
+                    OperandType::None , 0 ,
+                    OperandType::None , 0
+    );
+
 }
 
 

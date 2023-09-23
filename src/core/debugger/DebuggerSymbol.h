@@ -38,7 +38,11 @@ public:
     String *GetScriptFileName() const { return _scriptFileName ; }
     void SetScriptFileName( String *scriptFileName ) { _scriptFileName = scriptFileName; }
 
+    void SetParent( DebuggerSymbol * parent ) { _parent = parent ; }
+    DebuggerSymbol * GetParent() const { return _parent ; }
+    DebuggerSymbol *GetTopMostParent();
 private:
+    DebuggerSymbol *_parent;
     String *_scriptFileName;
     UnorderedMap< u32 ,  String * > _lines;
     Array< u32 > _instructionLines;

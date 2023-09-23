@@ -65,14 +65,15 @@ public:
                                  OperandType srcOperand2 , u64 srcOperandIdx2
     );
     void NewTable( OperandType destinationType , u64 destinationIdx );
-    void Call( u32 argumentCount , OperandType returnType , u64 returnIdx );
-    void Call( OperandType argumentCountType , u64 argumentCountIdx , OperandType returnType , u64 returnIdx );
+    void Call( u32 argumentCount );
+    void Call( OperandType argumentCountType , u64 argumentCountIdx );
     void UnaryNot( OperandType destinationType , u64 destinationIdx , OperandType sourceType , u64 sourceIdx );
     void AssertValueType( OperandType operandType , u64 operandIdx ,  ValueType valueType );
     void CompareValueType( OperandType resultType , u64 resultIdx , OperandType operandType , u64 operandIdx ,  ValueType valueType );
     void RaiseException( SystemException exceptionIdx );
     void Increase( OperandType operandType , u64 operandIdx ,  s32 amount );
     void GetVariableArgument( OperandType startIndexType , u64 startIndexIdx , OperandType  endIndexType , u64 endIndexIdx ,  OperandType argumentCountType , u64 argumentCountIdx );
+    void GetReturnValueCount( OperandType destType , u64 destIdx );
     u32 AddPlaceholder();
 
     u32 GetNextInstructionLocation() const { return _bytecode.Size(); }

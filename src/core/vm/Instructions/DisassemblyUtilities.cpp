@@ -30,6 +30,7 @@ static UnorderedMap< Opcode , const char* > _opcodeMaps =
         { Opcode::GetField ,                       "GetField" } ,
         { Opcode::SetField ,                       "SetField" } ,
         { Opcode::GetVariableArgument ,            "GetVariableArgument" } ,
+        { Opcode::GetReturnValueCount ,            "GetReturnValueCount" } ,
         { Opcode::Assignment ,                     "Assignment" } ,
         { Opcode::BinaryOpPower ,                  "BinaryOpPower" } ,
         { Opcode::BinaryOpCmpValueType ,           "BinaryOpCmpValueType" } ,

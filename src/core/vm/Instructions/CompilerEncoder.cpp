@@ -280,8 +280,7 @@ void Compiler::CompileFunctionCallExpression( CompileContext *context , Function
     }
 
     // call function
-    encodeHelper.Call( OperandType::TempVariable , argumentNumIdx ,
-                       OperandType::TempVariable ,context->AddTempVariable() );
+    encodeHelper.Call( OperandType::TempVariable , argumentNumIdx );
     DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
 #if GENERATE_DEBUGGER_SYMBOL
     DEBUGGER_SYMBOL_ASSERT();
@@ -794,8 +793,9 @@ void Compiler::CompileForLoopStatement( CompileContext *context , ForLoopStateme
                             helper.Push( OperandType::TempVariable , firstExpressionValueIdx );
                             helper.Push( OperandType::TempVariable , secondExpressionValueIdx );
                             helper.Push( OperandType::TempVariable , thirdExpressionValueIdx );
+                            helper.Call( 2 );
                             u32 returnValueCountIdx = context->AddTempVariable();
-                            helper.Call( 2 , OperandType::TempVariable , returnValueCountIdx );
+                            helper.GetReturnValueCount( OperandType::TempVariable , returnValueCountIdx );
 
                             u32 iteratorIdx = context->AddTempVariable();
                             helper.Assign(
@@ -1037,9 +1037,15 @@ void Compiler::CompileComplicatedExpressionListStatement(CompileContext *context
         if( expressions[ i ]->IsA< FunctionCallExpression >() ||
                 expressions[ i ]->IsA< DotExpression >() )
         {
-            u32 returnValueCountIdx = context->GetLastTempVariableIndex();
-            u32 testConditionIdx = context->AddTempVariable();
             DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
+
+            u32 returnValueCountIdx = context->GetLastTempVariableIndex();
+            if( expressions[ i ]->IsA<FunctionCallExpression>() )
+            {
+                returnValueCountIdx = context->AddTempVariable();
+                encodeHelper.GetReturnValueCount( OperandType::TempVariable , returnValueCountIdx );
+            }
+            u32 testConditionIdx = context->AddTempVariable();
             encodeHelper.EncodeSimpleIfStatement(
                     [&]( Encoder::Helper &helper )
                     {
@@ -1316,6 +1322,12 @@ void Compiler::CompileExpressionAndProcessReturnValue( CompileContext *context ,
         DEBUGGER_SYMBOL_BEGIN_BATCH_INSTRUCTION();
         ByteCodeChunk *chunk = context->GetLuaClosure()->GetChunk();
         u32 returnValueCountIdx = context->GetLastTempVariableIndex();
+        if( statement->IsA<FunctionCallExpression>() )
+        {
+            returnValueCountIdx = context->AddTempVariable();
+            encodeHelper.GetReturnValueCount( OperandType::TempVariable , returnValueCountIdx );
+        }
+        u32 returnValueIdx = context->AddTempVariable();
         u32 testConditionIdx = context->AddTempVariable();
         encodeHelper.EncodeSimpleIfStatement(
                 [&]( Encoder::Helper &helper )
@@ -1340,11 +1352,25 @@ void Compiler::CompileExpressionAndProcessReturnValue( CompileContext *context ,
                      *      1. fetch the first return value from stack
                      *      2. pop all  return values from stack
                      * **/
-                    encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable() ,
-                                         OperandType::Stack , Encoder::MakeOperandIndex( -2 ) );
-                    encodeHelper.Pop( OperandType::TempVariable , returnValueCountIdx );
+                    if( statement->IsA<FunctionCallExpression>() )
+                    {
+                        encodeHelper.Assign( OperandType::TempVariable , returnValueIdx ,
+                                             OperandType::Stack , Encoder::MakeOperandIndex( -1 ) );
+                        encodeHelper.Pop( OperandType::TempVariable , returnValueCountIdx );
+                    }
+                    else
+                    {
+                        encodeHelper.Assign( OperandType::TempVariable , returnValueIdx ,
+                                             OperandType::Stack , Encoder::MakeOperandIndex( -2 ) );
+                        encodeHelper.Pop( OperandType::TempVariable , returnValueCountIdx );
+                        encodeHelper.Pop( OperandType::Immediate , 1 );
+                    }
                 }
         );
+        encodeHelper.Assign(
+                OperandType::TempVariable , context->AddTempVariable(),
+                OperandType::TempVariable , returnValueIdx
+                );
         DEBUGGER_SYMBOL_END_BATCH_INSTRUCTION( encodeHelper.GetInstructionNum() , statement->GetLineNo() );
     }
 #if GENERATE_DEBUGGER_SYMBOL
@@ -1605,6 +1631,11 @@ void Compiler::CompileFunctionStatementIgnoreName( CompileContext *context , Fun
     auto newContext = new CompileContext( functionStatement , context );
     CompileStatement( newContext , functionStatement->GetFunctionBody() );
 
+#if GENERATE_DEBUGGER_SYMBOL
+    newContext->GetByteCodeChunk()->GetDebuggerSymbol()->SetParent( context->GetByteCodeChunk()->GetDebuggerSymbol() );
+    newContext->GetByteCodeChunk()->GetDebuggerSymbol()->SetScriptFileName( context->GetByteCodeChunk()->GetDebuggerSymbol()->GetScriptFileName() );
+#endif
+
     ByteCodeChunk * chunk = context->GetLuaClosure()->GetChunk();
     u32 luaClosureIdx = chunk->AddConstValue( newContext->GetLuaClosure() );
     encodeHelper.Assign( OperandType::TempVariable , context->AddTempVariable()
@@ -1759,8 +1790,10 @@ void Compiler::CompileStatement( CompileContext * context, StatementBase * state
         u32 argumentNumIdx;
         CompileFunctionCallExpression( context , functionCallExpression , argumentNumIdx );
         // pop return value from stack
-        encodeHelper.Pop( OperandType::TempVariable , context->GetLastTempVariableIndex() ); ;
-
+        u32 returnValueCountIdx = context->AddTempVariable();
+        encodeHelper.GetReturnValueCount( OperandType::TempVariable , returnValueCountIdx );
+        DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
+        encodeHelper.Pop( OperandType::TempVariable , returnValueCountIdx );
         DEBUGGER_SYMBOL_ADD_INSTRUCTION_LINE(functionCallExpression->GetLineNo() );
     }
     else if( auto whileStatement = LXX::Cast< WhileStatement >( statement ) )

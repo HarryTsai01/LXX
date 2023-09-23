@@ -229,6 +229,7 @@ private:
     void InstructionExecute_OpcodeGetField( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeSetField( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeGetVariableArgument( InstructionExecuteContext &context );
+    void InstructionExecute_OpcodeGetReturnValueCount( InstructionExecuteContext &context );
     void InstructionExecute_Assignment( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeBinaryOpPower( InstructionExecuteContext &context );
     void InstructionExecute_OpcodeBinaryOpCmpValueType( InstructionExecuteContext &context );

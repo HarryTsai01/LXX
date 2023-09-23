@@ -16,8 +16,8 @@ using namespace LXXTest;
 
 vector< shared_ptr< TestCaseBase > > TestCases =
         {
-                make_shared< CompilerTestCase >( ),
                 make_shared< InstructionSetTestCase >( ),
+                make_shared< CompilerTestCase >( ),
                 make_shared< TestCase01 >( ),
                 make_shared< TestCase02 >( ),
                 make_shared< TestCase03 >( ),

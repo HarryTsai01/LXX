@@ -12,7 +12,8 @@ namespace Debugger
 
 #if GENERATE_DEBUGGER_SYMBOL
 DebuggerSymbol::DebuggerSymbol()
-    : _scriptFileName( nullptr )
+    : _parent( nullptr )
+    , _scriptFileName( nullptr )
     ,_bBatchInstruction( false )
 {
 
@@ -49,7 +50,8 @@ String* DebuggerSymbol::GetLine( u32 programCounter , u32 &lineNo )
 {
     assert( programCounter < _instructionLines.Size() );
     lineNo = _instructionLines[ programCounter ];
-    return _lines[lineNo];
+    DebuggerSymbol *topMostParent = GetTopMostParent();
+    return topMostParent->_lines[lineNo];
 }
 
 
@@ -73,6 +75,15 @@ void DebuggerSymbol::EndBatchInstructionDuplicate( u32 instructionNum )
     EndBatchInstruction( instructionNum , _instructionLines.GetLast() );
 }
 
+DebuggerSymbol *DebuggerSymbol::GetTopMostParent()
+{
+    DebuggerSymbol *topMostParent = this;
+    while( topMostParent && topMostParent->_parent )
+    {
+        topMostParent = topMostParent->_parent;
+    }
+    return topMostParent;
+}
 
 #endif
 }

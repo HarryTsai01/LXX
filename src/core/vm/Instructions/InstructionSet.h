@@ -77,6 +77,7 @@ enum class Opcode
     GetField,
     SetField,
     GetVariableArgument,
+    GetReturnValueCount,
     Assignment,
     BinaryOpPower ,
     BinaryOpCmpValueType ,

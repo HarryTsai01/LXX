@@ -1,3 +1,10 @@
+-- test function
+function foo1()
+    return 1
+end
+
+assert( foo1() == 1 )
+
 g = 100
 local a = '12'
 a = 1
@@ -35,3 +42,29 @@ a = 0b110
 b = 0b001
 c = a ~ b
 assert( c == 0b111 )
+a = 2 ^ 2
+assert( a == 4 and c == 0b111 )
+assert( a == 4 or c == 0b111 )
+
+
+-- test if statement
+if ( a == 4 ) then
+    a = 5
+end
+assert( a == 5 )
+if ( a == 4 ) then
+    a = 5
+else
+    a = 4
+end
+assert( a == 4 )
+
+a = 1
+if ( a == 1 ) then
+    a = 2
+elseif ( a == 2 ) then
+    a = 3
+elseif ( a == 3 ) then
+    a = 4
+end
+assert( a == 2 )

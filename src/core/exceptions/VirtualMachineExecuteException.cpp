@@ -15,8 +15,12 @@ namespace LXX
 VirtualMachineExecuteException::VirtualMachineExecuteException( State* state , String *message )
     : _state( state )
     , _message(  message )
+#if GENERATE_DEBUGGER_SYMBOL
+    , _backtrace ( Debugger::DebuggerUtil::GetBacktrace( state ) )
+#else
+    , _backtrace( nullptr )
+#endif
 {
-    _backtrace = Debugger::DebuggerUtil::GetBacktrace( state );
 }
 
 

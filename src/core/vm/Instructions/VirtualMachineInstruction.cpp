@@ -113,6 +113,7 @@ void VirtualMachine::RegisterInstructionSet()
     _registerInstructionExecuteFunction(Opcode::GetField , &VirtualMachine::InstructionExecute_OpcodeGetField );
     _registerInstructionExecuteFunction(Opcode::SetField , &VirtualMachine::InstructionExecute_OpcodeSetField );
     _registerInstructionExecuteFunction(Opcode::GetVariableArgument , &VirtualMachine::InstructionExecute_OpcodeGetVariableArgument );
+    _registerInstructionExecuteFunction(Opcode::GetReturnValueCount , &VirtualMachine::InstructionExecute_OpcodeGetReturnValueCount );
     _registerInstructionExecuteFunction(Opcode::Assignment , &VirtualMachine::InstructionExecute_Assignment );
     _registerInstructionExecuteFunction(Opcode::BinaryOpPower , &VirtualMachine::InstructionExecute_OpcodeBinaryOpPower );
     _registerInstructionExecuteFunction(Opcode::BinaryOpCmpValueType , &VirtualMachine::InstructionExecute_OpcodeBinaryOpCmpValueType );
@@ -155,7 +156,7 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     BEGIN_INSTRUCTION_EXECUTE;
     /*
      * this instruction is used to call a function
-     * the first source operand is the destination operand used to store the return value count
+     * the first source operand is none
      * the second source operand is the argument count
      * the third source operand is none
      * */
@@ -166,8 +167,6 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     s32 argumentValueCount = srcOperand1->As<s32>();
     if( argumentValueCount < 0 )
         ThrowError( context._state , "function call with negative argument count:%d", argumentValueCount );
-    if( destOperand == nullptr )
-        ThrowError( context._state ,  " the return value count var is not specified" );
 
     s32 functionIdx =  - argumentValueCount - 1 ;
     Value *function = state->GetStack().IndexToValue( functionIdx );
@@ -176,7 +175,6 @@ void VirtualMachine::InstructionExecute_OpcodeCall( InstructionExecuteContext &c
     if( function->IsFunction() )
     {
         Call( state, argumentValueCount );
-        destOperand->Set( context._state->GetLastFunctionCallReturnValueCount() );
         return;
     }
     // the `function` is not a function
@@ -437,6 +435,21 @@ void VirtualMachine::InstructionExecute_OpcodeGetVariableArgument( InstructionEx
     destOperand->SetAsInt( variableArgumentNum );
     srcOperand1->SetAsInt( variableArgumentStartIndex );
     srcOperand2->SetAsInt( variableArgumentEndIndex );
+}
+
+
+void VirtualMachine::InstructionExecute_OpcodeGetReturnValueCount( InstructionExecuteContext &context )
+{
+    BEGIN_INSTRUCTION_EXECUTE;
+    /*
+     * the first source operand is used to store return value count
+     * the second source operand is none
+     * the third source operand is none
+     * */
+    if( destOperand == nullptr )
+        ThrowError( context._state , "invalid get return value opcode , the first operand is null" );
+
+    destOperand->Set( context._state->GetLastFunctionCallReturnValueCount() );
 }
 
 
