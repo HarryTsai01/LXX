@@ -102,7 +102,7 @@ void CompileContext::GetVariableOperandInfo( String *variableName ,  OperandType
 {
     if( IsParameterVariable( variableName , &operandIndex ) )
     {
-        operandType = OperandType::Stack;
+        operandType = OperandType::Parameter;
     }
     else if( IsLocalVariable( variableName , &operandIndex ) )
     {
@@ -134,7 +134,7 @@ bool CompileContext::IsLocalVariable( String *name , u32 *outIdx )
 bool CompileContext::IsParameterVariable( String *name , u32 *outIdx )
 {
     ByteCodeChunk *chunk = _luaClosure->GetChunk();
-    return chunk->IsParameterVariable( name );
+    return chunk->IsParameterVariable( name , outIdx );
 }
 
 void CompileContext::AddBreakLocation( u32 location )

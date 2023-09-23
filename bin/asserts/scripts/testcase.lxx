@@ -2,8 +2,12 @@
 function foo1()
     return 1
 end
-
 assert( foo1() == 1 )
+local function add ( a , b )
+    return a + b
+end
+
+assert( add( 1 , 2 ) == 3 )
 
 g = 100
 local a = '12'

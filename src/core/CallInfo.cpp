@@ -24,6 +24,7 @@ CallInfo::CallInfo( CallInfo *previous
     , _state( state )
     , _luaClosure( luaClosure )
     , _functionIdx( functionIdx )
+    , _parameterVariableStartIndex( _functionIdx + 1 )
     , _actualArgumentVariableNum( actualArgumentVariableNum )
     , _localVariableNum( localVariableNum )
     , _temporaryVariableNum( temporaryVariableNum )
@@ -58,6 +59,12 @@ u32 CallInfo::LocalVariableIndexToStackIndex( u32 localVariableIndex )
 u32 CallInfo::TemporaryVariableIndexToStackIndex( u32 temporaryVariableIndex )
 {
     return _temporaryVariableStartIndex + temporaryVariableIndex;
+}
+
+
+u32 CallInfo::ParameterVariableIndexToStackIndex( u32 parameterVariableIndex )
+{
+    return _parameterVariableStartIndex + parameterVariableIndex;
 }
 
 

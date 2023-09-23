@@ -56,8 +56,29 @@ void State::BeginFunctionCall( u32 functionIdx , u32 argumentVariableNum , u32 l
 
 void State::EndFunctionCall()
 {
+    // process return Value
+    // the return value would push into stack,
+    // so we need to copy the return value from top to base(the function index start location)
+    s32 curSrcValueIdx =  -_lastFunctionCallReturnValueCount;
+    // the destination start location is the function index
+    s32 curDestValueIdx = _currentCI->GetFunctionIdx();
+    u32 processedReturnValueNum = 0;
+    while( processedReturnValueNum < _lastFunctionCallReturnValueCount )
+    {
+        Value * curSrcValue =  _stack.IndexToValue( curSrcValueIdx );
+        Value * curDestValue = _stack.IndexToValue( curDestValueIdx );
+
+        *curDestValue = *curSrcValue;
+
+        ++curDestValueIdx;
+        ++curSrcValueIdx;
+        ++ processedReturnValueNum;
+    }
+
+    // release local and temporary variables
     StackFrame lastFrame ;
     _stack.RemoveFrame( lastFrame );
+
 
     u32 curStackTop = _stack.GetTop();
     if( lastFrame._oldTop +  _lastFunctionCallReturnValueCount != curStackTop )
@@ -79,24 +100,7 @@ void State::EndFunctionCall()
         _stack.SetTop( lastFrame._oldTop );
     }
 
-    // process return Value
-    s32 curSrcValueIdx =  -_lastFunctionCallReturnValueCount;
-    s32 curDestValueIdx = curSrcValueIdx - _currentCI->GetActualArgumentNum() - 1;
-    u32 processedReturnValueNum = 0;
-    while( processedReturnValueNum < _lastFunctionCallReturnValueCount )
-    {
-        Value * curSrcValue =  _stack.IndexToValue( curSrcValueIdx );
-        Value * curDestValue = _stack.IndexToValue( curDestValueIdx );
-
-        *curDestValue = *curSrcValue;
-
-        ++curDestValueIdx;
-        ++curSrcValueIdx;
-        ++ processedReturnValueNum;
-    }
-
     _stack.Pop( _currentCI->GetActualArgumentNum() + 1 );
-
     _currentCI =  _currentCI->GetPrevious();
 
 }

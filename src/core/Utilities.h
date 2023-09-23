@@ -8,6 +8,12 @@
 namespace LXX
 {
 
+template<typename T>
+T Abs( T a )
+{
+    return a >= 0 ? a : -a;
+}
+
 
 template<typename T>
 T Max(T a, T b)

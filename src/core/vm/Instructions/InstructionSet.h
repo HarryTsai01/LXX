@@ -33,6 +33,7 @@ enum class OperandType
     None = -1 ,
     LocalVariable ,
     TempVariable ,
+    Parameter ,
     Stack ,
     Constant,
     UpValue,
@@ -116,6 +117,8 @@ constexpr const u32 OperandTypeBitCount = 3;
 constexpr const u32 OperandTypeBitMask = (1 << OperandTypeBitCount) - 1;
 constexpr const u32 OperandIndexBitCount = 15;
 constexpr const u32 OperandIndexBitMask = (1 << OperandIndexBitCount) - 1;
+constexpr const u32 OperandSignedIndexBitCount = OperandIndexBitCount - 1;
+constexpr const u32 OperandSignedIndexBitMask = (1 << OperandSignedIndexBitCount) - 1;
 constexpr const u32 OperandBitCount = OperandTypeBitCount + OperandIndexBitCount;
 constexpr const u32 OperandBitMask = (1 << OperandBitCount) - 1;
 

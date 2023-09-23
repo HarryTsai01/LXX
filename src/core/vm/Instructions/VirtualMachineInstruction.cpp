@@ -42,6 +42,11 @@ void VirtualMachine::Decode( u64 code , InstructionExecuteContext &context )
             u32 stackIndex = callInfo->TemporaryVariableIndexToStackIndex( operand._index );
             return stack.IndexToValue( stackIndex );
         }
+        else if( operand._type == OperandType::Parameter )
+        {
+            u32 stackIndex = callInfo->ParameterVariableIndexToStackIndex( operand._index );
+            return stack.IndexToValue( stackIndex );
+        }
         else if( operand._type == OperandType::Stack )
         {
             return stack.IndexToValue( Decoder::GetOperandIndex( operand._index ) );
@@ -201,8 +206,8 @@ void VirtualMachine::InstructionExecute_OpcodeReturn( InstructionExecuteContext 
     if( returnValueCount < 0 )
         ThrowError( context._state , " invalid return opcode with negative return value count:%d", returnValueCount );
 
-    state->SetLastFunctionCallReturnValueCount(returnValueCount );
     state->GetCurrentCallInfo()->SetActualReturnValueNum(returnValueCount );
+    state->GetCurrentCallInfo()->MarkAsReturn();
 }
 
 

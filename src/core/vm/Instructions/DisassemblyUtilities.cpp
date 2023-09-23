@@ -64,6 +64,7 @@ static UnorderedMap< OperandType , const char* > _opcodeTypeMaps =
         { OperandType::None , "None" },
         { OperandType::LocalVariable , "LocalVariable" },
         { OperandType::TempVariable , "TempVariable" },
+        { OperandType::Parameter , "Parameter" },
         { OperandType::Stack , "Stack" },
         { OperandType::Constant , "Constant" },
         { OperandType::UpValue , "UpValue" },
@@ -81,6 +82,7 @@ void PrintInstruction( State * state
         , OperandType operandType3 , u32 operandIndex3
 )
 {
+    u32 programCounter = state->GetCurrentCallInfo()->GetCurrentProgramCounter();
     struct OperandInfo
     {
         char Name[16] = {0};
@@ -127,7 +129,8 @@ void PrintInstruction( State * state
         }
         else if( type == OperandType::Stack
             || type == OperandType::TempVariable
-            || type == OperandType::LocalVariable )
+            || type == OperandType::LocalVariable
+            || type == OperandType::Parameter )
         {
             std::sprintf(
                     operandInfo.Value
@@ -155,7 +158,8 @@ void PrintInstruction( State * state
 #if GENERATE_DEBUGGER_SYMBOL
     String* sourceCodeLine = Debugger::DebuggerUtil::GetSourceCodeLine( state );
     LOG::LogDebug( LOG::LogCategory::LXX ,
-              "%s(%s=%s,%s=%s,%s=%s) ; %s"
+              "[%d]%s(%s=%s,%s=%s,%s=%s) ; %s"
+              , programCounter
               , _opcodeMaps[opcode]
               , operandInfos[0].Name , operandInfos[0].Value
             , operandInfos[1].Name , operandInfos[1].Value
@@ -164,7 +168,8 @@ void PrintInstruction( State * state
     );
 #else
     LOG::LogDebug( LOG::LogCategory::LXX ,
-              "%s(%s=%s,%s=%s,%s=%s)"
+              "[%d]%s(%s=%s,%s=%s,%s=%s)"
+              , programCounter
               , _opcodeMaps[opcode]
               , operandInfos[0].Name , operandInfos[0].Value
             , operandInfos[1].Name , operandInfos[1].Value

@@ -34,7 +34,7 @@ s32 GetOperandIndex( u64 operand )
 {
     u32 signBit = operand & ( 1 << ( OperandIndexBitCount - 1 ) );
 
-    s32 sValue = static_cast< s32 >( operand & ~( 1 << ( OperandIndexBitCount - 1 ) ) );
+    u64 sValue = operand & OperandSignedIndexBitMask;
     return signBit ? - sValue : sValue;
 }
 

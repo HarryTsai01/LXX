@@ -40,6 +40,7 @@ public:
     void GetCurrentStackFrame( StackFrame * outFrame );
     u32 LocalVariableIndexToStackIndex( u32 localVariableIndex );
     u32 TemporaryVariableIndexToStackIndex( u32 temporaryVariableIndex );
+    u32 ParameterVariableIndexToStackIndex( u32 parameterVariableIndex );
 
 
     u32 GetLastFunctionCallReturnValueNum() const { return _lastFunctionCallReturnValueCount; }
@@ -50,8 +51,11 @@ public:
     LuaClosure *GetLuaClosure() const { return _luaClosure; }
     bool FetchNextInstruction(u64 &outInstruction );
     bool JumpOffset( s32 offset );
+    u32 GetFunctionIdx() const { return _functionIdx ; }
 
     u32 GetVariableArgument( u32 &startIdx , u32 &endIdx );
+
+    void MarkAsReturn() { _bMarkAsReturn = true ; }
 private:
     CallInfo *_previous;
     CallInfo *_next;
@@ -64,6 +68,7 @@ private:
     u32 _actualReturnValueNum;
     u32 _localVariableStartIndex;
     u32 _temporaryVariableStartIndex;
+    u32 _parameterVariableStartIndex;
     s32 _programCounter;
     s32 _currentProgramCounter;
     u32 _lastFunctionCallReturnValueCount;

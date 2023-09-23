@@ -4,6 +4,7 @@
 
 #include "InstructionEncoder.h"
 #include <core/compiler/Compiler.h>
+#include <core/Utilities.h>
 
 namespace LXX
 {
@@ -296,14 +297,19 @@ void Helper::ProcessBreakAndContinueStatementInLoopStatement( u32 loopBeginLocat
 
 u64 MakeOperandIndex( s32 value )
 {
-    return value > 0 ? value : - value | 1 <<  OperandIndexBitCount - 1  ;
+    u64 operandIndex = Abs( value ) & OperandSignedIndexBitMask;
+    u32 operandIndexSign = value < 0 ? 1 << OperandSignedIndexBitCount : 0;
+    u64 res = operandIndexSign | operandIndex;
+    return operandIndexSign | operandIndex;
 }
 
 
 template<>
 u64 MakeOperand( OperandType type, u64 value )
 {
-   return  ( OperandTypeBitMask & u64( type ) ) << OperandIndexBitCount |  ( value & OperandIndexBitMask );
+    u64 operandType = ( OperandBitMask & u64( type ) ) << OperandIndexBitCount;
+    u64 operandIndex = value & OperandIndexBitMask;
+   return  operandType | operandIndex;
 }
 
 u64 MakeInstruction(Opcode opcode, u64 destOperand , u64 srcOperand1 , u64 srcOperand2 )
